@@ -37,29 +37,32 @@ const DEPENDENCIES: Dependency[] = [
     { value: "modulith", label: "Spring Modulith" },
 ]
 
-export function MultiSelect() {
+interface MultiSelectProps {
+    selected: string[]
+    onChange: (selected: string[]) => void
+}
+
+
+export function MultiSelect({ selected, onChange }: MultiSelectProps) {
     const [open, setOpen] = React.useState(false)
-    const [selected, setSelected] = React.useState<string[]>([])
 
     const toggleValue = (value: string) => {
-        setSelected((prev) =>
-            prev.includes(value)
-                ? prev.filter((v) => v !== value)
-                : [...prev, value]
-        )
+        const newSelected = selected.includes(value)
+            ? selected.filter((v) => v !== value)
+            : [...selected, value]
+        onChange(newSelected)  // Call parent's onChange instead of setSelected
     }
 
     const selectAll = () => {
-        setSelected(
-            selected.length === DEPENDENCIES.length
-                ? []
-                : DEPENDENCIES.map((d) => d.value)
-        )
+        const newSelected = selected.length === DEPENDENCIES.length
+            ? []
+            : DEPENDENCIES.map((d) => d.value)
+        onChange(newSelected)  // Call parent's onChange instead of setSelected
     }
 
-    /** 🔑 Single source of truth */
     const removeValue = (value: string) => {
-        setSelected((prev) => prev.filter((v) => v !== value))
+        const newSelected = selected.filter((v) => v !== value)
+        onChange(newSelected)  // Call parent's onChange instead of setSelected
     }
 
     return (
