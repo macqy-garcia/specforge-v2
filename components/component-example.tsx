@@ -1192,7 +1192,6 @@ function Summary() {
       "projectName": "Core Party Data",
       "description": "Core Party Data",
       "repoName": "coreparty-data",
-      "visibility": "private",
       "defaultBranch": "master"
     },
     "techOptions": {
@@ -1212,7 +1211,6 @@ function Summary() {
       "mock": {
         "engine": "prism",
         "mode": "dynamic",
-        "seed": null
       },
       "cicd": {
         "starterKit": true,
@@ -1366,7 +1364,6 @@ function ProjectOrchestrated() {
       "projectName": "Core Party Data",
       "description": "Core Party Data",
       "repoName": "coreparty-data",
-      "visibility": "private",
       "defaultBranch": "master"
     },
     "techOptions": {
@@ -1386,7 +1383,6 @@ function ProjectOrchestrated() {
       "mock": {
         "engine": "prism",
         "mode": "dynamic",
-        "seed": null
       },
       "cicd": {
         "starterKit": true,
