@@ -68,18 +68,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
+import { Switch } from "@/components/ui/switch"
+
 import { FileNode, FileTreeComponent } from "./file-tree"
 
 export function ComponentExample() {
   return (
     <ExampleWrapper>
-      <CardExample />
+      <UploadSpec />
       <ProjectInfo />
       <ProjectConfiguration />
-      <ProjectMetadata />
-      <Dependencies />
-      <FileTree />
-      <BuildSetup />
     </ExampleWrapper>
   )
 }
@@ -144,48 +142,9 @@ export function ImportApiCard() {
   )
 }
 
-function CardExample() {
+function UploadSpec() {
   return (
     <Example title="Upload Spec" className="items-center justify-center">
-      {/* <Card className="relative w-full max-w-sm overflow-hidden pt-0">
-        <div className="bg-primary absolute inset-0 z-30 aspect-video opacity-50 mix-blend-color" />
-        <CardHeader>
-          <CardTitle>Import API Specification</CardTitle>
-          <CardDescription>
-            Upload your OpenAPI/Swagger definition to auto-configure your project.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button>
-                <PlusIcon data-icon="inline-start" />
-                Show Dialog
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent size="sm">
-              <AlertDialogHeader>
-                <AlertDialogMedia>
-                  <BluetoothIcon
-                  />
-                </AlertDialogMedia>
-                <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Do you want to allow the USB accessory to connect to this
-                  device?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Don&apos;t allow</AlertDialogCancel>
-                <AlertDialogAction>Allow</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Badge variant="secondary" className="ml-auto">
-            Warning
-          </Badge>
-        </CardFooter>
-      </Card> */}
       <ImportApiCard />
     </Example>
   )
@@ -200,7 +159,7 @@ function ProjectInfo() {
   const [theme, setTheme] = React.useState("light")
 
   return (
-    <Example title="Project Info">
+    <Example title="Project Info" className="items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Project Information</CardTitle>
@@ -566,8 +525,404 @@ function ProjectConfiguration() {
   })
   const [theme, setTheme] = React.useState("light")
 
+  interface Architecture {
+    id: string;
+    name: string;
+    description: string;
+    structure: FileNode[];
+  }
+
+  const architectures: Architecture[] = [
+    {
+      id: "Hexagonal Architecture",
+      name: "Hex (3-module)",
+      description: "Traditional Spring Boot layered architecture with clear separation of concerns.",
+      structure: [
+        {
+          name: "src",
+          type: "folder",
+          children: [
+            {
+              name: "main",
+              type: "folder",
+              children: [
+                {
+                  name: "java",
+                  type: "folder",
+                  children: [
+                    {
+                      name: "com.example.demo",
+                      type: "folder",
+                      children: [
+                        { name: "DemoApplication.java", type: "file" },
+                        {
+                          name: "controller",
+                          type: "folder",
+                          children: [
+                            { name: "UserController.java", type: "file" },
+                            { name: "ProductController.java", type: "file" },
+                          ],
+                        },
+                        {
+                          name: "service",
+                          type: "folder",
+                          children: [
+                            { name: "UserService.java", type: "file" },
+                            { name: "ProductService.java", type: "file" },
+                          ],
+                        },
+                        {
+                          name: "repository",
+                          type: "folder",
+                          children: [
+                            { name: "UserRepository.java", type: "file" },
+                            { name: "ProductRepository.java", type: "file" },
+                          ],
+                        },
+                        {
+                          name: "model",
+                          type: "folder",
+                          children: [
+                            { name: "User.java", type: "file" },
+                            { name: "Product.java", type: "file" },
+                          ],
+                        },
+                        {
+                          name: "dto",
+                          type: "folder",
+                          children: [
+                            { name: "UserDTO.java", type: "file" },
+                            { name: "ProductDTO.java", type: "file" },
+                          ],
+                        },
+                        {
+                          name: "config",
+                          type: "folder",
+                          children: [
+                            { name: "SecurityConfig.java", type: "file" },
+                            { name: "DatabaseConfig.java", type: "file" },
+                          ],
+                        },
+                        {
+                          name: "exception",
+                          type: "folder",
+                          children: [
+                            { name: "GlobalExceptionHandler.java", type: "file" },
+                            { name: "ResourceNotFoundException.java", type: "file" },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "resources",
+                  type: "folder",
+                  children: [
+                    { name: "application.yml", type: "file" },
+                    { name: "application-dev.yml", type: "file" },
+                    { name: "application-prod.yml", type: "file" },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "test",
+              type: "folder",
+              children: [
+                {
+                  name: "java",
+                  type: "folder",
+                  children: [
+                    {
+                      name: "com.example.demo",
+                      type: "folder",
+                      children: [
+                        { name: "DemoApplicationTests.java", type: "file" },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "Hex + Persistence (4-module)",
+      name: "Hexagonal (Ports & Adapters)",
+      description: "Domain-driven design with clear boundaries between business logic and infrastructure.",
+      structure: [
+        {
+          name: "src",
+          type: "folder",
+          children: [
+            {
+              name: "main",
+              type: "folder",
+              children: [
+                {
+                  name: "java",
+                  type: "folder",
+                  children: [
+                    {
+                      name: "com.example.demo",
+                      type: "folder",
+                      children: [
+                        { name: "DemoApplication.java", type: "file" },
+                        {
+                          name: "domain",
+                          type: "folder",
+                          children: [
+                            {
+                              name: "model",
+                              type: "folder",
+                              children: [
+                                { name: "User.java", type: "file" },
+                                { name: "Product.java", type: "file" },
+                              ],
+                            },
+                            {
+                              name: "port",
+                              type: "folder",
+                              children: [
+                                {
+                                  name: "in",
+                                  type: "folder",
+                                  children: [
+                                    { name: "CreateUserUseCase.java", type: "file" },
+                                    { name: "GetProductUseCase.java", type: "file" },
+                                  ],
+                                },
+                                {
+                                  name: "out",
+                                  type: "folder",
+                                  children: [
+                                    { name: "UserRepositoryPort.java", type: "file" },
+                                    { name: "ProductRepositoryPort.java", type: "file" },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              name: "service",
+                              type: "folder",
+                              children: [
+                                { name: "UserService.java", type: "file" },
+                                { name: "ProductService.java", type: "file" },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          name: "application",
+                          type: "folder",
+                          children: [
+                            {
+                              name: "adapter",
+                              type: "folder",
+                              children: [
+                                {
+                                  name: "in",
+                                  type: "folder",
+                                  children: [
+                                    {
+                                      name: "rest",
+                                      type: "folder",
+                                      children: [
+                                        { name: "UserController.java", type: "file" },
+                                        { name: "ProductController.java", type: "file" },
+                                      ],
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "out",
+                                  type: "folder",
+                                  children: [
+                                    {
+                                      name: "persistence",
+                                      type: "folder",
+                                      children: [
+                                        { name: "UserJpaAdapter.java", type: "file" },
+                                        { name: "ProductJpaAdapter.java", type: "file" },
+                                        { name: "UserEntity.java", type: "file" },
+                                        { name: "ProductEntity.java", type: "file" },
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              name: "config",
+                              type: "folder",
+                              children: [
+                                { name: "BeanConfig.java", type: "file" },
+                                { name: "SecurityConfig.java", type: "file" },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "resources",
+                  type: "folder",
+                  children: [
+                    { name: "application.yml", type: "file" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "layered",
+      name: "Layered (DDD)",
+      description: "Domain-driven design with explicit layers: presentation, application, domain, and infrastructure.",
+      structure: [
+        {
+          name: "src",
+          type: "folder",
+          children: [
+            {
+              name: "main",
+              type: "folder",
+              children: [
+                {
+                  name: "java",
+                  type: "folder",
+                  children: [
+                    {
+                      name: "com.example.demo",
+                      type: "folder",
+                      children: [
+                        { name: "DemoApplication.java", type: "file" },
+                        {
+                          name: "presentation",
+                          type: "folder",
+                          children: [
+                            {
+                              name: "controller",
+                              type: "folder",
+                              children: [
+                                { name: "UserController.java", type: "file" },
+                                { name: "ProductController.java", type: "file" },
+                              ],
+                            },
+                            {
+                              name: "dto",
+                              type: "folder",
+                              children: [
+                                { name: "UserDTO.java", type: "file" },
+                                { name: "ProductDTO.java", type: "file" },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          name: "application",
+                          type: "folder",
+                          children: [
+                            {
+                              name: "service",
+                              type: "folder",
+                              children: [
+                                { name: "UserApplicationService.java", type: "file" },
+                                { name: "ProductApplicationService.java", type: "file" },
+                              ],
+                            },
+                            {
+                              name: "mapper",
+                              type: "folder",
+                              children: [
+                                { name: "UserMapper.java", type: "file" },
+                                { name: "ProductMapper.java", type: "file" },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          name: "domain",
+                          type: "folder",
+                          children: [
+                            {
+                              name: "model",
+                              type: "folder",
+                              children: [
+                                { name: "User.java", type: "file" },
+                                { name: "Product.java", type: "file" },
+                              ],
+                            },
+                            {
+                              name: "repository",
+                              type: "folder",
+                              children: [
+                                { name: "UserRepository.java", type: "file" },
+                                { name: "ProductRepository.java", type: "file" },
+                              ],
+                            },
+                            {
+                              name: "service",
+                              type: "folder",
+                              children: [
+                                { name: "UserDomainService.java", type: "file" },
+                                { name: "ProductDomainService.java", type: "file" },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          name: "infrastructure",
+                          type: "folder",
+                          children: [
+                            {
+                              name: "persistence",
+                              type: "folder",
+                              children: [
+                                { name: "UserJpaRepository.java", type: "file" },
+                                { name: "ProductJpaRepository.java", type: "file" },
+                                { name: "UserEntity.java", type: "file" },
+                                { name: "ProductEntity.java", type: "file" },
+                              ],
+                            },
+                            {
+                              name: "config",
+                              type: "folder",
+                              children: [
+                                { name: "DatabaseConfig.java", type: "file" },
+                                { name: "SecurityConfig.java", type: "file" },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "resources",
+                  type: "folder",
+                  children: [
+                    { name: "application.yml", type: "file" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
   return (
-    <Example title="Tech Stack">
+    <Example className="grid grid-cols-2" title="Tech Stack">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Project Configuration</CardTitle>
@@ -928,30 +1283,10 @@ function ProjectConfiguration() {
                   </RadioGroup>
                 </Field>
               </div>
-              <Field orientation="responsive">
-                <Button type="submit">Next</Button>
-                {/* <Button variant="outline" type="button">
-                  Cancel
-                </Button> */}
-              </Field>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
-    </Example>
-  )
-}
-
-function ProjectMetadata() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
-  })
-  const [theme, setTheme] = React.useState("light")
-
-  return (
-    <Example title="Project Metadata">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Project Metadata</CardTitle>
@@ -1265,30 +1600,10 @@ function ProjectMetadata() {
                   />
                 </Field>
               </div>
-              <Field orientation="responsive">
-                <Button type="submit">Next</Button>
-                {/* <Button variant="outline" type="button">
-                  Cancel
-                </Button> */}
-              </Field>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
-    </Example>
-  )
-}
-
-function Dependencies() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
-  })
-  const [theme, setTheme] = React.useState("light")
-
-  return (
-    <Example title="Project Dependencies">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Dependencies</CardTitle>
@@ -1567,539 +1882,11 @@ function Dependencies() {
           <form>
             <FieldGroup>
               <MultiSelect />
-              <Field orientation="responsive">
-                <Button variant="default" type="submit">Next</Button>
-                {/* <Button variant="outline" type="button">
-                  Cancel
-                </Button> */}
-              </Field>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
-    </Example>
-  )
-}
-
-function FileTree() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
-  })
-  const [theme, setTheme] = React.useState("light")
-
-  interface Architecture {
-    id: string;
-    name: string;
-    description: string;
-    structure: FileNode[];
-  }
-
-  const architectures: Architecture[] = [
-    {
-      id: "standard",
-      name: "Standard",
-      description: "Traditional Spring Boot layered architecture with clear separation of concerns.",
-      structure: [
-        {
-          name: "src",
-          type: "folder",
-          children: [
-            {
-              name: "main",
-              type: "folder",
-              children: [
-                {
-                  name: "java",
-                  type: "folder",
-                  children: [
-                    {
-                      name: "com.example.demo",
-                      type: "folder",
-                      children: [
-                        { name: "DemoApplication.java", type: "file" },
-                        {
-                          name: "controller",
-                          type: "folder",
-                          children: [
-                            { name: "UserController.java", type: "file" },
-                            { name: "ProductController.java", type: "file" },
-                          ],
-                        },
-                        {
-                          name: "service",
-                          type: "folder",
-                          children: [
-                            { name: "UserService.java", type: "file" },
-                            { name: "ProductService.java", type: "file" },
-                          ],
-                        },
-                        {
-                          name: "repository",
-                          type: "folder",
-                          children: [
-                            { name: "UserRepository.java", type: "file" },
-                            { name: "ProductRepository.java", type: "file" },
-                          ],
-                        },
-                        {
-                          name: "model",
-                          type: "folder",
-                          children: [
-                            { name: "User.java", type: "file" },
-                            { name: "Product.java", type: "file" },
-                          ],
-                        },
-                        {
-                          name: "dto",
-                          type: "folder",
-                          children: [
-                            { name: "UserDTO.java", type: "file" },
-                            { name: "ProductDTO.java", type: "file" },
-                          ],
-                        },
-                        {
-                          name: "config",
-                          type: "folder",
-                          children: [
-                            { name: "SecurityConfig.java", type: "file" },
-                            { name: "DatabaseConfig.java", type: "file" },
-                          ],
-                        },
-                        {
-                          name: "exception",
-                          type: "folder",
-                          children: [
-                            { name: "GlobalExceptionHandler.java", type: "file" },
-                            { name: "ResourceNotFoundException.java", type: "file" },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  name: "resources",
-                  type: "folder",
-                  children: [
-                    { name: "application.yml", type: "file" },
-                    { name: "application-dev.yml", type: "file" },
-                    { name: "application-prod.yml", type: "file" },
-                  ],
-                },
-              ],
-            },
-            {
-              name: "test",
-              type: "folder",
-              children: [
-                {
-                  name: "java",
-                  type: "folder",
-                  children: [
-                    {
-                      name: "com.example.demo",
-                      type: "folder",
-                      children: [
-                        { name: "DemoApplicationTests.java", type: "file" },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "hexagonal",
-      name: "Hexagonal (Ports & Adapters)",
-      description: "Domain-driven design with clear boundaries between business logic and infrastructure.",
-      structure: [
-        {
-          name: "src",
-          type: "folder",
-          children: [
-            {
-              name: "main",
-              type: "folder",
-              children: [
-                {
-                  name: "java",
-                  type: "folder",
-                  children: [
-                    {
-                      name: "com.example.demo",
-                      type: "folder",
-                      children: [
-                        { name: "DemoApplication.java", type: "file" },
-                        {
-                          name: "domain",
-                          type: "folder",
-                          children: [
-                            {
-                              name: "model",
-                              type: "folder",
-                              children: [
-                                { name: "User.java", type: "file" },
-                                { name: "Product.java", type: "file" },
-                              ],
-                            },
-                            {
-                              name: "port",
-                              type: "folder",
-                              children: [
-                                {
-                                  name: "in",
-                                  type: "folder",
-                                  children: [
-                                    { name: "CreateUserUseCase.java", type: "file" },
-                                    { name: "GetProductUseCase.java", type: "file" },
-                                  ],
-                                },
-                                {
-                                  name: "out",
-                                  type: "folder",
-                                  children: [
-                                    { name: "UserRepositoryPort.java", type: "file" },
-                                    { name: "ProductRepositoryPort.java", type: "file" },
-                                  ],
-                                },
-                              ],
-                            },
-                            {
-                              name: "service",
-                              type: "folder",
-                              children: [
-                                { name: "UserService.java", type: "file" },
-                                { name: "ProductService.java", type: "file" },
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          name: "application",
-                          type: "folder",
-                          children: [
-                            {
-                              name: "adapter",
-                              type: "folder",
-                              children: [
-                                {
-                                  name: "in",
-                                  type: "folder",
-                                  children: [
-                                    {
-                                      name: "rest",
-                                      type: "folder",
-                                      children: [
-                                        { name: "UserController.java", type: "file" },
-                                        { name: "ProductController.java", type: "file" },
-                                      ],
-                                    },
-                                  ],
-                                },
-                                {
-                                  name: "out",
-                                  type: "folder",
-                                  children: [
-                                    {
-                                      name: "persistence",
-                                      type: "folder",
-                                      children: [
-                                        { name: "UserJpaAdapter.java", type: "file" },
-                                        { name: "ProductJpaAdapter.java", type: "file" },
-                                        { name: "UserEntity.java", type: "file" },
-                                        { name: "ProductEntity.java", type: "file" },
-                                      ],
-                                    },
-                                  ],
-                                },
-                              ],
-                            },
-                            {
-                              name: "config",
-                              type: "folder",
-                              children: [
-                                { name: "BeanConfig.java", type: "file" },
-                                { name: "SecurityConfig.java", type: "file" },
-                              ],
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  name: "resources",
-                  type: "folder",
-                  children: [
-                    { name: "application.yml", type: "file" },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "layered",
-      name: "Layered (DDD)",
-      description: "Domain-driven design with explicit layers: presentation, application, domain, and infrastructure.",
-      structure: [
-        {
-          name: "src",
-          type: "folder",
-          children: [
-            {
-              name: "main",
-              type: "folder",
-              children: [
-                {
-                  name: "java",
-                  type: "folder",
-                  children: [
-                    {
-                      name: "com.example.demo",
-                      type: "folder",
-                      children: [
-                        { name: "DemoApplication.java", type: "file" },
-                        {
-                          name: "presentation",
-                          type: "folder",
-                          children: [
-                            {
-                              name: "controller",
-                              type: "folder",
-                              children: [
-                                { name: "UserController.java", type: "file" },
-                                { name: "ProductController.java", type: "file" },
-                              ],
-                            },
-                            {
-                              name: "dto",
-                              type: "folder",
-                              children: [
-                                { name: "UserDTO.java", type: "file" },
-                                { name: "ProductDTO.java", type: "file" },
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          name: "application",
-                          type: "folder",
-                          children: [
-                            {
-                              name: "service",
-                              type: "folder",
-                              children: [
-                                { name: "UserApplicationService.java", type: "file" },
-                                { name: "ProductApplicationService.java", type: "file" },
-                              ],
-                            },
-                            {
-                              name: "mapper",
-                              type: "folder",
-                              children: [
-                                { name: "UserMapper.java", type: "file" },
-                                { name: "ProductMapper.java", type: "file" },
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          name: "domain",
-                          type: "folder",
-                          children: [
-                            {
-                              name: "model",
-                              type: "folder",
-                              children: [
-                                { name: "User.java", type: "file" },
-                                { name: "Product.java", type: "file" },
-                              ],
-                            },
-                            {
-                              name: "repository",
-                              type: "folder",
-                              children: [
-                                { name: "UserRepository.java", type: "file" },
-                                { name: "ProductRepository.java", type: "file" },
-                              ],
-                            },
-                            {
-                              name: "service",
-                              type: "folder",
-                              children: [
-                                { name: "UserDomainService.java", type: "file" },
-                                { name: "ProductDomainService.java", type: "file" },
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          name: "infrastructure",
-                          type: "folder",
-                          children: [
-                            {
-                              name: "persistence",
-                              type: "folder",
-                              children: [
-                                { name: "UserJpaRepository.java", type: "file" },
-                                { name: "ProductJpaRepository.java", type: "file" },
-                                { name: "UserEntity.java", type: "file" },
-                                { name: "ProductEntity.java", type: "file" },
-                              ],
-                            },
-                            {
-                              name: "config",
-                              type: "folder",
-                              children: [
-                                { name: "DatabaseConfig.java", type: "file" },
-                                { name: "SecurityConfig.java", type: "file" },
-                              ],
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  name: "resources",
-                  type: "folder",
-                  children: [
-                    { name: "application.yml", type: "file" },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ];
-
-  const FILE_TREE: FileNode[] = [
-    {
-      name: "src",
-      type: "folder",
-      children: [
-        {
-          name: "main",
-          type: "folder",
-          children: [
-            {
-              name: "java",
-              type: "folder",
-              children: [
-                {
-                  name: "com.example.demo",
-                  type: "folder",
-                  children: [
-                    { name: "DemoApplication.java", type: "file" },
-                    {
-                      name: "controller",
-                      type: "folder",
-                      children: [
-                        { name: "UserController.java", type: "file" },
-                        { name: "ProductController.java", type: "file" },
-                      ],
-                    },
-                    {
-                      name: "service",
-                      type: "folder",
-                      children: [
-                        { name: "UserService.java", type: "file" },
-                        { name: "ProductService.java", type: "file" },
-                      ],
-                    },
-                    {
-                      name: "repository",
-                      type: "folder",
-                      children: [
-                        { name: "UserRepository.java", type: "file" },
-                        { name: "ProductRepository.java", type: "file" },
-                      ],
-                    },
-                    {
-                      name: "model",
-                      type: "folder",
-                      children: [
-                        { name: "User.java", type: "file" },
-                        { name: "Product.java", type: "file" },
-                      ],
-                    },
-                    {
-                      name: "dto",
-                      type: "folder",
-                      children: [
-                        { name: "UserDTO.java", type: "file" },
-                        { name: "ProductDTO.java", type: "file" },
-                      ],
-                    },
-                    {
-                      name: "config",
-                      type: "folder",
-                      children: [
-                        { name: "SecurityConfig.java", type: "file" },
-                        { name: "DatabaseConfig.java", type: "file" },
-                      ],
-                    },
-                    {
-                      name: "exception",
-                      type: "folder",
-                      children: [
-                        { name: "GlobalExceptionHandler.java", type: "file" },
-                        { name: "ResourceNotFoundException.java", type: "file" },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              name: "resources",
-              type: "folder",
-              children: [
-                { name: "application.yml", type: "file" },
-                { name: "application-dev.yml", type: "file" },
-                { name: "application-prod.yml", type: "file" },
-              ],
-            },
-          ],
-        },
-        {
-          name: "test",
-          type: "folder",
-          children: [
-            {
-              name: "java",
-              type: "folder",
-              children: [
-                {
-                  name: "com.example.demo",
-                  type: "folder",
-                  children: [
-                    { name: "DemoApplicationTests.java", type: "file" },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ];
-
-  return (
-    <Example title="Project Architecture">
-      <Carousel className="w-full max-w-full ">
+      <Carousel className="w-full max-w-md">
         <CarouselContent>
           {architectures.map((architecture, index) => (
             <CarouselItem key={index}>
@@ -2122,20 +1909,6 @@ function FileTree() {
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
-    </Example>
-  )
-}
-
-function BuildSetup() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
-  })
-  const [theme, setTheme] = React.useState("light")
-
-  return (
-    <Example title="Build Setup">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Build Setup</CardTitle>
@@ -2694,6 +2467,593 @@ function BuildSetup() {
               </form>
             </TabsContent>
           </Tabs>
+        </CardContent>
+      </Card>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>MockServer</CardTitle>
+          <CardDescription>Select your type of mockserver</CardDescription>
+          <CardAction>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVerticalIcon
+                  />
+                  <span className="sr-only">More options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>File</DropdownMenuLabel>
+                  <DropdownMenuItem>
+                    <FileIcon
+                    />
+                    New File
+                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <FolderIcon
+                    />
+                    New Folder
+                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <FolderOpenIcon
+                      />
+                      Open Recent
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <FileCodeIcon
+                            />
+                            Project Alpha
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <FileCodeIcon
+                            />
+                            Project Beta
+                          </DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <MoreHorizontalIcon
+                              />
+                              More Projects
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuItem>
+                                  <FileCodeIcon
+                                  />
+                                  Project Gamma
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <FileCodeIcon
+                                  />
+                                  Project Delta
+                                </DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem>
+                            <FolderSearchIcon
+                            />
+                            Browse...
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <SaveIcon
+                    />
+                    Save
+                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <DownloadIcon
+                    />
+                    Export
+                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>View</DropdownMenuLabel>
+                  <DropdownMenuCheckboxItem
+                    checked={notifications.email}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        email: checked === true,
+                      })
+                    }
+                  >
+                    <EyeIcon
+                    />
+                    Show Sidebar
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={notifications.sms}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        sms: checked === true,
+                      })
+                    }
+                  >
+                    <LayoutIcon
+                    />
+                    Show Status Bar
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <PaletteIcon
+                      />
+                      Theme
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                          <DropdownMenuRadioGroup
+                            value={theme}
+                            onValueChange={setTheme}
+                          >
+                            <DropdownMenuRadioItem value="light">
+                              <SunIcon
+                              />
+                              Light
+                            </DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="dark">
+                              <MoonIcon
+                              />
+                              Dark
+                            </DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="system">
+                              <MonitorIcon
+                              />
+                              System
+                            </DropdownMenuRadioItem>
+                          </DropdownMenuRadioGroup>
+                        </DropdownMenuGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Account</DropdownMenuLabel>
+                  <DropdownMenuItem>
+                    <UserIcon
+                    />
+                    Profile
+                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <CreditCardIcon
+                    />
+                    Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <SettingsIcon
+                      />
+                      Settings
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <KeyboardIcon
+                            />
+                            Keyboard Shortcuts
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <LanguagesIcon
+                            />
+                            Language
+                          </DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <BellIcon
+                              />
+                              Notifications
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuGroup>
+                                  <DropdownMenuLabel>
+                                    Notification Types
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuCheckboxItem
+                                    checked={notifications.push}
+                                    onCheckedChange={(checked) =>
+                                      setNotifications({
+                                        ...notifications,
+                                        push: checked === true,
+                                      })
+                                    }
+                                  >
+                                    <BellIcon
+                                    />
+                                    Push Notifications
+                                  </DropdownMenuCheckboxItem>
+                                  <DropdownMenuCheckboxItem
+                                    checked={notifications.email}
+                                    onCheckedChange={(checked) =>
+                                      setNotifications({
+                                        ...notifications,
+                                        email: checked === true,
+                                      })
+                                    }
+                                  >
+                                    <MailIcon
+                                    />
+                                    Email Notifications
+                                  </DropdownMenuCheckboxItem>
+                                </DropdownMenuGroup>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem>
+                            <ShieldIcon
+                            />
+                            Privacy & Security
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <HelpCircleIcon
+                    />
+                    Help & Support
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <FileTextIcon
+                    />
+                    Documentation
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem variant="destructive">
+                    <LogOutIcon
+                    />
+                    Sign Out
+                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="small-form-name">Engine</FieldLabel>
+                <RadioGroup defaultValue="wiremock" className="w-fit">
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="wiremock" id="r1" />
+                    <Label htmlFor="r1">Wiremock</Label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="mockoon" id="r2" />
+                    <Label htmlFor="r2">Mockoon</Label>
+                  </div>
+                </RadioGroup>
+              </Field>
+              <Field orientation="responsive">
+                <Button type="submit">Next</Button>
+                {/* <Button variant="outline" type="button">
+                  Cancel
+                </Button> */}
+              </Field>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Enable OpenTelemetry</CardTitle>
+          <CardDescription>Jaeger tracing support</CardDescription>
+          <CardAction>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVerticalIcon
+                  />
+                  <span className="sr-only">More options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>File</DropdownMenuLabel>
+                  <DropdownMenuItem>
+                    <FileIcon
+                    />
+                    New File
+                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <FolderIcon
+                    />
+                    New Folder
+                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <FolderOpenIcon
+                      />
+                      Open Recent
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <FileCodeIcon
+                            />
+                            Project Alpha
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <FileCodeIcon
+                            />
+                            Project Beta
+                          </DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <MoreHorizontalIcon
+                              />
+                              More Projects
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuItem>
+                                  <FileCodeIcon
+                                  />
+                                  Project Gamma
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <FileCodeIcon
+                                  />
+                                  Project Delta
+                                </DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem>
+                            <FolderSearchIcon
+                            />
+                            Browse...
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <SaveIcon
+                    />
+                    Save
+                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <DownloadIcon
+                    />
+                    Export
+                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>View</DropdownMenuLabel>
+                  <DropdownMenuCheckboxItem
+                    checked={notifications.email}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        email: checked === true,
+                      })
+                    }
+                  >
+                    <EyeIcon
+                    />
+                    Show Sidebar
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={notifications.sms}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        sms: checked === true,
+                      })
+                    }
+                  >
+                    <LayoutIcon
+                    />
+                    Show Status Bar
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <PaletteIcon
+                      />
+                      Theme
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                          <DropdownMenuRadioGroup
+                            value={theme}
+                            onValueChange={setTheme}
+                          >
+                            <DropdownMenuRadioItem value="light">
+                              <SunIcon
+                              />
+                              Light
+                            </DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="dark">
+                              <MoonIcon
+                              />
+                              Dark
+                            </DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="system">
+                              <MonitorIcon
+                              />
+                              System
+                            </DropdownMenuRadioItem>
+                          </DropdownMenuRadioGroup>
+                        </DropdownMenuGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Account</DropdownMenuLabel>
+                  <DropdownMenuItem>
+                    <UserIcon
+                    />
+                    Profile
+                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <CreditCardIcon
+                    />
+                    Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <SettingsIcon
+                      />
+                      Settings
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
+                          <DropdownMenuItem>
+                            <KeyboardIcon
+                            />
+                            Keyboard Shortcuts
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <LanguagesIcon
+                            />
+                            Language
+                          </DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <BellIcon
+                              />
+                              Notifications
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuGroup>
+                                  <DropdownMenuLabel>
+                                    Notification Types
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuCheckboxItem
+                                    checked={notifications.push}
+                                    onCheckedChange={(checked) =>
+                                      setNotifications({
+                                        ...notifications,
+                                        push: checked === true,
+                                      })
+                                    }
+                                  >
+                                    <BellIcon
+                                    />
+                                    Push Notifications
+                                  </DropdownMenuCheckboxItem>
+                                  <DropdownMenuCheckboxItem
+                                    checked={notifications.email}
+                                    onCheckedChange={(checked) =>
+                                      setNotifications({
+                                        ...notifications,
+                                        email: checked === true,
+                                      })
+                                    }
+                                  >
+                                    <MailIcon
+                                    />
+                                    Email Notifications
+                                  </DropdownMenuCheckboxItem>
+                                </DropdownMenuGroup>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem>
+                            <ShieldIcon
+                            />
+                            Privacy & Security
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <HelpCircleIcon
+                    />
+                    Help & Support
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <FileTextIcon
+                    />
+                    Documentation
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem variant="destructive">
+                    <LogOutIcon
+                    />
+                    Sign Out
+                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <FieldGroup>
+              <Field>
+                <div className="flex items-center space-x-2">
+                  <Switch id="airplane-mode" />
+                  <Label htmlFor="airplane-mode">Enable</Label>
+                </div>
+              </Field>
+            </FieldGroup>
+          </form>
         </CardContent>
       </Card>
     </Example>
