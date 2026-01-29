@@ -54,12 +54,20 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { PlusIcon, BluetoothIcon, MoreVerticalIcon, FileIcon, FolderIcon, FolderOpenIcon, FileCodeIcon, MoreHorizontalIcon, FolderSearchIcon, SaveIcon, DownloadIcon, EyeIcon, LayoutIcon, PaletteIcon, SunIcon, MoonIcon, MonitorIcon, UserIcon, CreditCardIcon, SettingsIcon, KeyboardIcon, LanguagesIcon, BellIcon, MailIcon, ShieldIcon, HelpCircleIcon, FileTextIcon, LogOutIcon } from "lucide-react"
+import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, MoreVerticalIcon, FileIcon, FolderIcon, FolderOpenIcon, FileCodeIcon, MoreHorizontalIcon, FolderSearchIcon, SaveIcon, DownloadIcon, EyeIcon, LayoutIcon, PaletteIcon, SunIcon, MoonIcon, MonitorIcon, UserIcon, CreditCardIcon, SettingsIcon, KeyboardIcon, LanguagesIcon, BellIcon, MailIcon, ShieldIcon, HelpCircleIcon, FileTextIcon, LogOutIcon } from "lucide-react"
 import { MultiSelect } from "./ui/multi-select"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon } from "lucide-react"
 import { Separator } from "./ui/separator"
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
 import { FileNode, FileTreeComponent } from "./file-tree"
 
 export function ComponentExample() {
@@ -2090,7 +2098,7 @@ function FileTree() {
   ];
 
   return (
-    <Example title="Hexagonal Architecture">
+    <Example title="Project Architecture">
       <Carousel className="w-full max-w-full ">
         <CarouselContent>
           {architectures.map((architecture, index) => (
@@ -2428,107 +2436,262 @@ function BuildSetup() {
               </Card>
             </TabsContent>
             <TabsContent value="ing-starter-kit">
-              <Card>
+              {/* <Card>
                 <CardHeader>
-                  <CardTitle>Analytics</CardTitle>
+                  <CardTitle>Basic configuration</CardTitle>
                   <CardDescription>
-                    Track performance and user engagement metrics. Monitor trends and
-                    identify growth opportunities.
+                    Select ING starter-kit configuration
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-muted-foreground text-sm">
-                  <form>
-                    <FieldGroup>
-                      <div className="grid grid-cols-1 gap-4">
-                        <Field>
-                          <FieldLabel htmlFor="small-form-role">Azure DevOps Organisation</FieldLabel>
-                          <Select defaultValue="IngEurCDaaS01">
-                            <SelectTrigger id="small-form-role">
-                              <SelectValue placeholder="Select a branch" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="IngEurCDaaS01">IngEurCDaaS01</SelectItem>
-                                <SelectItem value="IngEurCDaaS02">IngEurCDaaS02</SelectItem>
-                                <SelectItem value="develop">Develop</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </Field>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Field>
-                          <FieldLabel htmlFor="small-form-role">Platform</FieldLabel>
-                          <Select defaultValue="ICHPDE">
-                            <SelectTrigger id="small-form-role">
-                              <SelectValue placeholder="Select a branch" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="ICHPDE">ICHPDE</SelectItem>
-                                <SelectItem value="ICHPNL">ICHPNL</SelectItem>
-                                <SelectItem value="ICHPPL">ICHPPL</SelectItem>
-                                <SelectItem value="AZURE-PCF">Azure (PCF)</SelectItem>
-                                <SelectItem value="ORACLE-DATABASE">Oracle Database</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </Field>
-                        <Field>
-                          <FieldLabel htmlFor="small-form-role">Generation Scope</FieldLabel>
-                          <Select defaultValue="pipelines-only">
-                            <SelectTrigger id="small-form-role">
-                              <SelectValue placeholder="Select a branch" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="pipelines-only">Pipelines Only</SelectItem>
-                                <SelectItem value="tpa-demo">TPA Demo with Sidecar</SelectItem>
-                                <SelectItem value="network-health-checker">Network Health Checker</SelectItem>
-                                <SelectItem value="aks-pave-road">AKS Pave Road</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </Field>
-                      </div>
-                      <Field>
-                        <FieldLabel htmlFor="small-form-role">Resource Generation</FieldLabel>
-                        <Select defaultValue="IngEurCDaaS01">
-                          <SelectTrigger id="small-form-role">
-                            <SelectValue placeholder="Select a branch" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="IngEurCDaaS01">IngEurCDaaS01</SelectItem>
-                              <SelectItem value="IngEurCDaaS02">IngEurCDaaS02</SelectItem>
-                              <SelectItem value="develop">Develop</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="small-form-role">Build Pipeline</FieldLabel>
-                        <Select defaultValue="helm">
-                          <SelectTrigger id="small-form-role">
-                            <SelectValue placeholder="Select a branch" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="helm">Helm</SelectItem>
-                              <SelectItem value="maven">Maven</SelectItem>
-                              <SelectItem value="image">Image</SelectItem>
-                              <SelectItem value="tra">TRA</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                      <Field orientation="responsive">
-                        <Button type="submit">Next</Button>
-                      </Field>
-                    </FieldGroup>
-                  </form>
+                  
                 </CardContent>
-              </Card>
+              </Card> */}
+              <form>
+                <FieldGroup>
+                  <div className="grid grid-cols-1 gap-4">
+                    <Field>
+                      <div className="flex items-center justify-between">
+                        <FieldLabel htmlFor="small-form-role">Azure DevOps Organisation</FieldLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <InfoIcon className="h-4 w-4" />
+                          </PopoverTrigger>
+                          <PopoverContent align="start">
+                            <PopoverHeader>
+                              <PopoverTitle>Azure DevOps Organisation</PopoverTitle>
+                              <PopoverDescription>
+                                Choose target ING Azure Devops organisation of your application.
+                              </PopoverDescription>
+                            </PopoverHeader>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <Select defaultValue="IngEurCDaaS01">
+                        <SelectTrigger id="small-form-role">
+                          <SelectValue placeholder="Select a branch" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="IngEurCDaaS01">IngEurCDaaS01</SelectItem>
+                            <SelectItem value="IngEurCDaaS02">IngEurCDaaS02</SelectItem>
+                            <SelectItem value="develop">Develop</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </div>
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="small-form-role">Platform</FieldLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <InfoIcon className="h-4 w-4" />
+                        </PopoverTrigger>
+                        <PopoverContent align="start">
+                          <PopoverHeader>
+                            <PopoverTitle>Platform</PopoverTitle>
+                            <PopoverDescription>
+                              <p>ICHPDE - German Openshift Cluster</p>
+                              <Button className="p-0" variant="link">Documentation</Button>
+                              <p>Azure (PCF) - AKS based on Public Cloud Foundation</p>
+                              <Button className="p-0" variant="link">Documentation</Button>
+                              <p>Oracle Database - Oracle Database</p>
+                              <Button className="p-0" variant="link">Documentation</Button>
+                            </PopoverDescription>
+                          </PopoverHeader>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Select defaultValue="ICHPDE">
+                      <SelectTrigger id="small-form-role">
+                        <SelectValue placeholder="Select a branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="ICHPDE">ICHPDE</SelectItem>
+                          <SelectItem value="ICHPNL">ICHPNL</SelectItem>
+                          <SelectItem value="ICHPPL">ICHPPL</SelectItem>
+                          <SelectItem value="AZURE-PCF">Azure (PCF)</SelectItem>
+                          <SelectItem value="ORACLE-DATABASE">Oracle Database</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="small-form-role">Generation Scope</FieldLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <InfoIcon className="h-4 w-4" />
+                        </PopoverTrigger>
+                        <PopoverContent align="start">
+                          <PopoverHeader>
+                            <PopoverTitle>Generation Scope</PopoverTitle>
+                            <PopoverDescription className="space-y-2">
+                              <p>Each item includes matching pipelines.
+                                Depending on your choice additionally sample code, helmChart etc. will be generated.
+                                Sample code is hosted <Button className="p-0" variant="link">here</Button></p>
+
+                              <p className="font-bold">Pipelines Only</p>
+                              <p>Pipelines only, no further application code or Helm chart will be generated.</p>
+
+                              <p className="font-bold">TPA Demo with Sidecar</p>
+                              <p>Enhanced TPA configuration plus HelmChart. TPA sidecar is recommended by Architecture. Please follow README.MD instructions for further actions.</p>
+
+                              <p className="font-bold">Non-TPA Demo-App</p>
+                              <p>Basic hello-world application</p>
+
+                              <p className="font-bold">Network Health Checker </p>
+                              <p>Network Health Checker is used to test network connections inside a openshift namespace with curl and openssl.</p>
+
+                              <p className="font-bold">Azure items (specific)</p>
+                              <p>AKS (Paved road)</p>
+                              <p>Azure Kubernetes Service is a managed Kubernetes service in Microsoft Azure. It simplifies deploying and managing containerized applications using Kubernetes. Templates are based on the "Paved road" and therefore compliant with the organization restrictions - <Button className="p-0" variant="link">Documentation</Button></p>
+                            </PopoverDescription>
+                          </PopoverHeader>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Select defaultValue="pipelines-only">
+                      <SelectTrigger id="small-form-role">
+                        <SelectValue placeholder="Select a branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="pipelines-only">Pipelines Only</SelectItem>
+                          <SelectItem value="tpa-demo">TPA Demo with Sidecar</SelectItem>
+                          <SelectItem value="network-health-checker">Network Health Checker</SelectItem>
+                          <SelectItem value="aks-pave-road">AKS Pave Road</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="small-form-role">Resource Generation</FieldLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <InfoIcon className="h-4 w-4" />
+                        </PopoverTrigger>
+                        <PopoverContent align="start">
+                          <PopoverHeader>
+                            <PopoverTitle>Azure DevOps Organisation</PopoverTitle>
+                            <PopoverDescription>
+                              Choose target ING Azure Devops organisation of your application.
+                            </PopoverDescription>
+                          </PopoverHeader>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Select defaultValue="init">
+                      <SelectTrigger id="small-form-role">
+                        <SelectValue placeholder="Select a branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="init">Init</SelectItem>
+                          <SelectItem value="add">Add</SelectItem>
+                          <SelectItem value="develop">Develop</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="small-form-role">Build Pipeline</FieldLabel>
+                    <Select defaultValue="helm">
+                      <SelectTrigger id="small-form-role">
+                        <SelectValue placeholder="Select a branch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="helm">Helm</SelectItem>
+                          <SelectItem value="maven">Maven</SelectItem>
+                          <SelectItem value="image">Image</SelectItem>
+                          <SelectItem value="tra">TRA</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  {/* METADATA */}
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="small-form-role">Purpose Code</FieldLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <InfoIcon className="h-4 w-4" />
+                        </PopoverTrigger>
+                        <PopoverContent align="start">
+                          <PopoverHeader>
+                            <PopoverTitle>Purpose Code</PopoverTitle>
+                            <PopoverDescription>
+                              Purpose code starts with P followed by 5 digits.
+                            </PopoverDescription>
+                          </PopoverHeader>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Input
+                      id="small-form-name"
+                      placeholder="e.g. P12345"
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="small-form-role">Asset indent</FieldLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <InfoIcon className="h-4 w-4" />
+                        </PopoverTrigger>
+                        <PopoverContent align="start">
+                          <PopoverHeader>
+                            <PopoverTitle>Asset indent</PopoverTitle>
+                            <PopoverDescription>
+                              Asset-Repo-Ident (case-sensitive) as in <Button className="p-0" variant="link">ServiceNow</Button> . Do not use the module name.
+                            </PopoverDescription>
+                          </PopoverHeader>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Input
+                      id="small-form-name"
+                      placeholder="e.g. IBBR"
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="small-form-role">Application Name</FieldLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <InfoIcon className="h-4 w-4" />
+                        </PopoverTrigger>
+                        <PopoverContent align="start">
+                          <PopoverHeader>
+                            <PopoverTitle>Application Name</PopoverTitle>
+                            <PopoverDescription>
+                              Application name uniquely identifies your service.
+                              This will be part of your Git repository name.
+                            </PopoverDescription>
+                          </PopoverHeader>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Input
+                      id="small-form-name"
+                      placeholder="e.g. ibbr-backend"
+                      required
+                    />
+                  </Field>
+
+                  <Field orientation="responsive">
+                    <Button type="submit">Next</Button>
+                  </Field>
+                </FieldGroup>
+              </form>
             </TabsContent>
           </Tabs>
         </CardContent>
