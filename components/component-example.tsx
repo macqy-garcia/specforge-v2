@@ -26,23 +26,6 @@ import {
 } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
@@ -54,7 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, MoreVerticalIcon, FileIcon, FolderIcon, FolderOpenIcon, FileCodeIcon, MoreHorizontalIcon, FolderSearchIcon, SaveIcon, DownloadIcon, EyeIcon, LayoutIcon, PaletteIcon, SunIcon, MoonIcon, MonitorIcon, UserIcon, CreditCardIcon, SettingsIcon, KeyboardIcon, LanguagesIcon, BellIcon, MailIcon, ShieldIcon, HelpCircleIcon, FileTextIcon, LogOutIcon } from "lucide-react"
+import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, EyeIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
 import { MultiSelect } from "./ui/multi-select"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -72,12 +55,28 @@ import { Switch } from "@/components/ui/switch"
 
 import { FileNode, FileTreeComponent } from "./file-tree"
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
+import { JsonViewer } from "./json-tree-viewer"
+
+
 export function ComponentExample() {
   return (
     <ExampleWrapper>
       <UploadSpec />
       <ProjectInfo />
       <ProjectConfiguration />
+      <Summary />
+      <ProjectOrchestrated />
     </ExampleWrapper>
   )
 }
@@ -151,288 +150,12 @@ function UploadSpec() {
 }
 
 function ProjectInfo() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
-  })
-  const [theme, setTheme] = React.useState("light")
-
   return (
     <Example title="Project Info" className="items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Project Information</CardTitle>
           <CardDescription>Define the identity and target environment for your service.</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <form>
@@ -518,12 +241,6 @@ function ProjectInfo() {
 }
 
 function ProjectConfiguration() {
-  const [notifications, setNotifications] = React.useState({
-    email: true,
-    sms: false,
-    push: true,
-  })
-  const [theme, setTheme] = React.useState("light")
 
   interface Architecture {
     id: string;
@@ -927,275 +644,6 @@ function ProjectConfiguration() {
         <CardHeader>
           <CardTitle>Project Configuration</CardTitle>
           <CardDescription>Tailor your Spring Boot project settings and dependencies.</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <form>
@@ -1291,275 +739,6 @@ function ProjectConfiguration() {
         <CardHeader>
           <CardTitle>Project Metadata</CardTitle>
           <CardDescription>Define the identity and target environment for your service.</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <form>
@@ -1608,275 +787,6 @@ function ProjectConfiguration() {
         <CardHeader>
           <CardTitle>Dependencies</CardTitle>
           <CardDescription>Define the dependencies for your service.</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <form>
@@ -1891,16 +801,43 @@ function ProjectConfiguration() {
           {architectures.map((architecture, index) => (
             <CarouselItem key={index}>
               <div className="p-1">
-                <Card>
+                <Card className="relative mx-auto w-full max-w-sm">
                   <CardHeader>
+                    <CardAction>
+                      <Badge variant="secondary">Featured</Badge>
+                    </CardAction>
                     <CardTitle>{architecture.name}</CardTitle>
                     <CardDescription>
                       {architecture.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex aspect-square items-center justify-center p-6">
-                    <FileTreeComponent data={architecture.structure} />
-                  </CardContent>
+                  <CardFooter>
+                    <Dialog>
+                      <DialogTrigger asChild>
+
+                        <Button className="w-full" variant="default" size="sm">
+                          <EyeIcon /> View Full Structure
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>{architecture.name}</DialogTitle>
+                          <DialogDescription>
+                            {architecture.description}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
+                          <FileTreeComponent data={architecture.structure} />
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </CardFooter>
                 </Card>
               </div>
             </CarouselItem>
@@ -1913,275 +850,6 @@ function ProjectConfiguration() {
         <CardHeader>
           <CardTitle>Build Setup</CardTitle>
           <CardDescription>Select Quick Build or ING Starter Kit</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="quick-build">
@@ -2209,17 +877,6 @@ function ProjectConfiguration() {
               </Card>
             </TabsContent>
             <TabsContent value="ing-starter-kit">
-              {/* <Card>
-                <CardHeader>
-                  <CardTitle>Basic configuration</CardTitle>
-                  <CardDescription>
-                    Select ING starter-kit configuration
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-muted-foreground text-sm">
-                  
-                </CardContent>
-              </Card> */}
               <form>
                 <FieldGroup>
                   <div className="grid grid-cols-1 gap-4">
@@ -2265,7 +922,7 @@ function ProjectConfiguration() {
                           <PopoverHeader>
                             <PopoverTitle>Platform</PopoverTitle>
                             <PopoverDescription>
-                              <p>ICHPDE - German Openshift Cluster</p>
+                              <span>ICHPDE - German Openshift Cluster</span>
                               <Button className="p-0" variant="link">Documentation</Button>
                               <p>Azure (PCF) - AKS based on Public Cloud Foundation</p>
                               <Button className="p-0" variant="link">Documentation</Button>
@@ -2471,277 +1128,8 @@ function ProjectConfiguration() {
       </Card>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>MockServer</CardTitle>
+          <CardTitle>Mock Server</CardTitle>
           <CardDescription>Select your type of mockserver</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <form>
@@ -2773,275 +1161,6 @@ function ProjectConfiguration() {
         <CardHeader>
           <CardTitle>Enable OpenTelemetry</CardTitle>
           <CardDescription>Jaeger tracing support</CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVerticalIcon
-                  />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>File</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <FileIcon
-                    />
-                    New File
-                    <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FolderIcon
-                    />
-                    New Folder
-                    <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <FolderOpenIcon
-                      />
-                      Open Recent
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Alpha
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCodeIcon
-                            />
-                            Project Beta
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <MoreHorizontalIcon
-                              />
-                              More Projects
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Gamma
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <FileCodeIcon
-                                  />
-                                  Project Delta
-                                </DropdownMenuItem>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <FolderSearchIcon
-                            />
-                            Browse...
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <SaveIcon
-                    />
-                    Save
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <DownloadIcon
-                    />
-                    Export
-                    <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>View</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.email}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        email: checked === true,
-                      })
-                    }
-                  >
-                    <EyeIcon
-                    />
-                    Show Sidebar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={notifications.sms}
-                    onCheckedChange={(checked) =>
-                      setNotifications({
-                        ...notifications,
-                        sms: checked === true,
-                      })
-                    }
-                  >
-                    <LayoutIcon
-                    />
-                    Show Status Bar
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <PaletteIcon
-                      />
-                      Theme
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                          <DropdownMenuRadioGroup
-                            value={theme}
-                            onValueChange={setTheme}
-                          >
-                            <DropdownMenuRadioItem value="light">
-                              <SunIcon
-                              />
-                              Light
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="dark">
-                              <MoonIcon
-                              />
-                              Dark
-                            </DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="system">
-                              <MonitorIcon
-                              />
-                              System
-                            </DropdownMenuRadioItem>
-                          </DropdownMenuRadioGroup>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <UserIcon
-                    />
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCardIcon
-                    />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      <SettingsIcon
-                      />
-                      Settings
-                    </DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Preferences</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <KeyboardIcon
-                            />
-                            Keyboard Shortcuts
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <LanguagesIcon
-                            />
-                            Language
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <BellIcon
-                              />
-                              Notifications
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                <DropdownMenuGroup>
-                                  <DropdownMenuLabel>
-                                    Notification Types
-                                  </DropdownMenuLabel>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.push}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        push: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <BellIcon
-                                    />
-                                    Push Notifications
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={notifications.email}
-                                    onCheckedChange={(checked) =>
-                                      setNotifications({
-                                        ...notifications,
-                                        email: checked === true,
-                                      })
-                                    }
-                                  >
-                                    <MailIcon
-                                    />
-                                    Email Notifications
-                                  </DropdownMenuCheckboxItem>
-                                </DropdownMenuGroup>
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuGroup>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <ShieldIcon
-                            />
-                            Privacy & Security
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <HelpCircleIcon
-                    />
-                    Help & Support
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <FileTextIcon
-                    />
-                    Documentation
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem variant="destructive">
-                    <LogOutIcon
-                    />
-                    Sign Out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
         </CardHeader>
         <CardContent>
           <form>
@@ -3054,6 +1173,264 @@ function ProjectConfiguration() {
               </Field>
             </FieldGroup>
           </form>
+        </CardContent>
+      </Card>
+    </Example>
+  )
+}
+
+function Summary() {
+
+  const sampleData = {
+    "upload": {
+      "source": "file",
+      "fileName": "spec.json",
+      "url": ""
+    },
+    "projectInfo": {
+      "purposeCode": "P29113",
+      "projectName": "Core Party Data",
+      "description": "Core Party Data",
+      "repoName": "coreparty-data",
+      "visibility": "private",
+      "defaultBranch": "master"
+    },
+    "techOptions": {
+      "language": "java",
+      "javaVersion": "17",
+      "springBootVersion": "3.2.3",
+      "buildTool": "maven",
+      "groupId": "com.example",
+      "artifactId": "demo",
+      "basePackage": "com.example.demo",
+      "hexagonal": true,
+      "hexagonalLayout": "hex-4",
+      "codegen": {
+        "serverSpring": true,
+        "clientJava": false
+      },
+      "mock": {
+        "engine": "prism",
+        "mode": "dynamic",
+        "seed": null
+      },
+      "cicd": {
+        "starterKit": true,
+        "provider": "github",
+        "template": "standard-java-pipeline"
+      },
+      "observability": {
+        "otel": false,
+        "backend": "jaeger"
+      }
+    }
+  }
+
+  return (
+    <Example title="Summary" className="items-center justify-center">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Summary & Generate</CardTitle>
+          <CardDescription>Review your final configuration before launching orchestration.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <FieldGroup>
+              <Card>
+                <CardContent className="flex justify-between items-center">
+                  <div>
+                    <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
+                      CoreParty Data Web
+                    </h4>
+                    <p className="scroll-m-20 text-sm font-normal tracking-tight">Simple web application</p>
+                  </div>
+                  <Badge>P29113</Badge>
+                </CardContent>
+
+              </Card>
+
+              <Card className='w-full max-w-lg'>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <FolderGit2 className="h-5 w-5" />
+                    <CardTitle>Source Control</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className='grid gap-4 sm:grid-cols-2'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>coreparty-data </span>
+                      <span className='text-muted-foreground text-sm'>Repository</span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>master</span>
+                      <span className='text-muted-foreground text-sm'>Main Branch</span>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="h-5 w-5" />
+                    <CardTitle>Infrastructure</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className='grid gap-4 sm:grid-cols-2'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Java 17 / SB 3.2.3</span>
+                      <span className='text-muted-foreground text-sm'>Runtime</span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Maven</span>
+                      <span className='text-muted-foreground text-sm'>Build System</span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Hexagonal</span>
+                      <span className='text-muted-foreground text-sm'>Architecture</span>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Paperclip className="h-5 w-5" />
+                    <CardTitle>ING Starter Kit Configuration</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className='grid gap-4 sm:grid-cols-2'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Java 17 / SB 3.2.3</span>
+                      <span className='text-muted-foreground text-sm'>Runtime</span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Maven</span>
+                      <span className='text-muted-foreground text-sm'>Build System</span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Hexagonal</span>
+                      <span className='text-muted-foreground text-sm'>Architecture</span>
+                    </div>
+                  </div>
+
+                </CardContent>
+              </Card>
+
+              <Field orientation="responsive">
+                <Button type="submit">Next</Button>
+
+              </Field>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+      <Card className='w-full max-w-full'>
+        <CardHeader>
+          <CardTitle>Collected Configuration (JSON)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <JsonViewer data={sampleData} rootName="data" />
+        </CardContent>
+      </Card>
+    </Example>
+  )
+}
+
+function ProjectOrchestrated() {
+
+  const sampleData = {
+    "upload": {
+      "source": "file",
+      "fileName": "spec.json",
+      "url": ""
+    },
+    "projectInfo": {
+      "purposeCode": "P29113",
+      "projectName": "Core Party Data",
+      "description": "Core Party Data",
+      "repoName": "coreparty-data",
+      "visibility": "private",
+      "defaultBranch": "master"
+    },
+    "techOptions": {
+      "language": "java",
+      "javaVersion": "17",
+      "springBootVersion": "3.2.3",
+      "buildTool": "maven",
+      "groupId": "com.example",
+      "artifactId": "demo",
+      "basePackage": "com.example.demo",
+      "hexagonal": true,
+      "hexagonalLayout": "hex-4",
+      "codegen": {
+        "serverSpring": true,
+        "clientJava": false
+      },
+      "mock": {
+        "engine": "prism",
+        "mode": "dynamic",
+        "seed": null
+      },
+      "cicd": {
+        "starterKit": true,
+        "provider": "github",
+        "template": "standard-java-pipeline"
+      },
+      "observability": {
+        "otel": false,
+        "backend": "jaeger"
+      }
+    }
+  }
+
+  return (
+    <Example title="Project Orchestrated" className="items-center justify-center">
+      <div className="flex items-start w-fit rounded-full p-5 bg-green-300">
+        <Check className="h-10 w-10 text-green-600" />
+      </div>
+      <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
+        Project Orchestrated!
+      </h1>
+      <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+        Your service CorePartyDataWeb is ready for development.
+      </h2>
+      <div className="grid grid-cols-2 gap-5">
+        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
+          <GitBranch /> Open Repository
+        </Button>
+        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
+          <Router /> Run Mock Server
+        </Button>
+        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
+          <SquareCode /> Download Code
+        </Button>
+        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
+          <BookOpen /> View README
+        </Button>
+      </div>
+      <Card className='w-full max-w-full'>
+        <CardHeader>
+          <CardTitle>Collected Manifest (JSON)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <JsonViewer data={sampleData} rootName="data" />
         </CardContent>
       </Card>
     </Example>

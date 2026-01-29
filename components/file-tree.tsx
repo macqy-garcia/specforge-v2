@@ -1,3 +1,4 @@
+import { Folder, FolderOpen, EyeIcon, FileIcon, FileBraces } from "lucide-react";
 import { useState } from "react";
 
 export type FileNode = {
@@ -13,26 +14,27 @@ type Props = {
 
 export function FileTreeItem({ node, level = 0 }: Props) {
     const [open, setOpen] = useState(true);
+    const [viewFileTree, setViewFileTree] = useState(false);
 
     const isFolder = node.type === "folder";
 
     return (
-        <div style={{ marginLeft: level * 7 }}>
+        <div style={{ marginLeft: level * 5 }}>
             <div
                 className="flex items-center gap-2 cursor-pointer select-none"
                 onClick={() => isFolder && setOpen(!open)}
             >
                 {isFolder ? (
-                    <span>{open ? "📂" : "📁"}</span>
+                    <span className="my-2">{open ? <FolderOpen className="h-5 w-5 text-amber-400" /> : <Folder className="h-5 w-5 text-amber-400" />}</span>
                 ) : (
-                    <span>📄</span>
+                    <span className="my-2"><FileBraces className="h-5 w-5 text-red-400" /></span>
                 )}
 
                 <span className="text-sm">{node.name}</span>
             </div>
 
             {isFolder && open && node.children && (
-                <div className="mt-1">
+                <div>
                     {node.children.map((child, index) => (
                         <FileTreeItem
                             key={`${child.name}-${index}`}
