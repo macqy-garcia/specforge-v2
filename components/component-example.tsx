@@ -586,6 +586,7 @@ export function ComponentExample() {
       />
       <Summary projectData={projectData} />
       {/* Create the BuildLogs(Stepper Vertical Here) */}
+      <BuildLogs />
       <ProjectOrchestrated projectData={projectData} />
     </ExampleWrapper>
   )
@@ -790,7 +791,7 @@ function ProjectConfiguration({
   projectData: ProjectData
 }) {
   return (
-    <Example title="Project Configuration" className="items-center justify-center">
+    <Example title="Tech Stack" className="items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Technology Stack</CardTitle>
@@ -903,20 +904,6 @@ function ProjectConfiguration({
                   onChange={(e) => updateData(['techOptions', 'basePackage'], e.target.value)}
                 />
               </Field>
-
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FieldLabel htmlFor="hexagonal">Hexagonal Architecture</FieldLabel>
-                  <div className="text-sm text-muted-foreground">
-                    Enable hexagonal (ports & adapters) architecture
-                  </div>
-                </div>
-                <Switch
-                  id="hexagonal"
-                  checked={data.hexagonal}
-                  onCheckedChange={(checked) => updateData(['techOptions', 'hexagonal'], checked)}
-                />
-              </div>
             </FieldGroup>
           </form>
         </CardContent>
@@ -1581,9 +1568,21 @@ function Summary({ projectData }: { projectData: ProjectData }) {
   )
 }
 
+function BuildLogs() {
+  return (
+    <Example title="Build Logs" className="items-center justify-center">
+      {/* Create the vertical stepper here, an object will be provided having this structure: {
+  
+} */}
+    </Example>
+  )
+}
+
 function ProjectOrchestrated({ projectData }: { projectData: ProjectData }) {
   return (
     <Example title="Project Orchestrated" className="items-center justify-center">
+
+      {/* Make this a sonner */}
       <div className="flex items-start w-fit rounded-full p-5 bg-green-300">
         <Check className="h-10 w-10 text-green-600" />
       </div>
@@ -1593,28 +1592,8 @@ function ProjectOrchestrated({ projectData }: { projectData: ProjectData }) {
       <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
         Your service {projectData.projectInfo.projectName || 'Project'} is ready for development.
       </h2>
-      <div className="grid grid-cols-2 gap-5">
-        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
-          <GitBranch /> Open Repository
-        </Button>
-        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
-          <Router /> Run Mock Server
-        </Button>
-        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
-          <SquareCode /> Download Code
-        </Button>
-        <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
-          <BookOpen /> View README
-        </Button>
-      </div>
-      <Card className='w-full max-w-full'>
-        <CardHeader>
-          <CardTitle>Collected Manifest (JSON)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Postman Like Component */}
-        </CardContent>
-      </Card>
+
+      {/* Postman Like Component */}
     </Example>
   )
 }
