@@ -13,8 +13,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -24,10 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -36,12 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, EyeIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
-import { MultiSelect } from "./ui/multi-select"
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "./ui/separator"
 import {
   Popover,
   PopoverContent,
@@ -50,11 +38,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover"
-
-import { Switch } from "@/components/ui/switch"
-
-import { FileNode, FileTreeComponent } from "./file-tree"
-
 import {
   Dialog,
   DialogClose,
@@ -66,7 +49,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "./ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { MultiSelect } from "./ui/multi-select"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+
+import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, EyeIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
+
+import { FileNode, FileTreeComponent } from "./file-tree"
 import { JsonViewer } from "./json-tree-viewer"
+import { ModeToggle } from "./mode-toggle"
 
 // Define the type for your JSON data
 interface ProjectData {
@@ -568,6 +567,7 @@ export function ComponentExample() {
 
   return (
     <ExampleWrapper>
+      <ModeToggle />
       <UploadSpec
         data={projectData.upload}
         updateData={updateProjectData}
@@ -585,6 +585,7 @@ export function ComponentExample() {
         projectData={projectData}
       />
       <Summary projectData={projectData} />
+      {/* Create the BuildLogs(Stepper Vertical Here) */}
       <ProjectOrchestrated projectData={projectData} />
     </ExampleWrapper>
   )
@@ -1611,7 +1612,7 @@ function ProjectOrchestrated({ projectData }: { projectData: ProjectData }) {
           <CardTitle>Collected Manifest (JSON)</CardTitle>
         </CardHeader>
         <CardContent>
-          <JsonViewer data={projectData} rootName="data" />
+          {/* Postman Like Component */}
         </CardContent>
       </Card>
     </Example>
