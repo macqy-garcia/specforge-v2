@@ -5,6 +5,7 @@ import * as React from "react"
 import { WizardLayout } from "@/components/wizard-layout"
 import { UploadSpecStep } from "@/components/steps/upload-spec-step"
 import { BuildLogsStep } from "@/components/steps/build-logs-step"
+import { ApiTestingStep } from "@/components/steps/api-testing-step"
 import {
   Carousel,
   CarouselContent,
@@ -554,6 +555,8 @@ export function ComponentExample() {
 
   const [selectedArchitecture, setSelectedArchitecture] = React.useState(1)
   const [currentStep, setCurrentStep] = React.useState(1)
+  const [completedSteps, setCompletedSteps] = React.useState<number[]>([])
+  const [wizardCompleted, setWizardCompleted] = React.useState(false)
 
   // Generic update function for nested properties
   const updateProjectData = (path: string[], value: any) => {
@@ -573,6 +576,33 @@ export function ComponentExample() {
       return newData
     })
   }
+
+  // Update completed steps based on validation
+  React.useEffect(() => {
+    const newCompletedSteps: number[] = []
+
+    // Validate Step 1: Upload Spec
+    if (projectData.upload.fileName || projectData.upload.url) {
+      newCompletedSteps.push(1)
+    }
+
+    // Validate Step 2: Project Info
+    if (
+      projectData.projectInfo.purposeCode &&
+      projectData.projectInfo.projectName &&
+      projectData.projectInfo.repoName
+    ) {
+      newCompletedSteps.push(2)
+    }
+
+    // Step 3: Tech Stack - always valid (has defaults)
+    newCompletedSteps.push(3)
+
+    // Step 4: Summary - always valid
+    newCompletedSteps.push(4)
+
+    setCompletedSteps(newCompletedSteps)
+  }, [projectData])
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -594,10 +624,24 @@ export function ComponentExample() {
       case 4:
         return <SummaryStep projectData={projectData} />
       case 5:
-        return <BuildLogsStep onComplete={() => console.log("Build completed!")} />
+        return (
+          <BuildLogsStep
+            onComplete={() => setWizardCompleted(true)}
+            projectName={projectData.projectInfo.projectName || "Project"}
+          />
+        )
       default:
         return null
     }
+  }
+
+  // If wizard is completed, show the API testing interface
+  if (wizardCompleted) {
+    return (
+      <ApiTestingStep
+        projectName={projectData.projectInfo.projectName}
+      />
+    )
   }
 
   return (
@@ -606,6 +650,7 @@ export function ComponentExample() {
       currentStep={currentStep}
       onStepChange={setCurrentStep}
       onComplete={() => console.log("Wizard completed!")}
+      completedSteps={completedSteps}
     >
       {renderStepContent()}
     </WizardLayout>
@@ -1577,25 +1622,5 @@ function SummaryStep({ projectData }: { projectData: ProjectData }) {
         </CardContent>
       </Card>
     </div>
-  )
-}
-
-function ProjectOrchestrated({ projectData }: { projectData: ProjectData }) {
-  return (
-    <Example title="Project Orchestrated" className="items-center justify-center">
-
-      {/* Make this a sonner */}
-      <div className="flex items-start w-fit rounded-full p-5 bg-green-300">
-        <Check className="h-10 w-10 text-green-600" />
-      </div>
-      <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
-        Project Orchestrated!
-      </h1>
-      <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-        Your service {projectData.projectInfo.projectName || 'Project'} is ready for development.
-      </h2>
-
-      {/* Postman Like Component */}
-    </Example>
   )
 }

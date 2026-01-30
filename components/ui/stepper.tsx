@@ -11,16 +11,26 @@ export interface Step {
 interface StepperProps {
   steps: Step[]
   currentStep: number
+  completedSteps?: number[]
+  onStepClick?: (stepId: number) => void
 }
 
-export function Stepper({ steps, currentStep }: StepperProps) {
+export function Stepper({ steps, currentStep, completedSteps = [], onStepClick }: StepperProps) {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
-          const isCompleted = currentStep > step.id
+          const isCompleted = completedSteps.includes(step.id)
           const isCurrent = currentStep === step.id
           const isLast = index === steps.length - 1
+          const isAccessible = isCompleted || isCurrent || completedSteps.includes(step.id - 1)
+          const isClickable = onStepClick && isAccessible && !isCurrent
+
+          const handleClick = () => {
+            if (isClickable) {
+              onStepClick(step.id)
+            }
+          }
 
           return (
             <React.Fragment key={step.id}>
@@ -28,11 +38,14 @@ export function Stepper({ steps, currentStep }: StepperProps) {
                 {/* Step Circle */}
                 <div className="relative flex items-center justify-center mb-2">
                   <div
+                    onClick={handleClick}
                     className={cn(
                       "flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
                       isCurrent && "border-primary bg-primary text-primary-foreground",
                       isCompleted && "border-primary bg-primary text-primary-foreground",
-                      !isCurrent && !isCompleted && "border-muted-foreground/30 bg-background text-muted-foreground"
+                      !isCurrent && !isCompleted && "border-muted-foreground/30 bg-background text-muted-foreground",
+                      isClickable && "cursor-pointer hover:border-primary/70 hover:scale-110",
+                      !isAccessible && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     {isCompleted ? (

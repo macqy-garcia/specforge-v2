@@ -3,6 +3,8 @@
 import * as React from "react"
 import { VerticalStepper, VerticalStep } from "@/components/ui/vertical-stepper"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { Check } from "lucide-react"
 
 // Define the API steps
 const API_STEPS = [
@@ -58,9 +60,10 @@ const API_STEPS = [
 
 interface BuildLogsStepProps {
   onComplete?: () => void
+  projectName?: string
 }
 
-export function BuildLogsStep({ onComplete }: BuildLogsStepProps) {
+export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogsStepProps) {
   const [steps, setSteps] = React.useState<VerticalStep[]>(
     API_STEPS.map((step) => ({
       id: step.id,
@@ -72,6 +75,7 @@ export function BuildLogsStep({ onComplete }: BuildLogsStepProps) {
 
   const [isRunning, setIsRunning] = React.useState(false)
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0)
+  const hasStartedRef = React.useRef(false)
 
   // Simulate API call with 2-second delay
   const simulateApiCall = async (stepIndex: number): Promise<void> => {
@@ -84,6 +88,9 @@ export function BuildLogsStep({ onComplete }: BuildLogsStepProps) {
 
   // Start the build process
   const startBuildProcess = React.useCallback(async () => {
+    // Prevent multiple executions
+    if (isRunning) return
+
     setIsRunning(true)
 
     for (let i = 0; i < API_STEPS.length; i++) {
@@ -120,18 +127,26 @@ export function BuildLogsStep({ onComplete }: BuildLogsStepProps) {
 
     setIsRunning(false)
 
+    // Show success toast
+    toast.success("Project Orchestrated!", {
+      description: `Your service ${projectName} is ready for development.`,
+      icon: <Check className="h-5 w-5 text-green-600" />,
+      duration: 5000,
+    })
+
     // Call onComplete callback after all steps are done
     if (onComplete) {
       setTimeout(onComplete, 500)
     }
-  }, [onComplete])
+  }, [isRunning, onComplete, projectName])
 
   // Auto-start the build process when component mounts
   React.useEffect(() => {
-    if (!isRunning) {
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true
       startBuildProcess()
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [startBuildProcess])
 
   return (
     <div className="space-y-8">

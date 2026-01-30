@@ -14,6 +14,7 @@ interface WizardLayoutProps {
   children: React.ReactNode
   onComplete?: () => void
   className?: string
+  completedSteps?: number[]
 }
 
 export function WizardLayout({
@@ -22,7 +23,8 @@ export function WizardLayout({
   onStepChange,
   children,
   onComplete,
-  className
+  className,
+  completedSteps = []
 }: WizardLayoutProps) {
   const canGoBack = currentStep > 1
   const canGoNext = currentStep < steps.length
@@ -88,7 +90,12 @@ export function WizardLayout({
       <div className="border-b bg-background">
         <div className="container px-4 py-8 mx-auto sm:px-6 lg:px-8">
           <div className="mx-auto max-w-4xl">
-            <Stepper steps={steps} currentStep={currentStep} />
+            <Stepper
+              steps={steps}
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={onStepChange}
+            />
           </div>
         </div>
       </div>
