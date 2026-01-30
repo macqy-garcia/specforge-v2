@@ -68,190 +68,62 @@ import {
 
 import { JsonViewer } from "./json-tree-viewer"
 
+// Define the type for your JSON data
+interface ProjectData {
+  upload: {
+    source: string
+    fileName: string
+    url: string
+  }
+  projectInfo: {
+    purposeCode: string
+    projectName: string
+    description: string
+    repoName: string
+    defaultBranch: string
+  }
+  techOptions: {
+    language: string
+    javaVersion: string
+    springBootVersion: string
+    buildTool: string
+    groupId: string
+    artifactId: string
+    basePackage: string
+    hexagonal: boolean
+    hexagonalLayout: FileNode[]
+    dependencies: string[]
+    starterKit: boolean | {
+      azureDevOpsOrganisation: string
+      platform: string
+      generationScope: string
+      resourceGeneration: string
+      buildPipeline: string
+      purposeCode: string
+      assetIndent: string
+      applicationName: string
+    }
+    mock: {
+      engine: string
+    }
+    observability: {
+      otel: boolean
+    }
+  }
+}
+
+interface Architecture {
+  id: string
+  name: string
+  description: string
+  structure: FileNode[]
+}
 
 export function ComponentExample() {
-  return (
-    <ExampleWrapper>
-      <UploadSpec />
-      <ProjectInfo />
-      <ProjectConfiguration />
-      <Summary />
-      <ProjectOrchestrated />
-    </ExampleWrapper>
-  )
-}
-
-export function ImportApiCard() {
-  return (
-    <Card className="relative w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Import API Specification</CardTitle>
-        <CardDescription>
-          Upload your OpenAPI/Swagger definition to auto-configure your project.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {/* Drag & Drop */}
-        <div className="rounded-lg border border-dashed bg-muted/40 p-6 text-center">
-          <Upload className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
-
-          <p className="text-sm font-medium">
-            Drag and drop or select files
-          </p>
-
-          <p className="mt-1 text-xs text-muted-foreground">
-            Supported files: PDF, PPTX, or DOCX
-            <br />
-            Max. file size: 25 MB
-          </p>
-
-          <Button variant="outline" size="sm" className="mt-4">
-            Select files
-          </Button>
-        </div>
-
-        {/* OR IMPORT FROM URL */}
-        <div className="flex items-center gap-3">
-          <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">
-            OR IMPORT FROM URL
-          </span>
-          <Separator className="flex-1" />
-        </div>
-
-        {/* URL Input */}
-        <div className="relative">
-          <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="pl-9"
-            placeholder="Add file URL"
-          />
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex items-center gap-2">
-        <Button className="w-full">Next</Button>
-
-        <Badge variant="secondary" className="ml-auto hidden">
-          Beta
-        </Badge>
-      </CardFooter>
-    </Card>
-  )
-}
-
-function UploadSpec() {
-  return (
-    <Example title="Upload Spec" className="items-center justify-center">
-      <ImportApiCard />
-    </Example>
-  )
-}
-
-function ProjectInfo() {
-  return (
-    <Example title="Project Info" className="items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Project Information</CardTitle>
-          <CardDescription>Define the identity and target environment for your service.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form>
-            <FieldGroup>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Purpose Code</FieldLabel>
-                  <Input
-                    id="small-form-name"
-                    placeholder="P00000"
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Project Name</FieldLabel>
-                  <Input
-                    id="small-form-name"
-                    placeholder="Payment Gateway Service"
-                    required
-                  />
-                </Field>
-                {/* <Field>
-                  <FieldLabel htmlFor="small-form-role">Role</FieldLabel>
-                  <Select defaultValue="">
-                    <SelectTrigger id="small-form-role">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="developer">Developer</SelectItem>
-                        <SelectItem value="designer">Designer</SelectItem>
-                        <SelectItem value="manager">Manager</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field> */}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Repository Name</FieldLabel>
-                  <Input
-                    id="small-form-name"
-                    placeholder="api-service-name"
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="small-form-role">Default Branch</FieldLabel>
-                  <Select defaultValue="master">
-                    <SelectTrigger id="small-form-role">
-                      <SelectValue placeholder="Select a branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="master">Master</SelectItem>
-                        <SelectItem value="main">Main</SelectItem>
-                        <SelectItem value="develop">Develop</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-              <Field>
-                <FieldLabel htmlFor="small-form-comments">Description</FieldLabel>
-                <Textarea
-                  id="small-form-comments"
-                  placeholder="Describe the main responsibility of this API"
-                />
-              </Field>
-              <Field orientation="responsive">
-                <Button type="submit">Next</Button>
-                {/* <Button variant="outline" type="button">
-                  Cancel
-                </Button> */}
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </Example>
-  )
-}
-
-function ProjectConfiguration() {
-
-  interface Architecture {
-    id: string;
-    name: string;
-    description: string;
-    structure: FileNode[];
-  }
-
+  // Architecture options for the carousel
   const architectures: Architecture[] = [
     {
-      id: "Hexagonal Architecture",
+      id: "hex-3",
       name: "Hex (3-module)",
       description: "Traditional Spring Boot layered architecture with clear separation of concerns.",
       structure: [
@@ -367,8 +239,8 @@ function ProjectConfiguration() {
       ],
     },
     {
-      id: "Hex + Persistence (4-module)",
-      name: "Hexagonal (Ports & Adapters)",
+      id: "hex-4",
+      name: "Hex + Persistence (4-module)",
       description: "Domain-driven design with clear boundaries between business logic and infrastructure.",
       structure: [
         {
@@ -500,7 +372,7 @@ function ProjectConfiguration() {
       ],
     },
     {
-      id: "layered",
+      id: "layered-ddd",
       name: "Layered (DDD)",
       description: "Domain-driven design with explicit layers: presentation, application, domain, and infrastructure.",
       structure: [
@@ -636,153 +508,409 @@ function ProjectConfiguration() {
         },
       ],
     },
-  ];
+  ]
+
+  // Initialize state with default values
+  const [projectData, setProjectData] = React.useState<ProjectData>({
+    upload: {
+      source: "file",
+      fileName: "",
+      url: ""
+    },
+    projectInfo: {
+      purposeCode: "",
+      projectName: "",
+      description: "",
+      repoName: "",
+      defaultBranch: "master"
+    },
+    techOptions: {
+      language: "java",
+      javaVersion: "17",
+      springBootVersion: "3.2.3",
+      buildTool: "maven",
+      groupId: "com.example",
+      artifactId: "demo",
+      basePackage: "com.example.demo",
+      hexagonal: true,
+      hexagonalLayout: architectures[1].structure, // Default to hex-4
+      dependencies: [],
+      starterKit: false,
+      mock: {
+        engine: "prism",
+      },
+      observability: {
+        otel: false
+      }
+    }
+  })
+
+  const [selectedArchitecture, setSelectedArchitecture] = React.useState(1)
+
+  // Generic update function for nested properties
+  const updateProjectData = (path: string[], value: any) => {
+    setProjectData(prevData => {
+      const newData = { ...prevData }
+      let current: any = newData
+
+      // Navigate to the nested property
+      for (let i = 0; i < path.length - 1; i++) {
+        current[path[i]] = { ...current[path[i]] }
+        current = current[path[i]]
+      }
+
+      // Update the final property
+      current[path[path.length - 1]] = value
+
+      return newData
+    })
+  }
 
   return (
-    <Example className="grid grid-cols-2" title="Tech Stack">
+    <ExampleWrapper>
+      <UploadSpec
+        data={projectData.upload}
+        updateData={updateProjectData}
+      />
+      <ProjectInfo
+        data={projectData.projectInfo}
+        updateData={updateProjectData}
+      />
+      <ProjectConfiguration
+        data={projectData.techOptions}
+        architectures={architectures}
+        selectedArchitecture={selectedArchitecture}
+        setSelectedArchitecture={setSelectedArchitecture}
+        updateData={updateProjectData}
+        projectData={projectData}
+      />
+      <Summary projectData={projectData} />
+      <ProjectOrchestrated projectData={projectData} />
+    </ExampleWrapper>
+  )
+}
+
+export function ImportApiCard({
+  data,
+  updateData
+}: {
+  data: ProjectData['upload']
+  updateData: (path: string[], value: any) => void
+}) {
+  return (
+    <Card className="relative w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Import API Specification</CardTitle>
+        <CardDescription>
+          Upload your OpenAPI/Swagger definition to auto-configure your project.
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {/* Drag & Drop */}
+        <div className="rounded-lg border border-dashed bg-muted/40 p-6 text-center">
+          <Upload className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
+
+          <p className="text-sm font-medium">
+            Drag and drop or select files
+          </p>
+
+          <p className="mt-1 text-xs text-muted-foreground">
+            Supported files: PDF, PPTX, or DOCX
+            <br />
+            Max. file size: 25 MB
+          </p>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => {
+              // Simulate file selection
+              updateData(['upload', 'fileName'], 'spec.json')
+              updateData(['upload', 'source'], 'file')
+            }}
+          >
+            Select files
+          </Button>
+        </div>
+
+        {/* OR IMPORT FROM URL */}
+        <div className="flex items-center gap-3">
+          <Separator className="flex-1" />
+          <span className="text-xs text-muted-foreground">
+            OR IMPORT FROM URL
+          </span>
+          <Separator className="flex-1" />
+        </div>
+
+        {/* URL Input */}
+        <div className="relative">
+          <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Add file URL"
+            value={data.url}
+            onChange={(e) => {
+              updateData(['upload', 'url'], e.target.value)
+              updateData(['upload', 'source'], 'url')
+            }}
+          />
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex items-center gap-2">
+        <Button className="w-full">Next</Button>
+
+        <Badge variant="secondary" className="ml-auto hidden">
+          Beta
+        </Badge>
+      </CardFooter>
+    </Card>
+  )
+}
+
+function UploadSpec({
+  data,
+  updateData
+}: {
+  data: ProjectData['upload']
+  updateData: (path: string[], value: any) => void
+}) {
+  return (
+    <Example title="Upload Spec" className="items-center justify-center">
+      <ImportApiCard data={data} updateData={updateData} />
+    </Example>
+  )
+}
+
+function ProjectInfo({
+  data,
+  updateData
+}: {
+  data: ProjectData['projectInfo']
+  updateData: (path: string[], value: any) => void
+}) {
+  return (
+    <Example title="Project Info" className="items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Project Configuration</CardTitle>
-          <CardDescription>Tailor your Spring Boot project settings and dependencies.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form>
-            <FieldGroup>
-              <div className="grid grid-cols-2 gap-2">
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Project</FieldLabel>
-                  <RadioGroup defaultValue="gradlegroovy" className="w-fit">
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="gradlegroovy" id="r1" />
-                      <Label htmlFor="r1">Gradle - Groovy</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="maven" id="r2" />
-                      <Label htmlFor="r2">Maven</Label>
-                    </div>
-                  </RadioGroup>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Language</FieldLabel>
-                  <RadioGroup defaultValue="java" className="w-fit">
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="java" id="r1" />
-                      <Label htmlFor="r1">Java</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="kotlin" id="r2" />
-                      <Label htmlFor="r2">Kotlin</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="groovy" id="r2" />
-                      <Label htmlFor="r2">Groovy</Label>
-                    </div>
-                  </RadioGroup>
-                </Field>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Spring Boot</FieldLabel>
-                  <RadioGroup defaultValue="3.2.3" className="w-fit">
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="3.2.3" id="r1" />
-                      <Label htmlFor="r1">3.2.3</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="3.1.9" id="r2" />
-                      <Label htmlFor="r2">3.1.9</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="3.0.0" id="r2" />
-                      <Label htmlFor="r2">3.0.0</Label>
-                    </div>
-                  </RadioGroup>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Packaging</FieldLabel>
-                  <RadioGroup defaultValue="jar" className="w-fit">
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="jar" id="r1" />
-                      <Label htmlFor="r1">JAR</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="war" id="r2" />
-                      <Label htmlFor="r2">WAR</Label>
-                    </div>
-                  </RadioGroup>
-                </Field>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel htmlFor="small-form-name">Java</FieldLabel>
-                  <RadioGroup defaultValue="21" className="w-fit">
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="21" id="r1" />
-                      <Label htmlFor="r1">21</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="17" id="r2" />
-                      <Label htmlFor="r2">17</Label>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <RadioGroupItem value="11" id="r2" />
-                      <Label htmlFor="r2">11</Label>
-                    </div>
-                  </RadioGroup>
-                </Field>
-              </div>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Project Metadata</CardTitle>
+          <CardTitle>Project Information</CardTitle>
           <CardDescription>Define the identity and target environment for your service.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={(e) => e.preventDefault()}>
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel htmlFor="small-form-name">Group</FieldLabel>
+                  <FieldLabel htmlFor="purpose-code">Purpose Code</FieldLabel>
                   <Input
-                    id="small-form-name"
-                    placeholder="com.example"
+                    id="purpose-code"
+                    placeholder="P00000"
+                    value={data.purposeCode}
+                    onChange={(e) => updateData(['projectInfo', 'purposeCode'], e.target.value)}
                     required
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="small-form-name">Artifact</FieldLabel>
+                  <FieldLabel htmlFor="project-name">Project Name</FieldLabel>
                   <Input
-                    id="small-form-name"
-                    placeholder="demo"
+                    id="project-name"
+                    placeholder="Payment Gateway Service"
+                    value={data.projectName}
+                    onChange={(e) => updateData(['projectInfo', 'projectName'], e.target.value)}
                     required
                   />
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel htmlFor="small-form-name">Name</FieldLabel>
+                  <FieldLabel htmlFor="repo-name">Repository Name</FieldLabel>
                   <Input
-                    id="small-form-name"
-                    placeholder="demo"
+                    id="repo-name"
+                    placeholder="api-service-name"
+                    value={data.repoName}
+                    onChange={(e) => updateData(['projectInfo', 'repoName'], e.target.value)}
                     required
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="small-form-name">Package Name</FieldLabel>
+                  <FieldLabel htmlFor="default-branch">Default Branch</FieldLabel>
+                  <Select
+                    value={data.defaultBranch}
+                    onValueChange={(value) => updateData(['projectInfo', 'defaultBranch'], value)}
+                  >
+                    <SelectTrigger id="default-branch">
+                      <SelectValue placeholder="Select a branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="master">Master</SelectItem>
+                        <SelectItem value="main">Main</SelectItem>
+                        <SelectItem value="develop">Develop</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+              <Field>
+                <FieldLabel htmlFor="description">Description</FieldLabel>
+                <Textarea
+                  id="description"
+                  placeholder="Describe the main responsibility of this API"
+                  value={data.description}
+                  onChange={(e) => updateData(['projectInfo', 'description'], e.target.value)}
+                />
+              </Field>
+              <Field orientation="responsive">
+                <Button type="submit">Next</Button>
+              </Field>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+    </Example>
+  )
+}
+
+function ProjectConfiguration({
+  data,
+  architectures,
+  selectedArchitecture,
+  setSelectedArchitecture,
+  updateData,
+  projectData
+}: {
+  data: ProjectData['techOptions']
+  architectures: Architecture[]
+  selectedArchitecture: number
+  setSelectedArchitecture: (index: number) => void
+  updateData: (path: string[], value: any) => void
+  projectData: ProjectData
+}) {
+  return (
+    <Example title="Project Configuration" className="items-center justify-center">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Technology Stack</CardTitle>
+          <CardDescription>Configure your project's technical specifications.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <FieldGroup>
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="language">Language</FieldLabel>
+                  <Select
+                    value={data.language}
+                    onValueChange={(value) => updateData(['techOptions', 'language'], value)}
+                  >
+                    <SelectTrigger id="language">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="java">Java</SelectItem>
+                        <SelectItem value="kotlin">Kotlin</SelectItem>
+                        <SelectItem value="python">Python</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="java-version">Java Version</FieldLabel>
+                  <Select
+                    value={data.javaVersion}
+                    onValueChange={(value) => updateData(['techOptions', 'javaVersion'], value)}
+                  >
+                    <SelectTrigger id="java-version">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="11">11</SelectItem>
+                        <SelectItem value="17">17</SelectItem>
+                        <SelectItem value="21">21</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="spring-boot-version">Spring Boot Version</FieldLabel>
                   <Input
-                    id="small-form-name"
-                    placeholder="com.example.demo"
-                    required
+                    id="spring-boot-version"
+                    value={data.springBootVersion}
+                    onChange={(e) => updateData(['techOptions', 'springBootVersion'], e.target.value)}
                   />
                 </Field>
+                <Field>
+                  <FieldLabel htmlFor="build-tool">Build Tool</FieldLabel>
+                  <Select
+                    value={data.buildTool}
+                    onValueChange={(value) => updateData(['techOptions', 'buildTool'], value)}
+                  >
+                    <SelectTrigger id="build-tool">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="maven">Maven</SelectItem>
+                        <SelectItem value="gradle">Gradle</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              <Field>
+                <FieldLabel htmlFor="group-id">Group ID</FieldLabel>
+                <Input
+                  id="group-id"
+                  value={data.groupId}
+                  onChange={(e) => updateData(['techOptions', 'groupId'], e.target.value)}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="artifact-id">Artifact ID</FieldLabel>
+                <Input
+                  id="artifact-id"
+                  value={data.artifactId}
+                  onChange={(e) => updateData(['techOptions', 'artifactId'], e.target.value)}
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="base-package">Base Package</FieldLabel>
+                <Input
+                  id="base-package"
+                  value={data.basePackage}
+                  onChange={(e) => updateData(['techOptions', 'basePackage'], e.target.value)}
+                />
+              </Field>
+
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FieldLabel htmlFor="hexagonal">Hexagonal Architecture</FieldLabel>
+                  <div className="text-sm text-muted-foreground">
+                    Enable hexagonal (ports & adapters) architecture
+                  </div>
+                </div>
+                <Switch
+                  id="hexagonal"
+                  checked={data.hexagonal}
+                  onCheckedChange={(checked) => updateData(['techOptions', 'hexagonal'], checked)}
+                />
               </div>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
+
+      {/* Dependencies Card */}
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Dependencies</CardTitle>
@@ -791,32 +919,38 @@ function ProjectConfiguration() {
         <CardContent>
           <form>
             <FieldGroup>
-              <MultiSelect />
+              <MultiSelect
+                selected={data.dependencies}
+                onChange={(selected) => updateData(['techOptions', 'dependencies'], selected)}
+              />
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
+
+      {/* Architecture Carousel */}
       <Carousel className="w-full max-w-md">
         <CarouselContent>
           {architectures.map((architecture, index) => (
             <CarouselItem key={index}>
               <div className="p-1">
-                <Card className="relative mx-auto w-full max-w-sm">
+                <Card className={`relative mx-auto w-full max-w-sm ${selectedArchitecture === index ? 'border-primary' : ''}`}>
                   <CardHeader>
                     <CardAction>
-                      <Badge variant="secondary">Featured</Badge>
+                      <Badge variant={selectedArchitecture === index ? "default" : "secondary"}>
+                        {selectedArchitecture === index ? 'Selected' : 'Featured'}
+                      </Badge>
                     </CardAction>
                     <CardTitle>{architecture.name}</CardTitle>
                     <CardDescription>
                       {architecture.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardFooter>
+                  <CardFooter className="flex gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
-
-                        <Button className="w-full" variant="default" size="sm">
-                          <EyeIcon /> View Full Structure
+                        <Button className="flex-1" variant="outline" size="sm">
+                          <EyeIcon /> View Structure
                         </Button>
                       </DialogTrigger>
 
@@ -837,6 +971,19 @@ function ProjectConfiguration() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
+
+                    <Button
+                      className="flex-1"
+                      variant={selectedArchitecture === index ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setSelectedArchitecture(index)
+                        updateData(['techOptions', 'hexagonalLayout'], architecture.structure)
+                      }}
+                    >
+                      {selectedArchitecture === index ? <CircleCheck className="mr-1" /> : null}
+                      {selectedArchitecture === index ? 'Selected' : 'Select'}
+                    </Button>
                   </CardFooter>
                 </Card>
               </div>
@@ -846,20 +993,29 @@ function ProjectConfiguration() {
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
+
+      {/* Build Setup Tabs */}
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Build Setup</CardTitle>
           <CardDescription>Select Quick Build or ING Starter Kit</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="quick-build">
-            <TabsList>
-              <TabsTrigger value="quick-build">
-                <SparkleIcon />
+          <Tabs
+            defaultValue="quick-build"
+            onValueChange={(value) => {
+              if (value === "quick-build") {
+                updateData(['techOptions', 'starterKit'], false)
+              }
+            }}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="quick-build" className="flex-1">
+                <SparkleIcon className="mr-2" />
                 Quick Build
               </TabsTrigger>
-              <TabsTrigger value="ing-starter-kit">
-                <CodeIcon />
+              <TabsTrigger value="ing-starter-kit" className="flex-1">
+                <CodeIcon className="mr-2" />
                 ING Starter Kit
               </TabsTrigger>
             </TabsList>
@@ -872,17 +1028,22 @@ function ProjectConfiguration() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-muted-foreground text-sm">
-                  <Button className="w-full">Select Quick Build</Button>
+                  <Button
+                    className="w-full"
+                    onClick={() => updateData(['techOptions', 'starterKit'], false)}
+                  >
+                    Select Quick Build
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
             <TabsContent value="ing-starter-kit">
-              <form>
+              <form onSubmit={(e) => e.preventDefault()}>
                 <FieldGroup>
                   <div className="grid grid-cols-1 gap-4">
                     <Field>
                       <div className="flex items-center justify-between">
-                        <FieldLabel htmlFor="small-form-role">Azure DevOps Organisation</FieldLabel>
+                        <FieldLabel htmlFor="azure-devops-org">Azure DevOps Organisation</FieldLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <InfoIcon className="h-4 w-4" />
@@ -897,9 +1058,27 @@ function ProjectConfiguration() {
                           </PopoverContent>
                         </Popover>
                       </div>
-                      <Select defaultValue="IngEurCDaaS01">
-                        <SelectTrigger id="small-form-role">
-                          <SelectValue placeholder="Select a branch" />
+                      <Select
+                        defaultValue="IngEurCDaaS01"
+                        onValueChange={(value) => {
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                            azureDevOpsOrganisation: 'IngEurCDaaS01',
+                            platform: 'ICHPDE',
+                            generationScope: 'pipelines-only',
+                            resourceGeneration: 'init',
+                            buildPipeline: 'helm',
+                            purposeCode: '',
+                            assetIndent: '',
+                            applicationName: ''
+                          }
+                          updateData(['techOptions', 'starterKit'], {
+                            ...currentKit,
+                            azureDevOpsOrganisation: value
+                          })
+                        }}
+                      >
+                        <SelectTrigger id="azure-devops-org">
+                          <SelectValue placeholder="Select organisation" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
@@ -913,7 +1092,7 @@ function ProjectConfiguration() {
                   </div>
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel htmlFor="small-form-role">Platform</FieldLabel>
+                      <FieldLabel htmlFor="platform">Platform</FieldLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <InfoIcon className="h-4 w-4" />
@@ -923,19 +1102,32 @@ function ProjectConfiguration() {
                             <PopoverTitle>Platform</PopoverTitle>
                             <PopoverDescription>
                               <span>ICHPDE - German Openshift Cluster</span>
-                              <Button className="p-0" variant="link">Documentation</Button>
-                              <p>Azure (PCF) - AKS based on Public Cloud Foundation</p>
-                              <Button className="p-0" variant="link">Documentation</Button>
-                              <p>Oracle Database - Oracle Database</p>
-                              <Button className="p-0" variant="link">Documentation</Button>
                             </PopoverDescription>
                           </PopoverHeader>
                         </PopoverContent>
                       </Popover>
                     </div>
-                    <Select defaultValue="ICHPDE">
-                      <SelectTrigger id="small-form-role">
-                        <SelectValue placeholder="Select a branch" />
+                    <Select
+                      defaultValue="ICHPDE"
+                      onValueChange={(value) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: '',
+                          assetIndent: '',
+                          applicationName: ''
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          platform: value
+                        })
+                      }}
+                    >
+                      <SelectTrigger id="platform">
+                        <SelectValue placeholder="Select platform" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -950,7 +1142,7 @@ function ProjectConfiguration() {
                   </Field>
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel htmlFor="small-form-role">Generation Scope</FieldLabel>
+                      <FieldLabel htmlFor="generation-scope">Generation Scope</FieldLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <InfoIcon className="h-4 w-4" />
@@ -959,33 +1151,33 @@ function ProjectConfiguration() {
                           <PopoverHeader>
                             <PopoverTitle>Generation Scope</PopoverTitle>
                             <PopoverDescription className="space-y-2">
-                              <p>Each item includes matching pipelines.
-                                Depending on your choice additionally sample code, helmChart etc. will be generated.
-                                Sample code is hosted <Button className="p-0" variant="link">here</Button></p>
-
-                              <p className="font-bold">Pipelines Only</p>
-                              <p>Pipelines only, no further application code or Helm chart will be generated.</p>
-
-                              <p className="font-bold">TPA Demo with Sidecar</p>
-                              <p>Enhanced TPA configuration plus HelmChart. TPA sidecar is recommended by Architecture. Please follow README.MD instructions for further actions.</p>
-
-                              <p className="font-bold">Non-TPA Demo-App</p>
-                              <p>Basic hello-world application</p>
-
-                              <p className="font-bold">Network Health Checker </p>
-                              <p>Network Health Checker is used to test network connections inside a openshift namespace with curl and openssl.</p>
-
-                              <p className="font-bold">Azure items (specific)</p>
-                              <p>AKS (Paved road)</p>
-                              <p>Azure Kubernetes Service is a managed Kubernetes service in Microsoft Azure. It simplifies deploying and managing containerized applications using Kubernetes. Templates are based on the "Paved road" and therefore compliant with the organization restrictions - <Button className="p-0" variant="link">Documentation</Button></p>
+                              <p>Each item includes matching pipelines.</p>
                             </PopoverDescription>
                           </PopoverHeader>
                         </PopoverContent>
                       </Popover>
                     </div>
-                    <Select defaultValue="pipelines-only">
-                      <SelectTrigger id="small-form-role">
-                        <SelectValue placeholder="Select a branch" />
+                    <Select
+                      defaultValue="pipelines-only"
+                      onValueChange={(value) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: '',
+                          assetIndent: '',
+                          applicationName: ''
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          generationScope: value
+                        })
+                      }}
+                    >
+                      <SelectTrigger id="generation-scope">
+                        <SelectValue placeholder="Select scope" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -1000,24 +1192,42 @@ function ProjectConfiguration() {
 
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel htmlFor="small-form-role">Resource Generation</FieldLabel>
+                      <FieldLabel htmlFor="resource-generation">Resource Generation</FieldLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <InfoIcon className="h-4 w-4" />
                         </PopoverTrigger>
                         <PopoverContent align="start">
                           <PopoverHeader>
-                            <PopoverTitle>Azure DevOps Organisation</PopoverTitle>
+                            <PopoverTitle>Resource Generation</PopoverTitle>
                             <PopoverDescription>
-                              Choose target ING Azure Devops organisation of your application.
+                              Choose resource generation mode.
                             </PopoverDescription>
                           </PopoverHeader>
                         </PopoverContent>
                       </Popover>
                     </div>
-                    <Select defaultValue="init">
-                      <SelectTrigger id="small-form-role">
-                        <SelectValue placeholder="Select a branch" />
+                    <Select
+                      defaultValue="init"
+                      onValueChange={(value) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: '',
+                          assetIndent: '',
+                          applicationName: ''
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          resourceGeneration: value
+                        })
+                      }}
+                    >
+                      <SelectTrigger id="resource-generation">
+                        <SelectValue placeholder="Select mode" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -1029,10 +1239,28 @@ function ProjectConfiguration() {
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="small-form-role">Build Pipeline</FieldLabel>
-                    <Select defaultValue="helm">
-                      <SelectTrigger id="small-form-role">
-                        <SelectValue placeholder="Select a branch" />
+                    <FieldLabel htmlFor="build-pipeline">Build Pipeline</FieldLabel>
+                    <Select
+                      defaultValue="helm"
+                      onValueChange={(value) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: '',
+                          assetIndent: '',
+                          applicationName: ''
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          buildPipeline: value
+                        })
+                      }}
+                    >
+                      <SelectTrigger id="build-pipeline">
+                        <SelectValue placeholder="Select pipeline" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -1048,7 +1276,7 @@ function ProjectConfiguration() {
                   {/* METADATA */}
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel htmlFor="small-form-role">Purpose Code</FieldLabel>
+                      <FieldLabel htmlFor="purpose-code-kit">Purpose Code</FieldLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <InfoIcon className="h-4 w-4" />
@@ -1064,37 +1292,70 @@ function ProjectConfiguration() {
                       </Popover>
                     </div>
                     <Input
-                      id="small-form-name"
+                      id="purpose-code-kit"
                       placeholder="e.g. P12345"
+                      value={typeof data.starterKit === 'object' ? data.starterKit.purposeCode : projectData.projectInfo.purposeCode}
+                      onChange={(e) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: projectData.projectInfo.purposeCode,
+                          assetIndent: '',
+                          applicationName: projectData.projectInfo.projectName
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          purposeCode: e.target.value
+                        })
+                      }}
                       required
                     />
                   </Field>
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel htmlFor="small-form-role">Asset indent</FieldLabel>
+                      <FieldLabel htmlFor="asset-indent">Asset Indent</FieldLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <InfoIcon className="h-4 w-4" />
                         </PopoverTrigger>
                         <PopoverContent align="start">
                           <PopoverHeader>
-                            <PopoverTitle>Asset indent</PopoverTitle>
+                            <PopoverTitle>Asset Indent</PopoverTitle>
                             <PopoverDescription>
-                              Asset-Repo-Ident (case-sensitive) as in <Button className="p-0" variant="link">ServiceNow</Button> . Do not use the module name.
+                              Asset-Repo-Ident (case-sensitive).
                             </PopoverDescription>
                           </PopoverHeader>
                         </PopoverContent>
                       </Popover>
                     </div>
                     <Input
-                      id="small-form-name"
+                      id="asset-indent"
                       placeholder="e.g. IBBR"
+                      onChange={(e) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: '',
+                          assetIndent: '',
+                          applicationName: ''
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          assetIndent: e.target.value
+                        })
+                      }}
                       required
                     />
                   </Field>
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel htmlFor="small-form-role">Application Name</FieldLabel>
+                      <FieldLabel htmlFor="application-name">Application Name</FieldLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <InfoIcon className="h-4 w-4" />
@@ -1104,15 +1365,31 @@ function ProjectConfiguration() {
                             <PopoverTitle>Application Name</PopoverTitle>
                             <PopoverDescription>
                               Application name uniquely identifies your service.
-                              This will be part of your Git repository name.
                             </PopoverDescription>
                           </PopoverHeader>
                         </PopoverContent>
                       </Popover>
                     </div>
                     <Input
-                      id="small-form-name"
+                      id="application-name"
+                      value={typeof data.starterKit === 'object' ? data.starterKit.applicationName : projectData.projectInfo.projectName}
                       placeholder="e.g. ibbr-backend"
+                      onChange={(e) => {
+                        const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                          azureDevOpsOrganisation: 'IngEurCDaaS01',
+                          platform: 'ICHPDE',
+                          generationScope: 'pipelines-only',
+                          resourceGeneration: 'init',
+                          buildPipeline: 'helm',
+                          purposeCode: '',
+                          assetIndent: '',
+                          applicationName: ''
+                        }
+                        updateData(['techOptions', 'starterKit'], {
+                          ...currentKit,
+                          applicationName: e.target.value
+                        })
+                      }}
                       required
                     />
                   </Field>
@@ -1126,6 +1403,8 @@ function ProjectConfiguration() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Mock Server Card */}
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Mock Server</CardTitle>
@@ -1135,28 +1414,28 @@ function ProjectConfiguration() {
           <form>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="small-form-name">Engine</FieldLabel>
-                <RadioGroup defaultValue="wiremock" className="w-fit">
+                <FieldLabel htmlFor="mock-engine">Engine</FieldLabel>
+                <RadioGroup
+                  value={data.mock.engine}
+                  onValueChange={(value) => updateData(['techOptions', 'mock', 'engine'], value)}
+                  className="w-fit"
+                >
                   <div className="flex items-center gap-3">
-                    <RadioGroupItem value="wiremock" id="r1" />
-                    <Label htmlFor="r1">Wiremock</Label>
+                    <RadioGroupItem value="wiremock" id="r2" />
+                    <Label htmlFor="r2">Wiremock</Label>
                   </div>
                   <div className="flex items-center gap-3">
-                    <RadioGroupItem value="mockoon" id="r2" />
-                    <Label htmlFor="r2">Mockoon</Label>
+                    <RadioGroupItem value="mockoon" id="r3" />
+                    <Label htmlFor="r3">Mockoon</Label>
                   </div>
                 </RadioGroup>
-              </Field>
-              <Field orientation="responsive">
-                <Button type="submit">Next</Button>
-                {/* <Button variant="outline" type="button">
-                  Cancel
-                </Button> */}
               </Field>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
+
+      {/* Observability Card */}
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Enable OpenTelemetry</CardTitle>
@@ -1167,8 +1446,12 @@ function ProjectConfiguration() {
             <FieldGroup>
               <Field>
                 <div className="flex items-center space-x-2">
-                  <Switch id="airplane-mode" />
-                  <Label htmlFor="airplane-mode">Enable</Label>
+                  <Switch
+                    id="otel-mode"
+                    checked={data.observability.otel}
+                    onCheckedChange={(checked) => updateData(['techOptions', 'observability', 'otel'], checked)}
+                  />
+                  <Label htmlFor="otel-mode">Enable</Label>
                 </div>
               </Field>
             </FieldGroup>
@@ -1179,51 +1462,7 @@ function ProjectConfiguration() {
   )
 }
 
-function Summary() {
-
-  const sampleData = {
-    "upload": {
-      "source": "file",
-      "fileName": "spec.json",
-      "url": ""
-    },
-    "projectInfo": {
-      "purposeCode": "P29113",
-      "projectName": "Core Party Data",
-      "description": "Core Party Data",
-      "repoName": "coreparty-data",
-      "defaultBranch": "master"
-    },
-    "techOptions": {
-      "language": "java",
-      "javaVersion": "17",
-      "springBootVersion": "3.2.3",
-      "buildTool": "maven",
-      "groupId": "com.example",
-      "artifactId": "demo",
-      "basePackage": "com.example.demo",
-      "hexagonal": true,
-      "hexagonalLayout": "hex-4",
-      "codegen": {
-        "serverSpring": true,
-        "clientJava": false
-      },
-      "mock": {
-        "engine": "prism",
-        "mode": "dynamic",
-      },
-      "cicd": {
-        "starterKit": true,
-        "provider": "github",
-        "template": "standard-java-pipeline"
-      },
-      "observability": {
-        "otel": false,
-        "backend": "jaeger"
-      }
-    }
-  }
-
+function Summary({ projectData }: { projectData: ProjectData }) {
   return (
     <Example title="Summary" className="items-center justify-center">
       <Card className="w-full max-w-md">
@@ -1232,19 +1471,20 @@ function Summary() {
           <CardDescription>Review your final configuration before launching orchestration.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={(e) => e.preventDefault()}>
             <FieldGroup>
               <Card>
                 <CardContent className="flex justify-between items-center">
                   <div>
                     <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
-                      CoreParty Data Web
+                      {projectData.projectInfo.projectName || 'Untitled Project'}
                     </h4>
-                    <p className="scroll-m-20 text-sm font-normal tracking-tight">Simple web application</p>
+                    <p className="scroll-m-20 text-sm font-normal tracking-tight">
+                      {projectData.projectInfo.description || 'No description'}
+                    </p>
                   </div>
-                  <Badge>P29113</Badge>
+                  <Badge>{projectData.projectInfo.purposeCode || 'N/A'}</Badge>
                 </CardContent>
-
               </Card>
 
               <Card className='w-full max-w-lg'>
@@ -1257,17 +1497,20 @@ function Summary() {
                 <CardContent className='grid gap-4 sm:grid-cols-2'>
                   <div className='flex items-center gap-4'>
                     <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>coreparty-data </span>
+                      <span className='text-sm font-semibold'>
+                        {projectData.projectInfo.repoName || 'N/A'}
+                      </span>
                       <span className='text-muted-foreground text-sm'>Repository</span>
                     </div>
                   </div>
                   <div className='flex items-center gap-4'>
                     <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>master</span>
+                      <span className='text-sm font-semibold'>
+                        {projectData.projectInfo.defaultBranch}
+                      </span>
                       <span className='text-muted-foreground text-sm'>Main Branch</span>
                     </div>
                   </div>
-
                 </CardContent>
               </Card>
 
@@ -1281,59 +1524,33 @@ function Summary() {
                 <CardContent className='grid gap-4 sm:grid-cols-2'>
                   <div className='flex items-center gap-4'>
                     <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>Java 17 / SB 3.2.3</span>
+                      <span className='text-sm font-semibold'>
+                        Java {projectData.techOptions.javaVersion} / SB {projectData.techOptions.springBootVersion}
+                      </span>
                       <span className='text-muted-foreground text-sm'>Runtime</span>
                     </div>
                   </div>
                   <div className='flex items-center gap-4'>
                     <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>Maven</span>
+                      <span className='text-sm font-semibold'>
+                        {projectData.techOptions.buildTool.charAt(0).toUpperCase() + projectData.techOptions.buildTool.slice(1)}
+                      </span>
                       <span className='text-muted-foreground text-sm'>Build System</span>
                     </div>
                   </div>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>Hexagonal</span>
-                      <span className='text-muted-foreground text-sm'>Architecture</span>
+                  {projectData.techOptions.hexagonal && (
+                    <div className='flex items-center gap-4'>
+                      <div className='flex flex-col'>
+                        <span className='text-sm font-semibold'>Hexagonal</span>
+                        <span className='text-muted-foreground text-sm'>Architecture</span>
+                      </div>
                     </div>
-                  </div>
-
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Paperclip className="h-5 w-5" />
-                    <CardTitle>ING Starter Kit Configuration</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className='grid gap-4 sm:grid-cols-2'>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>Java 17 / SB 3.2.3</span>
-                      <span className='text-muted-foreground text-sm'>Runtime</span>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>Maven</span>
-                      <span className='text-muted-foreground text-sm'>Build System</span>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>Hexagonal</span>
-                      <span className='text-muted-foreground text-sm'>Architecture</span>
-                    </div>
-                  </div>
-
+                  )}
                 </CardContent>
               </Card>
 
               <Field orientation="responsive">
-                <Button type="submit">Next</Button>
-
+                <Button type="submit">Generate Project</Button>
               </Field>
             </FieldGroup>
           </form>
@@ -1344,58 +1561,14 @@ function Summary() {
           <CardTitle>Collected Configuration (JSON)</CardTitle>
         </CardHeader>
         <CardContent>
-          <JsonViewer data={sampleData} rootName="data" />
+          <JsonViewer data={projectData} rootName="data" />
         </CardContent>
       </Card>
     </Example>
   )
 }
 
-function ProjectOrchestrated() {
-
-  const sampleData = {
-    "upload": {
-      "source": "file",
-      "fileName": "spec.json",
-      "url": ""
-    },
-    "projectInfo": {
-      "purposeCode": "P29113",
-      "projectName": "Core Party Data",
-      "description": "Core Party Data",
-      "repoName": "coreparty-data",
-      "defaultBranch": "master"
-    },
-    "techOptions": {
-      "language": "java",
-      "javaVersion": "17",
-      "springBootVersion": "3.2.3",
-      "buildTool": "maven",
-      "groupId": "com.example",
-      "artifactId": "demo",
-      "basePackage": "com.example.demo",
-      "hexagonal": true,
-      "hexagonalLayout": "hex-4",
-      "codegen": {
-        "serverSpring": true,
-        "clientJava": false
-      },
-      "mock": {
-        "engine": "prism",
-        "mode": "dynamic",
-      },
-      "cicd": {
-        "starterKit": true,
-        "provider": "github",
-        "template": "standard-java-pipeline"
-      },
-      "observability": {
-        "otel": false,
-        "backend": "jaeger"
-      }
-    }
-  }
-
+function ProjectOrchestrated({ projectData }: { projectData: ProjectData }) {
   return (
     <Example title="Project Orchestrated" className="items-center justify-center">
       <div className="flex items-start w-fit rounded-full p-5 bg-green-300">
@@ -1405,7 +1578,7 @@ function ProjectOrchestrated() {
         Project Orchestrated!
       </h1>
       <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-        Your service CorePartyDataWeb is ready for development.
+        Your service {projectData.projectInfo.projectName || 'Project'} is ready for development.
       </h2>
       <div className="grid grid-cols-2 gap-5">
         <Button className="p-7 cursor-pointer" variant="secondary" size="lg">
@@ -1426,7 +1599,7 @@ function ProjectOrchestrated() {
           <CardTitle>Collected Manifest (JSON)</CardTitle>
         </CardHeader>
         <CardContent>
-          <JsonViewer data={sampleData} rootName="data" />
+          <JsonViewer data={projectData} rootName="data" />
         </CardContent>
       </Card>
     </Example>
