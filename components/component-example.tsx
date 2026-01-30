@@ -840,11 +840,22 @@ function ProjectConfiguration({
               <div className="grid grid-cols-2 gap-4">
                 <Field>
                   <FieldLabel htmlFor="spring-boot-version">Spring Boot Version</FieldLabel>
-                  <Input
-                    id="spring-boot-version"
+                  <Select
                     value={data.springBootVersion}
-                    onChange={(e) => updateData(['techOptions', 'springBootVersion'], e.target.value)}
-                  />
+                    onValueChange={(value) => updateData(['techOptions', 'springBootVersion'], value)}
+                    defaultValue="3.2.3"
+                  >
+                    <SelectTrigger id="spring-boot-version">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="3.2.3">3.2.3</SelectItem>
+                        <SelectItem value="3.1.9">3.1.9</SelectItem>
+                        <SelectItem value="3.0.0">3.0.0</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="build-tool">Build Tool</FieldLabel>
@@ -1294,7 +1305,7 @@ function ProjectConfiguration({
                     <Input
                       id="purpose-code-kit"
                       placeholder="e.g. P12345"
-                      value={typeof data.starterKit === 'object' ? data.starterKit.purposeCode : projectData.projectInfo.purposeCode}
+                      value={projectData.projectInfo.purposeCode}
                       onChange={(e) => {
                         const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
                           azureDevOpsOrganisation: 'IngEurCDaaS01',
@@ -1372,7 +1383,7 @@ function ProjectConfiguration({
                     </div>
                     <Input
                       id="application-name"
-                      value={typeof data.starterKit === 'object' ? data.starterKit.applicationName : projectData.projectInfo.projectName}
+                      value={projectData.projectInfo.projectName}
                       placeholder="e.g. ibbr-backend"
                       onChange={(e) => {
                         const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
@@ -1416,17 +1427,18 @@ function ProjectConfiguration({
               <Field>
                 <FieldLabel htmlFor="mock-engine">Engine</FieldLabel>
                 <RadioGroup
+                  defaultValue="wiremock"
                   value={data.mock.engine}
                   onValueChange={(value) => updateData(['techOptions', 'mock', 'engine'], value)}
                   className="w-fit"
                 >
                   <div className="flex items-center gap-3">
-                    <RadioGroupItem value="wiremock" id="r2" />
-                    <Label htmlFor="r2">Wiremock</Label>
+                    <RadioGroupItem value="wiremock" id="r1" />
+                    <Label htmlFor="r1">Wiremock</Label>
                   </div>
                   <div className="flex items-center gap-3">
-                    <RadioGroupItem value="mockoon" id="r3" />
-                    <Label htmlFor="r3">Mockoon</Label>
+                    <RadioGroupItem value="mockoon" id="r2" />
+                    <Label htmlFor="r2">Mockoon</Label>
                   </div>
                 </RadioGroup>
               </Field>
@@ -1480,7 +1492,7 @@ function Summary({ projectData }: { projectData: ProjectData }) {
                       {projectData.projectInfo.projectName || 'Untitled Project'}
                     </h4>
                     <p className="scroll-m-20 text-sm font-normal tracking-tight">
-                      {projectData.projectInfo.description || 'No description'}
+                      {projectData.projectInfo.description || 'No description macqy'}
                     </p>
                   </div>
                   <Badge>{projectData.projectInfo.purposeCode || 'N/A'}</Badge>
