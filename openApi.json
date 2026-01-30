@@ -1,0 +1,43 @@
+{
+    "upload": {
+        "source": "file",
+        "fileName": "MWSSvsSCS_API-6.0.0.json",
+        "url": ""
+    },
+    "projectInfo": {
+        "purposeCode": "P29113",
+        "projectName": "cOREPARTYDATA",
+        "description": "FDSSD",
+        "repoName": "P29113-cOREPARTYDATA",
+        "visibility": "private",
+        "defaultBranch": "master"
+    },
+    "techOptions": {
+        "language": "Java",
+        "javaVersion": "17",
+        "springBootVersion": "3.2.3",
+        "buildTool": "maven",
+        "groupId": "com.ing.de",
+        "artifactId": "demo",
+        "basePackage": "com.ing.de.demo",
+        "hexagonal": false,
+        "codegen": {
+            "serverSpring": true,
+            "clientJava": false
+        },
+        "mock": {
+            "engine": "mockoon",
+            "mode": "static",
+            "seed": null
+        },
+        "cicd": {
+            "starterKit": true,
+            "provider": "github",
+            "template": "standard-java-pipeline"
+        },
+        "observability": {
+            "otel": true,
+            "backend": "jaeger"
+        }
+    }
+}

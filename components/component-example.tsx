@@ -2,10 +2,9 @@
 
 import * as React from "react"
 
-import {
-  Example,
-  ExampleWrapper,
-} from "@/components/example"
+import { WizardLayout } from "@/components/wizard-layout"
+import { UploadSpecStep } from "@/components/steps/upload-spec-step"
+import { BuildLogsStep } from "@/components/steps/build-logs-step"
 import {
   Carousel,
   CarouselContent,
@@ -119,6 +118,15 @@ interface Architecture {
 }
 
 export function ComponentExample() {
+  // Define wizard steps
+  const wizardSteps = [
+    { id: 1, label: "UPLOAD SPEC" },
+    { id: 2, label: "PROJECT INFO" },
+    { id: 3, label: "TECH STACK" },
+    { id: 4, label: "SUMMARY" },
+    { id: 5, label: "BUILD LOGS" },
+  ]
+
   // Architecture options for the carousel
   const architectures: Architecture[] = [
     {
@@ -545,6 +553,7 @@ export function ComponentExample() {
   })
 
   const [selectedArchitecture, setSelectedArchitecture] = React.useState(1)
+  const [currentStep, setCurrentStep] = React.useState(1)
 
   // Generic update function for nested properties
   const updateProjectData = (path: string[], value: any) => {
@@ -565,30 +574,41 @@ export function ComponentExample() {
     })
   }
 
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return <UploadSpecStep data={projectData.upload} updateData={updateProjectData} />
+      case 2:
+        return <ProjectInfoStep data={projectData.projectInfo} updateData={updateProjectData} />
+      case 3:
+        return (
+          <ProjectConfigurationStep
+            data={projectData.techOptions}
+            architectures={architectures}
+            selectedArchitecture={selectedArchitecture}
+            setSelectedArchitecture={setSelectedArchitecture}
+            updateData={updateProjectData}
+            projectData={projectData}
+          />
+        )
+      case 4:
+        return <SummaryStep projectData={projectData} />
+      case 5:
+        return <BuildLogsStep onComplete={() => console.log("Build completed!")} />
+      default:
+        return null
+    }
+  }
+
   return (
-    <ExampleWrapper>
-      <ModeToggle />
-      <UploadSpec
-        data={projectData.upload}
-        updateData={updateProjectData}
-      />
-      <ProjectInfo
-        data={projectData.projectInfo}
-        updateData={updateProjectData}
-      />
-      <ProjectConfiguration
-        data={projectData.techOptions}
-        architectures={architectures}
-        selectedArchitecture={selectedArchitecture}
-        setSelectedArchitecture={setSelectedArchitecture}
-        updateData={updateProjectData}
-        projectData={projectData}
-      />
-      <Summary projectData={projectData} />
-      {/* Create the BuildLogs(Stepper Vertical Here) */}
-      <BuildLogs />
-      <ProjectOrchestrated projectData={projectData} />
-    </ExampleWrapper>
+    <WizardLayout
+      steps={wizardSteps}
+      currentStep={currentStep}
+      onStepChange={setCurrentStep}
+      onComplete={() => console.log("Wizard completed!")}
+    >
+      {renderStepContent()}
+    </WizardLayout>
   )
 }
 
@@ -672,21 +692,7 @@ export function ImportApiCard({
   )
 }
 
-function UploadSpec({
-  data,
-  updateData
-}: {
-  data: ProjectData['upload']
-  updateData: (path: string[], value: any) => void
-}) {
-  return (
-    <Example title="Upload Spec" className="items-center justify-center">
-      <ImportApiCard data={data} updateData={updateData} />
-    </Example>
-  )
-}
-
-function ProjectInfo({
+function ProjectInfoStep({
   data,
   updateData
 }: {
@@ -694,13 +700,18 @@ function ProjectInfo({
   updateData: (path: string[], value: any) => void
 }) {
   return (
-    <Example title="Project Info" className="items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Project Information</CardTitle>
-          <CardDescription>Define the identity and target environment for your service.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="space-y-8">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Project Information
+        </h1>
+        <p className="text-muted-foreground">
+          Define the identity and target environment for your service.
+        </p>
+      </div>
+
+      <Card>
+        <CardContent className="pt-6">
           <form onSubmit={(e) => e.preventDefault()}>
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
@@ -764,18 +775,15 @@ function ProjectInfo({
                   onChange={(e) => updateData(['projectInfo', 'description'], e.target.value)}
                 />
               </Field>
-              <Field orientation="responsive">
-                <Button type="submit">Next</Button>
-              </Field>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
-    </Example>
+    </div>
   )
 }
 
-function ProjectConfiguration({
+function ProjectConfigurationStep({
   data,
   architectures,
   selectedArchitecture,
@@ -791,7 +799,7 @@ function ProjectConfiguration({
   projectData: ProjectData
 }) {
   return (
-    <Example title="Tech Stack" className="items-center justify-center">
+    <div className="grid grid-cols-2 gap-5">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Technology Stack</CardTitle>
@@ -1394,7 +1402,7 @@ function ProjectConfiguration({
                   </Field>
 
                   <Field orientation="responsive">
-                    <Button type="submit">Next</Button>
+                    <Button type="submit">Done</Button>
                   </Field>
                 </FieldGroup>
               </form>
@@ -1415,18 +1423,22 @@ function ProjectConfiguration({
               <Field>
                 <FieldLabel htmlFor="mock-engine">Engine</FieldLabel>
                 <RadioGroup
-                  defaultValue="wiremock"
+                  defaultValue="ai-powered"
                   value={data.mock.engine}
                   onValueChange={(value) => updateData(['techOptions', 'mock', 'engine'], value)}
                   className="w-fit"
                 >
                   <div className="flex items-center gap-3">
-                    <RadioGroupItem value="wiremock" id="r1" />
-                    <Label htmlFor="r1">Wiremock</Label>
+                    <RadioGroupItem value="faker" id="r1" />
+                    <Label htmlFor="r1">Faker</Label>
                   </div>
                   <div className="flex items-center gap-3">
-                    <RadioGroupItem value="mockoon" id="r2" />
-                    <Label htmlFor="r2">Mockoon</Label>
+                    <RadioGroupItem value="ai-powered" id="r2" />
+                    <Label htmlFor="r2">AI-Powered</Label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem value="hybrid" id="r2" />
+                    <Label htmlFor="r2">Hybrid</Label>
                   </div>
                 </RadioGroup>
               </Field>
@@ -1458,102 +1470,102 @@ function ProjectConfiguration({
           </form>
         </CardContent>
       </Card>
-    </Example>
+    </div>
   )
 }
 
-function Summary({ projectData }: { projectData: ProjectData }) {
+function SummaryStep({ projectData }: { projectData: ProjectData }) {
   return (
-    <Example title="Summary" className="items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Summary & Generate</CardTitle>
-          <CardDescription>Review your final configuration before launching orchestration.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <FieldGroup>
-              <Card>
-                <CardContent className="flex justify-between items-center">
-                  <div>
-                    <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
-                      {projectData.projectInfo.projectName || 'Untitled Project'}
-                    </h4>
-                    <p className="scroll-m-20 text-sm font-normal tracking-tight">
-                      {projectData.projectInfo.description || 'No description macqy'}
-                    </p>
-                  </div>
-                  <Badge>{projectData.projectInfo.purposeCode || 'N/A'}</Badge>
-                </CardContent>
-              </Card>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Summary & Generate
+        </h1>
+        <p className="text-muted-foreground">
+          Review your final configuration before launching orchestration.
+        </p>
+      </div>
 
-              <Card className='w-full max-w-lg'>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <FolderGit2 className="h-5 w-5" />
-                    <CardTitle>Source Control</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className='grid gap-4 sm:grid-cols-2'>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>
-                        {projectData.projectInfo.repoName || 'N/A'}
-                      </span>
-                      <span className='text-muted-foreground text-sm'>Repository</span>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>
-                        {projectData.projectInfo.defaultBranch}
-                      </span>
-                      <span className='text-muted-foreground text-sm'>Main Branch</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+      <Card className="w-full max-w-md mx-auto">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="flex justify-between items-center pt-6">
+                <div>
+                  <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
+                    {projectData.projectInfo.projectName || 'Untitled Project'}
+                  </h4>
+                  <p className="scroll-m-20 text-sm font-normal tracking-tight">
+                    {projectData.projectInfo.description || 'No description'}
+                  </p>
+                </div>
+                <Badge>{projectData.projectInfo.purposeCode || 'N/A'}</Badge>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <HardDrive className="h-5 w-5" />
-                    <CardTitle>Infrastructure</CardTitle>
+            <Card className='w-full'>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <FolderGit2 className="h-5 w-5" />
+                  <CardTitle>Source Control</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className='grid gap-4 sm:grid-cols-2'>
+                <div className='flex items-center gap-4'>
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-semibold'>
+                      {projectData.projectInfo.repoName || 'N/A'}
+                    </span>
+                    <span className='text-muted-foreground text-sm'>Repository</span>
                   </div>
-                </CardHeader>
-                <CardContent className='grid gap-4 sm:grid-cols-2'>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>
-                        Java {projectData.techOptions.javaVersion} / SB {projectData.techOptions.springBootVersion}
-                      </span>
-                      <span className='text-muted-foreground text-sm'>Runtime</span>
-                    </div>
+                </div>
+                <div className='flex items-center gap-4'>
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-semibold'>
+                      {projectData.projectInfo.defaultBranch}
+                    </span>
+                    <span className='text-muted-foreground text-sm'>Main Branch</span>
                   </div>
-                  <div className='flex items-center gap-4'>
-                    <div className='flex flex-col'>
-                      <span className='text-sm font-semibold'>
-                        {projectData.techOptions.buildTool.charAt(0).toUpperCase() + projectData.techOptions.buildTool.slice(1)}
-                      </span>
-                      <span className='text-muted-foreground text-sm'>Build System</span>
-                    </div>
-                  </div>
-                  {projectData.techOptions.hexagonal && (
-                    <div className='flex items-center gap-4'>
-                      <div className='flex flex-col'>
-                        <span className='text-sm font-semibold'>Hexagonal</span>
-                        <span className='text-muted-foreground text-sm'>Architecture</span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                </div>
+              </CardContent>
+            </Card>
 
-              <Field orientation="responsive">
-                <Button type="submit">Generate Project</Button>
-              </Field>
-            </FieldGroup>
-          </form>
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <HardDrive className="h-5 w-5" />
+                  <CardTitle>Infrastructure</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className='grid gap-4 sm:grid-cols-2'>
+                <div className='flex items-center gap-4'>
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-semibold'>
+                      Java {projectData.techOptions.javaVersion} / SB {projectData.techOptions.springBootVersion}
+                    </span>
+                    <span className='text-muted-foreground text-sm'>Runtime</span>
+                  </div>
+                </div>
+                <div className='flex items-center gap-4'>
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-semibold'>
+                      {projectData.techOptions.buildTool.charAt(0).toUpperCase() + projectData.techOptions.buildTool.slice(1)}
+                    </span>
+                    <span className='text-muted-foreground text-sm'>Build System</span>
+                  </div>
+                </div>
+                {projectData.techOptions.hexagonal && (
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>Hexagonal</span>
+                      <span className='text-muted-foreground text-sm'>Architecture</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </CardContent>
       </Card>
       <Card className='w-full max-w-full'>
@@ -1564,17 +1576,7 @@ function Summary({ projectData }: { projectData: ProjectData }) {
           <JsonViewer data={projectData} rootName="data" />
         </CardContent>
       </Card>
-    </Example>
-  )
-}
-
-function BuildLogs() {
-  return (
-    <Example title="Build Logs" className="items-center justify-center">
-      {/* Create the vertical stepper here, an object will be provided having this structure: {
-  
-} */}
-    </Example>
+    </div>
   )
 }
 
