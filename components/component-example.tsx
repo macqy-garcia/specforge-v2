@@ -1337,45 +1337,43 @@ function ProjectConfigurationStep({
                     </Select>
                   </Field>
                   <Field>
-                    <FieldLabel>Build Pipeline</FieldLabel>
-                    <Accordion type="multiple" className="w-full">
+                    <FieldLabel htmlFor="build-pipeline">Build Pipeline</FieldLabel>
+                    <div className="space-y-3 rounded-md border p-3">
                       {/* Helm */}
-                      <AccordionItem value="helm">
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              id="helm-enabled"
-                              checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.helm.enabled}
-                              onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="helm-enabled"
+                            checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.helm.enabled}
+                            onCheckedChange={(checked) => {
+                              const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                                azureDevOpsOrganisation: 'IngEurCDaaS01',
+                                platform: 'ICHPDE',
+                                generationScope: 'pipelines-only',
+                                resourceGeneration: 'init',
+                                buildPipeline: {
+                                  helm: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  maven: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  image: { enabled: false, sidecar: false, multiTemplate: false },
+                                  tpa: { enabled: false, resources: false, ctk: false }
+                                },
+                                purposeCode: '',
+                                assetIndent: '',
+                                applicationName: ''
+                              }
+                              updateData(['techOptions', 'starterKit'], {
+                                ...currentKit,
+                                buildPipeline: {
+                                  ...currentKit.buildPipeline,
+                                  helm: { ...currentKit.buildPipeline.helm, enabled: checked as boolean }
                                 }
-                                updateData(['techOptions', 'starterKit'], {
-                                  ...currentKit,
-                                  buildPipeline: {
-                                    ...currentKit.buildPipeline,
-                                    helm: { ...currentKit.buildPipeline.helm, enabled: checked as boolean }
-                                  }
-                                })
-                              }}
-                            />
-                            <Label htmlFor="helm-enabled" className="font-semibold cursor-pointer">Helm</Label>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-3 pt-2">
+                              })
+                            }}
+                          />
+                          <Label htmlFor="helm-enabled" className="font-semibold cursor-pointer">Helm</Label>
+                        </div>
+                        {typeof data.starterKit === 'object' && data.starterKit.buildPipeline.helm.enabled && (
+                          <div className="ml-6 space-y-2 animate-in slide-in-from-top-2 duration-300">
                             <div className="flex items-center space-x-2">
                               <Checkbox
                                 id="helm-multimodule"
@@ -1392,7 +1390,7 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.helm.enabled}
                               />
-                              <Label htmlFor="helm-multimodule" className="text-sm">Multi-Module Project</Label>
+                              <Label htmlFor="helm-multimodule" className="text-sm cursor-pointer">Multi-Module Project</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Checkbox
@@ -1410,49 +1408,47 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.helm.enabled}
                               />
-                              <Label htmlFor="helm-sonarqube" className="text-sm">SonarQube</Label>
+                              <Label htmlFor="helm-sonarqube" className="text-sm cursor-pointer">SonarQube</Label>
                             </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                        )}
+                      </div>
 
                       {/* Maven */}
-                      <AccordionItem value="maven">
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              id="maven-enabled"
-                              checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.maven.enabled}
-                              onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="maven-enabled"
+                            checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.maven.enabled}
+                            onCheckedChange={(checked) => {
+                              const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                                azureDevOpsOrganisation: 'IngEurCDaaS01',
+                                platform: 'ICHPDE',
+                                generationScope: 'pipelines-only',
+                                resourceGeneration: 'init',
+                                buildPipeline: {
+                                  helm: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  maven: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  image: { enabled: false, sidecar: false, multiTemplate: false },
+                                  tpa: { enabled: false, resources: false, ctk: false }
+                                },
+                                purposeCode: '',
+                                assetIndent: '',
+                                applicationName: ''
+                              }
+                              updateData(['techOptions', 'starterKit'], {
+                                ...currentKit,
+                                buildPipeline: {
+                                  ...currentKit.buildPipeline,
+                                  maven: { ...currentKit.buildPipeline.maven, enabled: checked as boolean }
                                 }
-                                updateData(['techOptions', 'starterKit'], {
-                                  ...currentKit,
-                                  buildPipeline: {
-                                    ...currentKit.buildPipeline,
-                                    maven: { ...currentKit.buildPipeline.maven, enabled: checked as boolean }
-                                  }
-                                })
-                              }}
-                            />
-                            <Label htmlFor="maven-enabled" className="font-semibold cursor-pointer">Maven</Label>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-3 pt-2">
+                              })
+                            }}
+                          />
+                          <Label htmlFor="maven-enabled" className="font-semibold cursor-pointer">Maven</Label>
+                        </div>
+                        {typeof data.starterKit === 'object' && data.starterKit.buildPipeline.maven.enabled && (
+                          <div className="ml-6 space-y-2 animate-in slide-in-from-top-2 duration-300">
                             <div className="flex items-center space-x-2">
                               <Checkbox
                                 id="maven-multimodule"
@@ -1469,7 +1465,7 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.maven.enabled}
                               />
-                              <Label htmlFor="maven-multimodule" className="text-sm">Multi-Module Project</Label>
+                              <Label htmlFor="maven-multimodule" className="text-sm cursor-pointer">Multi-Module Project</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Checkbox
@@ -1487,49 +1483,47 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.maven.enabled}
                               />
-                              <Label htmlFor="maven-sonarqube" className="text-sm">SonarQube</Label>
+                              <Label htmlFor="maven-sonarqube" className="text-sm cursor-pointer">SonarQube</Label>
                             </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                        )}
+                      </div>
 
                       {/* Image */}
-                      <AccordionItem value="image">
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              id="image-enabled"
-                              checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.image.enabled}
-                              onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="image-enabled"
+                            checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.image.enabled}
+                            onCheckedChange={(checked) => {
+                              const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                                azureDevOpsOrganisation: 'IngEurCDaaS01',
+                                platform: 'ICHPDE',
+                                generationScope: 'pipelines-only',
+                                resourceGeneration: 'init',
+                                buildPipeline: {
+                                  helm: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  maven: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  image: { enabled: false, sidecar: false, multiTemplate: false },
+                                  tpa: { enabled: false, resources: false, ctk: false }
+                                },
+                                purposeCode: '',
+                                assetIndent: '',
+                                applicationName: ''
+                              }
+                              updateData(['techOptions', 'starterKit'], {
+                                ...currentKit,
+                                buildPipeline: {
+                                  ...currentKit.buildPipeline,
+                                  image: { ...currentKit.buildPipeline.image, enabled: checked as boolean }
                                 }
-                                updateData(['techOptions', 'starterKit'], {
-                                  ...currentKit,
-                                  buildPipeline: {
-                                    ...currentKit.buildPipeline,
-                                    image: { ...currentKit.buildPipeline.image, enabled: checked as boolean }
-                                  }
-                                })
-                              }}
-                            />
-                            <Label htmlFor="image-enabled" className="font-semibold cursor-pointer">Image</Label>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-3 pt-2">
+                              })
+                            }}
+                          />
+                          <Label htmlFor="image-enabled" className="font-semibold cursor-pointer">Image</Label>
+                        </div>
+                        {typeof data.starterKit === 'object' && data.starterKit.buildPipeline.image.enabled && (
+                          <div className="ml-6 space-y-2 animate-in slide-in-from-top-2 duration-300">
                             <div className="flex items-center space-x-2">
                               <Checkbox
                                 id="image-sidecar"
@@ -1546,7 +1540,7 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.image.enabled}
                               />
-                              <Label htmlFor="image-sidecar" className="text-sm">Sidecar</Label>
+                              <Label htmlFor="image-sidecar" className="text-sm cursor-pointer">Sidecar</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Checkbox
@@ -1564,49 +1558,47 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.image.enabled}
                               />
-                              <Label htmlFor="image-multitemplate" className="text-sm">Multi-Template</Label>
+                              <Label htmlFor="image-multitemplate" className="text-sm cursor-pointer">Multi-Template</Label>
                             </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                        )}
+                      </div>
 
                       {/* TPA */}
-                      <AccordionItem value="tpa">
-                        <AccordionTrigger className="hover:no-underline">
-                          <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              id="tpa-enabled"
-                              checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.tpa.enabled}
-                              onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="tpa-enabled"
+                            checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.tpa.enabled}
+                            onCheckedChange={(checked) => {
+                              const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
+                                azureDevOpsOrganisation: 'IngEurCDaaS01',
+                                platform: 'ICHPDE',
+                                generationScope: 'pipelines-only',
+                                resourceGeneration: 'init',
+                                buildPipeline: {
+                                  helm: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  maven: { enabled: false, multiModuleProject: false, sonarQube: false },
+                                  image: { enabled: false, sidecar: false, multiTemplate: false },
+                                  tpa: { enabled: false, resources: false, ctk: false }
+                                },
+                                purposeCode: '',
+                                assetIndent: '',
+                                applicationName: ''
+                              }
+                              updateData(['techOptions', 'starterKit'], {
+                                ...currentKit,
+                                buildPipeline: {
+                                  ...currentKit.buildPipeline,
+                                  tpa: { ...currentKit.buildPipeline.tpa, enabled: checked as boolean }
                                 }
-                                updateData(['techOptions', 'starterKit'], {
-                                  ...currentKit,
-                                  buildPipeline: {
-                                    ...currentKit.buildPipeline,
-                                    tpa: { ...currentKit.buildPipeline.tpa, enabled: checked as boolean }
-                                  }
-                                })
-                              }}
-                            />
-                            <Label htmlFor="tpa-enabled" className="font-semibold cursor-pointer">TPA</Label>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-3 pt-2">
+                              })
+                            }}
+                          />
+                          <Label htmlFor="tpa-enabled" className="font-semibold cursor-pointer">TPA</Label>
+                        </div>
+                        {typeof data.starterKit === 'object' && data.starterKit.buildPipeline.tpa.enabled && (
+                          <div className="ml-6 space-y-2 animate-in slide-in-from-top-2 duration-300">
                             <div className="flex items-center space-x-2">
                               <Checkbox
                                 id="tpa-resources"
@@ -1623,7 +1615,7 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.tpa.enabled}
                               />
-                              <Label htmlFor="tpa-resources" className="text-sm">Resources</Label>
+                              <Label htmlFor="tpa-resources" className="text-sm cursor-pointer">Resources</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Checkbox
@@ -1641,12 +1633,12 @@ function ProjectConfigurationStep({
                                 }}
                                 disabled={typeof data.starterKit !== 'object' || !data.starterKit.buildPipeline.tpa.enabled}
                               />
-                              <Label htmlFor="tpa-ctk" className="text-sm">CTK</Label>
+                              <Label htmlFor="tpa-ctk" className="text-sm cursor-pointer">CTK</Label>
                             </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
+                        )}
+                      </div>
+                    </div>
                   </Field>
 
                   {/* METADATA */}
