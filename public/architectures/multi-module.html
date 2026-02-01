@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Multi-Module Architecture</title>
+<style>
+  :root {
+    --folder-green: hsl(142, 71%, 45%);
+    --folder-blue: hsl(199, 62%, 55%);
+    --folder-dblue: hsl(199, 62%, 45%);
+    --text-primary: hsl(0, 0%, 10%);
+    --text-note: hsl(0, 0%, 20%);
+    --line-color: hsl(0, 0%, 53%);
+    --bg-transparent: transparent;
+  }
+
+  [data-theme="dark"] {
+    --folder-green: hsl(142, 71%, 55%);
+    --folder-blue: hsl(199, 62%, 65%);
+    --folder-dblue: hsl(199, 62%, 55%);
+    --text-primary: hsl(0, 0%, 95%);
+    --text-note: hsl(0, 0%, 85%);
+    --line-color: hsl(0, 0%, 60%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-transparent);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+  .diagram {
+    position: relative;
+    width: 100%;
+    max-width: 950px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 42px;
+    z-index: 2;
+  }
+  .folder {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .folder.green  { background: var(--folder-green); }
+  .folder.blue   { background: var(--folder-blue); }
+  .folder.dblue  { background: var(--folder-dblue); }
+  .label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-left: 11px;
+    white-space: nowrap;
+  }
+  .note {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-note);
+    margin-left: 16px;
+    white-space: nowrap;
+  }
+  .lines-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+<div class="diagram" id="diagram">
+
+  <!-- 0: your-app/ -->
+  <div class="row" id="r0" style="margin-left:0px;">
+    <div class="folder blue"></div>
+    <span class="label">your-app/</span>
+  </div>
+
+  <!-- === service-domain === -->
+  <!-- 1: service-domain/ -->
+  <div class="row" id="r1" style="margin-left:60px; margin-top:6px;">
+    <div class="folder green"></div>
+    <span class="label">service-domain/</span>
+  </div>
+  <!-- 2: src/main/java/... -->
+  <div class="row" id="r2" style="margin-left:160px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">src/main/java/...</span>
+  </div>
+  <!-- 3: model/ -->
+  <div class="row" id="r3" style="margin-left:260px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">model/</span>
+    <span class="note"># entities, value objects, aggregates</span>
+  </div>
+  <!-- 4: service/ -->
+  <div class="row" id="r4" style="margin-left:260px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">service/</span>
+    <span class="note"># domain services</span>
+  </div>
+
+  <!-- === service-application === -->
+  <!-- 5: service-application/ -->
+  <div class="row" id="r5" style="margin-left:60px; margin-top:14px;">
+    <div class="folder green"></div>
+    <span class="label">service-application/</span>
+  </div>
+  <!-- 6: src/main/java/... -->
+  <div class="row" id="r6" style="margin-left:160px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">src/main/java/...</span>
+  </div>
+  <!-- 7: port/ -->
+  <div class="row" id="r7" style="margin-left:260px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">port/</span>
+  </div>
+  <!-- 8: in/ -->
+  <div class="row" id="r8" style="margin-left:340px; margin-top:3px;">
+    <div class="folder blue"></div>
+    <span class="label">in/</span>
+    <span class="note"># input ports (use case interfaces)</span>
+  </div>
+  <!-- 9: out/ -->
+  <div class="row" id="r9" style="margin-left:340px; margin-top:3px;">
+    <div class="folder blue"></div>
+    <span class="label">out/</span>
+    <span class="note"># output ports (driven deps)</span>
+  </div>
+  <!-- 10: service/ -->
+  <div class="row" id="r10" style="margin-left:260px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">service/</span>
+    <span class="note"># use case implementations</span>
+  </div>
+
+  <!-- === service-adapters-in === -->
+  <!-- 11: service-adapters-in/ -->
+  <div class="row" id="r11" style="margin-left:60px; margin-top:14px;">
+    <div class="folder green"></div>
+    <span class="label">service-adapters-in/</span>
+  </div>
+  <!-- 12: src/main/java/... -->
+  <div class="row" id="r12" style="margin-left:160px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">src/main/java/...</span>
+  </div>
+  <!-- 13: web/ -->
+  <div class="row" id="r13" style="margin-left:260px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">web/</span>
+    <span class="note"># controllers (inbound)</span>
+  </div>
+  <!-- 14: messaging/ -->
+  <div class="row" id="r14" style="margin-left:260px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">messaging/</span>
+    <span class="note"># message consumers (inbound)</span>
+  </div>
+
+  <!-- === service-adapters-out === -->
+  <!-- 15: service-adapters-out/ -->
+  <div class="row" id="r15" style="margin-left:60px; margin-top:14px;">
+    <div class="folder green"></div>
+    <span class="label">service-adapters-out/</span>
+  </div>
+  <!-- 16: src/main/java/... -->
+  <div class="row" id="r16" style="margin-left:160px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">src/main/java/...</span>
+  </div>
+  <!-- 17: persistence/ -->
+  <div class="row" id="r17" style="margin-left:260px; margin-top:4px;">
+    <div class="folder dblue"></div>
+    <span class="label">persistence/</span>
+    <span class="note"># repositories (outbound)</span>
+  </div>
+  <!-- 18: http/ -->
+  <div class="row" id="r18" style="margin-left:260px; margin-top:4px;">
+    <div class="folder dblue"></div>
+    <span class="label">http/</span>
+    <span class="note"># external REST/gRPC clients</span>
+  </div>
+  <!-- 19: messaging/ -->
+  <div class="row" id="r19" style="margin-left:260px; margin-top:4px;">
+    <div class="folder dblue"></div>
+    <span class="label">messaging/</span>
+    <span class="note"># message producers (outbound)</span>
+  </div>
+
+  <svg class="lines-svg" id="linesSvg"></svg>
+</div>
+
+<script>
+// Theme detection
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+if (isDark) {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+
+// Listen for theme changes from parent
+window.addEventListener('message', (event) => {
+  if (event.data.theme) {
+    document.documentElement.setAttribute('data-theme', event.data.theme);
+    drawLines();
+  }
+});
+
+const edges = [
+  // your-app children
+  [0, 1], [0, 5], [0, 11], [0, 15],
+  // service-domain
+  [1, 2],
+  [2, 3], [2, 4],
+  // service-application
+  [5, 6],
+  [6, 7], [6, 10],
+  [7, 8], [7, 9],
+  // service-adapters-in
+  [11, 12],
+  [12, 13], [12, 14],
+  // service-adapters-out
+  [15, 16],
+  [16, 17], [16, 18], [16, 19],
+];
+
+function getFolder(rowId) {
+  const row = document.getElementById('r' + rowId);
+  const folder = row.querySelector('.folder');
+  const dRect = document.getElementById('diagram').getBoundingClientRect();
+  const fRect = folder.getBoundingClientRect();
+  return {
+    y:      fRect.top   - dRect.top  + fRect.height / 2,
+    left:   fRect.left  - dRect.left,
+    bottom: fRect.top   - dRect.top  + fRect.height,
+  };
+}
+
+function drawLines() {
+  const svg = document.getElementById('linesSvg');
+  const diagram = document.getElementById('diagram');
+  svg.setAttribute('width',  diagram.offsetWidth);
+  svg.setAttribute('height', diagram.offsetHeight);
+  svg.innerHTML = '';
+
+  const lineColor = getComputedStyle(document.documentElement).getPropertyValue('--line-color').trim();
+
+  const childrenOf = {};
+  edges.forEach(([p, c]) => { (childrenOf[p] = childrenOf[p] || []).push(c); });
+
+  function addPath(d) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', lineColor);
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-dasharray', '5,4');
+    svg.appendChild(path);
+  }
+
+  Object.keys(childrenOf).forEach(pIdx => {
+    const p = getFolder(Number(pIdx));
+    const kids = childrenOf[pIdx];
+    const lastKid = getFolder(kids[kids.length - 1]);
+    const trunkX = p.left - 1;
+
+    // Vertical trunk from parent bottom to last child center
+    addPath(`M ${trunkX} ${p.bottom} L ${trunkX} ${lastKid.y}`);
+
+    // Horizontal stubs to each child
+    kids.forEach(cIdx => {
+      const c = getFolder(cIdx);
+      addPath(`M ${trunkX} ${c.y} L ${c.left} ${c.y}`);
+    });
+  });
+}
+
+window.addEventListener('load', drawLines);
+window.addEventListener('resize', drawLines);
+</script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folder Structure Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #e8e4df;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 32px;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+  .diagram {
+    position: relative;
+    width: 820px;
+  }
+
+  /* Each row */
+  .row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 46px;
+  }
+
+  /* Folder icon (rounded square) */
+  .folder {
+    width: 38px;
+    height: 38px;
+    border-radius: 7px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .folder.green  { background: #2eac42; }
+  .folder.blue   { background: #3a9fd8; }
+
+  /* Label next to folder */
+  .label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-left: 12px;
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Annotation note */
+  .note {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-left: 18px;
+    white-space: nowrap;
+  }
+
+  /* Connector lines drawn with SVG overlay */
+  .lines-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+<div class="diagram" id="diagram">
+
+  <!-- ROW 0: your-app/ -->
+  <div class="row" id="r0" style="margin-left:0px;">
+    <div class="folder blue" id="f0"></div>
+    <span class="label">your-app/</span>
+  </div>
+
+  <!-- ROW 1: domain/ -->
+  <div class="row" id="r1" style="margin-left:60px; margin-top:6px;">
+    <div class="folder green" id="f1"></div>
+    <span class="label">domain/</span>
+  </div>
+
+  <!-- ROW 2: model/ -->
+  <div class="row" id="r2" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f2"></div>
+    <span class="label">model/</span>
+    <span class="note"># entities, value objects, aggregates</span>
+  </div>
+
+  <!-- ROW 3: service/ (under domain) -->
+  <div class="row" id="r3" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f3"></div>
+    <span class="label">service/</span>
+    <span class="note"># entities, value objects, aggregates</span>
+  </div>
+
+  <!-- ROW 4: application/ -->
+  <div class="row" id="r4" style="margin-left:60px; margin-top:18px;">
+    <div class="folder green" id="f4"></div>
+    <span class="label">application/</span>
+  </div>
+
+  <!-- ROW 5: port/ -->
+  <div class="row" id="r5" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f5"></div>
+    <span class="label">port/</span>
+  </div>
+
+  <!-- ROW 6: in/ -->
+  <div class="row" id="r6" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue" id="f6"></div>
+    <span class="label">in/</span>
+    <span class="note"># input ports (use case interfaces)</span>
+  </div>
+
+  <!-- ROW 7: out/ -->
+  <div class="row" id="r7" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue" id="f7"></div>
+    <span class="label">out/</span>
+    <span class="note"># output ports (driven deps)</span>
+  </div>
+
+  <!-- ROW 8: service/ (under application) -->
+  <div class="row" id="r8" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f8"></div>
+    <span class="label">service/</span>
+    <span class="note"># use case implementations (application services)</span>
+  </div>
+
+  <!-- ROW 9: infrastructure/ -->
+  <div class="row" id="r9" style="margin-left:60px; margin-top:18px;">
+    <div class="folder green" id="f9"></div>
+    <span class="label">infrastructure/</span>
+  </div>
+
+  <!-- ROW 10: web/ -->
+  <div class="row" id="r10" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f10"></div>
+    <span class="label">web/</span>
+    <span class="note"># REST controllers (inbound)</span>
+  </div>
+
+  <!-- ROW 11: messaging/ -->
+  <div class="row" id="r11" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f11"></div>
+    <span class="label">messaging/</span>
+    <span class="note"># consumers/producers (could be inbound/outbound)</span>
+  </div>
+
+  <!-- ROW 12: persistence/ -->
+  <div class="row" id="r12" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f12"></div>
+    <span class="label">persistence/</span>
+    <span class="note"># repositories (outbound)</span>
+  </div>
+
+  <!-- ROW 13: http/ -->
+  <div class="row" id="r13" style="margin-left:160px; margin-top:10px;">
+    <div class="folder blue" id="f13"></div>
+    <span class="label">http/</span>
+    <span class="note"># clients (outbound)</span>
+  </div>
+
+  <!-- SVG for connector lines (drawn after layout via JS) -->
+  <svg class="lines-svg" id="linesSvg"></svg>
+</div>
+
+<script>
+// After layout, draw dashed connector lines between parent→child folders
+// Tree edges (parent row index → child row index)
+const edges = [
+  [0, 1],   // your-app → domain
+  [0, 4],   // your-app → application
+  [0, 9],   // your-app → infrastructure
+  [1, 2],   // domain → model
+  [1, 3],   // domain → service
+  [4, 5],   // application → port
+  [4, 8],   // application → service
+  [5, 6],   // port → in
+  [5, 7],   // port → out
+  [9, 10],  // infrastructure → web
+  [9, 11],  // infrastructure → messaging
+  [9, 12],  // infrastructure → persistence
+  [9, 13],  // infrastructure → http
+];
+
+function getFolderCenter(rowId) {
+  const row = document.getElementById('r' + rowId);
+  const folder = row.querySelector('.folder');
+  const diagram = document.getElementById('diagram');
+  const dRect = diagram.getBoundingClientRect();
+  const fRect = folder.getBoundingClientRect();
+  return {
+    x: fRect.left - dRect.left + fRect.width / 2,
+    y: fRect.top  - dRect.top  + fRect.height / 2,
+    left: fRect.left - dRect.left,
+    right: fRect.left - dRect.left + fRect.width,
+    top: fRect.top - dRect.top,
+    bottom: fRect.top - dRect.top + fRect.height,
+    w: fRect.width,
+    h: fRect.height
+  };
+}
+
+function drawLines() {
+  const svg = document.getElementById('linesSvg');
+  const diagram = document.getElementById('diagram');
+  svg.setAttribute('width', diagram.offsetWidth);
+  svg.setAttribute('height', diagram.offsetHeight);
+  svg.innerHTML = '';
+
+  // Group children by parent
+  const children = {};
+  edges.forEach(([p, c]) => {
+    if (!children[p]) children[p] = [];
+    children[p].push(c);
+  });
+
+  edges.forEach(([parentIdx, childIdx]) => {
+    const p = getFolderCenter(parentIdx);
+    const c = getFolderCenter(childIdx);
+
+    const siblings = children[parentIdx];
+    const firstChild = siblings[0];
+    const lastChild  = siblings[siblings.length - 1];
+
+    // Vertical line from parent down along its left edge
+    // Horizontal line from that vertical to child's left edge
+    // The vertical "trunk" goes from parent bottom to last child's center Y
+
+    const trunkX = p.left - 1;   // just left of parent folder
+    const childY = c.y;
+    const horizY = c.y;
+
+    // Draw L-shaped path: down from parent, then right to child
+    // But we only draw the horizontal stub for each child;
+    // the vertical trunk is drawn once per parent group.
+
+    // For each child: horizontal line from trunkX to child left
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `M ${trunkX} ${horizY} L ${c.left} ${horizY}`;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', '#888');
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-dasharray', '5,4');
+    svg.appendChild(path);
+  });
+
+  // Draw vertical trunks for each parent (from parent bottom to last child center Y)
+  const parents = [...new Set(edges.map(e => e[0]))];
+  parents.forEach(parentIdx => {
+    const sibs = children[parentIdx];
+    const p = getFolderCenter(parentIdx);
+    const lastC = getFolderCenter(sibs[sibs.length - 1]);
+
+    const trunkX = p.left - 1;
+    const startY = p.bottom;
+    const endY   = lastC.y;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', trunkX);
+    line.setAttribute('y1', startY);
+    line.setAttribute('x2', trunkX);
+    line.setAttribute('y2', endY);
+    line.setAttribute('stroke', '#888');
+    line.setAttribute('stroke-width', '1.8');
+    line.setAttribute('stroke-dasharray', '5,4');
+    svg.appendChild(line);
+  });
+}
+
+window.addEventListener('load', drawLines);
+window.addEventListener('resize', drawLines);
+</script>
+</body>
+</html>

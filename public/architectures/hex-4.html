@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hexagonal 4-Module Architecture</title>
+<style>
+  :root {
+    --folder-green: hsl(142, 71%, 45%);
+    --folder-blue: hsl(199, 62%, 55%);
+    --text-primary: hsl(0, 0%, 10%);
+    --text-note: hsl(0, 0%, 20%);
+    --line-color: hsl(0, 0%, 53%);
+    --bg-transparent: transparent;
+  }
+
+  [data-theme="dark"] {
+    --folder-green: hsl(142, 71%, 55%);
+    --folder-blue: hsl(199, 62%, 65%);
+    --text-primary: hsl(0, 0%, 95%);
+    --text-note: hsl(0, 0%, 85%);
+    --line-color: hsl(0, 0%, 60%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-transparent);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+  .diagram {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 44px;
+    z-index: 2;
+  }
+  .folder {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+  .folder.green  { background: var(--folder-green); }
+  .folder.blue   { background: var(--folder-blue); }
+  .label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-left: 11px;
+    white-space: nowrap;
+  }
+  .note {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-note);
+    margin-left: 16px;
+    white-space: nowrap;
+  }
+  .lines-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+<div class="diagram" id="diagram">
+
+  <div class="row" id="r0"  style="margin-left:0px;">
+    <div class="folder blue"></div>
+    <span class="label">your-app/</span>
+  </div>
+
+  <div class="row" id="r1"  style="margin-left:60px; margin-top:4px;">
+    <div class="folder green"></div>
+    <span class="label">domain/</span>
+  </div>
+
+  <div class="row" id="r2"  style="margin-left:160px; margin-top:8px;">
+    <div class="folder blue"></div>
+    <span class="label">model/</span>
+    <span class="note"># entities, value objects, aggregates</span>
+  </div>
+
+  <div class="row" id="r3"  style="margin-left:160px; margin-top:8px;">
+    <div class="folder blue"></div>
+    <span class="label">service/</span>
+    <span class="note"># domain services</span>
+  </div>
+
+  <div class="row" id="r4"  style="margin-left:60px; margin-top:16px;">
+    <div class="folder green"></div>
+    <span class="label">application/</span>
+  </div>
+
+  <div class="row" id="r5"  style="margin-left:160px; margin-top:8px;">
+    <div class="folder blue"></div>
+    <span class="label">port/</span>
+  </div>
+
+  <div class="row" id="r6"  style="margin-left:240px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">in/</span>
+    <span class="note"># input ports (use case interfaces)</span>
+  </div>
+
+  <div class="row" id="r7"  style="margin-left:240px; margin-top:4px;">
+    <div class="folder blue"></div>
+    <span class="label">out/</span>
+    <span class="note"># output ports (driven deps)</span>
+  </div>
+
+  <div class="row" id="r8"  style="margin-left:160px; margin-top:8px;">
+    <div class="folder blue"></div>
+    <span class="label">service/</span>
+    <span class="note"># use case implementations</span>
+  </div>
+
+  <div class="row" id="r9"  style="margin-left:60px; margin-top:16px;">
+    <div class="folder green"></div>
+    <span class="label">adapters/</span>
+  </div>
+
+  <div class="row" id="r10" style="margin-left:160px; margin-top:8px;">
+    <div class="folder blue"></div>
+    <span class="label">in/</span>
+  </div>
+
+  <div class="row" id="r11" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">web/</span>
+    <span class="note"># controllers</span>
+  </div>
+
+  <div class="row" id="r12" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">messaging/</span>
+    <span class="note"># consumers</span>
+  </div>
+
+  <div class="row" id="r13" style="margin-left:160px; margin-top:12px;">
+    <div class="folder blue"></div>
+    <span class="label">out/</span>
+  </div>
+
+  <div class="row" id="r14" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">persistence/</span>
+    <span class="note"># DB repositories</span>
+  </div>
+
+  <div class="row" id="r15" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">http/</span>
+    <span class="note"># external REST/gRPC</span>
+  </div>
+
+  <div class="row" id="r16" style="margin-left:240px; margin-top:6px;">
+    <div class="folder blue"></div>
+    <span class="label">messaging/</span>
+    <span class="note"># producers</span>
+  </div>
+
+  <div class="row" id="r17" style="margin-left:60px; margin-top:16px;">
+    <div class="folder green"></div>
+    <span class="label">config/</span>
+    <span class="note"># wiring/DI (optional)</span>
+  </div>
+
+  <svg class="lines-svg" id="linesSvg"></svg>
+</div>
+
+<script>
+// Theme detection
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+if (isDark) {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+
+// Listen for theme changes from parent
+window.addEventListener('message', (event) => {
+  if (event.data.theme) {
+    document.documentElement.setAttribute('data-theme', event.data.theme);
+    drawLines();
+  }
+});
+
+const edges = [
+  [0, 1],[0, 4],[0, 9],[0, 17],
+  [1, 2],[1, 3],
+  [4, 5],[4, 8],
+  [5, 6],[5, 7],
+  [9, 10],[9, 13],
+  [10, 11],[10, 12],
+  [13, 14],[13, 15],[13, 16],
+];
+
+function getFolder(rowId) {
+  const row = document.getElementById('r' + rowId);
+  const folder = row.querySelector('.folder');
+  const dRect = document.getElementById('diagram').getBoundingClientRect();
+  const fRect = folder.getBoundingClientRect();
+  return {
+    y:      fRect.top   - dRect.top  + fRect.height / 2,
+    left:   fRect.left  - dRect.left,
+    bottom: fRect.top   - dRect.top  + fRect.height,
+  };
+}
+
+function drawLines() {
+  const svg = document.getElementById('linesSvg');
+  const diagram = document.getElementById('diagram');
+  svg.setAttribute('width',  diagram.offsetWidth);
+  svg.setAttribute('height', diagram.offsetHeight);
+  svg.innerHTML = '';
+
+  const lineColor = getComputedStyle(document.documentElement).getPropertyValue('--line-color').trim();
+
+  const childrenOf = {};
+  edges.forEach(([p, c]) => { (childrenOf[p] = childrenOf[p] || []).push(c); });
+
+  function addPath(d) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', lineColor);
+    path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke-dasharray', '5,4');
+    svg.appendChild(path);
+  }
+
+  Object.keys(childrenOf).forEach(pIdx => {
+    const p = getFolder(Number(pIdx));
+    const kids = childrenOf[pIdx];
+    const lastKid = getFolder(kids[kids.length - 1]);
+    const trunkX = p.left - 1;
+
+    addPath(`M ${trunkX} ${p.bottom} L ${trunkX} ${lastKid.y}`);
+
+    kids.forEach(cIdx => {
+      const c = getFolder(cIdx);
+      addPath(`M ${trunkX} ${c.y} L ${c.left} ${c.y}`);
+    });
+  });
+}
+
+window.addEventListener('load', drawLines);
+window.addEventListener('resize', drawLines);
+</script>
+</body>
+</html>

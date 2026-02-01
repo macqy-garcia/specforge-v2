@@ -1,16 +1,23 @@
 "use client"
 
 import * as React from "react"
-import { Upload, Link as LinkIcon } from "lucide-react"
+import { Upload, Link as LinkIcon, CheckCircle2, AlertCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { getSpecSummary } from "@/lib/openapi-validator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Label } from "@/components/ui/label"
 
 interface UploadSpecStepProps {
   data: {
     source: string
     fileName: string
     url: string
+    specData?: any
+    isValidating?: boolean
+    isValid?: boolean
+    validationError?: string
   }
   updateData: (path: string[], value: any) => void
 }
@@ -47,12 +54,16 @@ export function UploadSpecStep({ data, updateData }: UploadSpecStepProps) {
     if (files && files.length > 0) {
       updateData(['upload', 'fileName'], files[0].name)
       updateData(['upload', 'source'], 'file')
+      // Clear any previous errors
+      updateData(['upload', 'validationError'], undefined)
     }
   }
 
   const handleClick = () => {
     fileInputRef.current?.click()
   }
+
+  const specSummary = data.specData ? getSpecSummary(data.specData) : null
 
   return (
     <div className="space-y-8">
@@ -121,26 +132,53 @@ export function UploadSpecStep({ data, updateData }: UploadSpecStepProps) {
       </div>
 
       {/* URL Input */}
-      <div className="space-y-2">
-        <label htmlFor="spec-url" className="text-sm font-medium">
-          OpenAPI Specification URL
-        </label>
-        <div className="relative">
-          <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="spec-url"
-            type="url"
-            placeholder="https://api.example.com/openapi.json"
-            value={data.url}
-            onChange={(e) => {
-              updateData(['upload', 'url'], e.target.value)
-              if (e.target.value) {
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label
+            htmlFor="spec-url"
+            className={data.validationError && data.source === 'url' ? "text-destructive" : ""}
+          >
+            OpenAPI Specification URL
+          </Label>
+          <div className="relative flex-1">
+            <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="spec-url"
+              type="url"
+              placeholder="https://api.example.com/openapi.json"
+              value={data.url}
+              onChange={(e) => {
+                updateData(['upload', 'url'], e.target.value)
                 updateData(['upload', 'source'], 'url')
-              }
-            }}
-            className="pl-9"
-          />
+                // Reset validation state when URL changes
+                updateData(['upload', 'isValid'], false)
+                updateData(['upload', 'validationError'], undefined)
+                updateData(['upload', 'specData'], undefined)
+              }}
+              className={`pl-9 ${data.validationError && data.source === 'url' ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+            />
+          </div>
+          {data.validationError && data.source === 'url' && (
+            <p className="text-sm text-destructive">{data.validationError}</p>
+          )}
         </div>
+
+        {data.isValid && specSummary && (
+          <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertTitle className="text-green-900 dark:text-green-100">Valid OpenAPI Specification</AlertTitle>
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              <div className="mt-2 space-y-1">
+                <p><strong>Title:</strong> {specSummary.title}</p>
+                <p><strong>Version:</strong> {specSummary.version}</p>
+                {specSummary.description && (
+                  <p><strong>Description:</strong> {specSummary.description}</p>
+                )}
+                <p><strong>Endpoints:</strong> {specSummary.pathCount} path{specSummary.pathCount !== 1 ? 's' : ''}</p>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Stepper, Step } from "@/components/ui/stepper"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { ModeToggle } from "./mode-toggle"
 
 interface WizardLayoutProps {
@@ -15,6 +15,7 @@ interface WizardLayoutProps {
   onComplete?: () => void
   className?: string
   completedSteps?: number[]
+  onValidateStep?: (fromStep: number, toStep: number) => Promise<boolean>
 }
 
 export function WizardLayout({
@@ -24,17 +25,33 @@ export function WizardLayout({
   children,
   onComplete,
   className,
-  completedSteps = []
+  completedSteps = [],
+  onValidateStep
 }: WizardLayoutProps) {
   const canGoBack = currentStep > 1
   const canGoNext = currentStep < steps.length
   const isLastStep = currentStep === steps.length
   const isSummaryStep = currentStep === 4 // Step 4 is the Summary step
 
-  const handleNext = () => {
+  // Check if the current step is completed
+  const isCurrentStepComplete = completedSteps.includes(currentStep)
+  const [isValidating, setIsValidating] = React.useState(false)
+
+  const handleNext = async () => {
     if (isLastStep && onComplete) {
       onComplete()
     } else if (canGoNext) {
+      // If validation handler is provided, call it before proceeding
+      if (onValidateStep) {
+        setIsValidating(true)
+        const isValid = await onValidateStep(currentStep, currentStep + 1)
+        setIsValidating(false)
+
+        if (!isValid) {
+          return // Don't proceed if validation fails
+        }
+      }
+
       onStepChange(currentStep + 1)
     }
   }
@@ -122,10 +139,20 @@ export function WizardLayout({
             </Button>
             <Button
               onClick={handleNext}
+              disabled={(!isCurrentStepComplete && !isLastStep) || isValidating}
               className="gap-2"
             >
-              {getNextButtonText()}
-              {!isLastStep && <ChevronRight className="h-4 w-4" />}
+              {isValidating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Validating...
+                </>
+              ) : (
+                <>
+                  {getNextButtonText()}
+                  {!isLastStep && <ChevronRight className="h-4 w-4" />}
+                </>
+              )}
             </Button>
           </div>
         </div>

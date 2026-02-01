@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 
 import { WizardLayout } from "@/components/wizard-layout"
 import { UploadSpecStep } from "@/components/steps/upload-spec-step"
@@ -38,16 +39,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "./ui/separator"
@@ -63,11 +54,12 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
-import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, EyeIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
+import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
 
 import { FileNode, FileTreeComponent } from "./file-tree"
 import { JsonViewer } from "./json-tree-viewer"
 import { ModeToggle } from "./mode-toggle"
+import { fetchOpenApiSpec } from "@/lib/openapi-validator"
 
 // Define the type for your JSON data
 interface ProjectData {
@@ -75,6 +67,10 @@ interface ProjectData {
     source: string
     fileName: string
     url: string
+    specData?: any // Stores the fetched OpenAPI spec
+    isValidating?: boolean // Indicates if validation is in progress
+    isValid?: boolean // Indicates if the spec is valid
+    validationError?: string // Stores validation error messages
   }
   projectInfo: {
     purposeCode: string
@@ -123,6 +119,7 @@ interface Architecture {
   name: string
   description: string
   structure: FileNode[]
+  diagramPath: string
 }
 
 export function ComponentExample() {
@@ -139,8 +136,9 @@ export function ComponentExample() {
   const architectures: Architecture[] = [
     {
       id: "hex-3",
-      name: "Hex (3-module)",
-      description: "Traditional Spring Boot layered architecture with clear separation of concerns.",
+      name: "Hexagonal 3-Module",
+      description: "Traditional hexagonal architecture with adapter, domain, and application layers.",
+      diagramPath: "/architectures/hex-3.html",
       structure: [
         {
           name: "src",
@@ -255,8 +253,9 @@ export function ComponentExample() {
     },
     {
       id: "hex-4",
-      name: "Hex + Persistence (4-module)",
-      description: "Domain-driven design with clear boundaries between business logic and infrastructure.",
+      name: "Hexagonal 4-Module",
+      description: "Hexagonal architecture with separate persistence layer using ports and adapters pattern.",
+      diagramPath: "/architectures/hex-4.html",
       structure: [
         {
           name: "src",
@@ -387,9 +386,10 @@ export function ComponentExample() {
       ],
     },
     {
-      id: "layered-ddd",
-      name: "Layered (DDD)",
-      description: "Domain-driven design with explicit layers: presentation, application, domain, and infrastructure.",
+      id: "multi-module",
+      name: "Multi-Module",
+      description: "Layered architecture with separate modules for presentation, application, domain, and infrastructure.",
+      diagramPath: "/architectures/multi-module.html",
       structure: [
         {
           name: "src",
@@ -530,7 +530,11 @@ export function ComponentExample() {
     upload: {
       source: "file",
       fileName: "",
-      url: ""
+      url: "",
+      specData: undefined,
+      isValidating: false,
+      isValid: false,
+      validationError: undefined
     },
     projectInfo: {
       purposeCode: "",
@@ -589,7 +593,13 @@ export function ComponentExample() {
     const newCompletedSteps: number[] = []
 
     // Validate Step 1: Upload Spec
-    if (projectData.upload.fileName || projectData.upload.url) {
+    // For file upload: check fileName exists
+    // For URL upload: check URL exists (validation happens on Next click)
+    const step1Complete =
+      (projectData.upload.source === 'file' && projectData.upload.fileName) ||
+      (projectData.upload.source === 'url' && projectData.upload.url)
+
+    if (step1Complete) {
       newCompletedSteps.push(1)
     }
 
@@ -629,6 +639,57 @@ export function ComponentExample() {
 
     setCompletedSteps(newCompletedSteps)
   }, [projectData, selectedArchitecture])
+
+  // Validation handler for step transitions
+  const handleStepValidation = async (fromStep: number, toStep: number): Promise<boolean> => {
+    // Only validate when moving forward from step 1
+    if (fromStep === 1 && toStep > 1) {
+      // If source is URL, validate it
+      if (projectData.upload.source === 'url') {
+        if (!projectData.upload.url) {
+          toast.error('Please enter an OpenAPI Specification URL')
+          updateProjectData(['upload', 'validationError'], 'Please enter a URL')
+          return false
+        }
+
+        // If URL hasn't been validated yet or has changed, validate it
+        if (!projectData.upload.isValid) {
+          // Set validating state
+          updateProjectData(['upload', 'isValidating'], true)
+          updateProjectData(['upload', 'validationError'], undefined)
+
+          // Fetch and validate the spec
+          const result = await fetchOpenApiSpec(projectData.upload.url)
+
+          // Update state with results
+          updateProjectData(['upload', 'isValidating'], false)
+
+          if (result.isValid && result.specData) {
+            updateProjectData(['upload', 'specData'], result.specData)
+            updateProjectData(['upload', 'isValid'], true)
+            updateProjectData(['upload', 'validationError'], undefined)
+            updateProjectData(['upload', 'fileName'], `${result.type}-spec.json`)
+            toast.success('OpenAPI specification validated successfully')
+            return true
+          } else {
+            updateProjectData(['upload', 'validationError'], result.error || 'Invalid OpenAPI specification')
+            updateProjectData(['upload', 'isValid'], false)
+            updateProjectData(['upload', 'specData'], undefined)
+            toast.error(result.error || 'Invalid OpenAPI specification')
+            return false
+          }
+        }
+      }
+
+      // If source is file, just check if file is selected
+      if (projectData.upload.source === 'file' && !projectData.upload.fileName) {
+        toast.error('Please select a file to upload')
+        return false
+      }
+    }
+
+    return true
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -677,6 +738,7 @@ export function ComponentExample() {
       onStepChange={setCurrentStep}
       onComplete={() => console.log("Wizard completed!")}
       completedSteps={completedSteps}
+      onValidateStep={handleStepValidation}
     >
       {renderStepContent()}
     </WizardLayout>
@@ -869,8 +931,37 @@ function ProjectConfigurationStep({
   updateData: (path: string[], value: any) => void
   projectData: ProjectData
 }) {
+  // Send theme to iframes
+  React.useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark')
+    const theme = isDark ? 'dark' : 'light'
+
+    // Send theme to all iframes
+    const iframes = document.querySelectorAll('iframe')
+    iframes.forEach(iframe => {
+      iframe.contentWindow?.postMessage({ theme }, '*')
+    })
+
+    // Watch for theme changes
+    const observer = new MutationObserver(() => {
+      const isDarkNow = document.documentElement.classList.contains('dark')
+      const themeNow = isDarkNow ? 'dark' : 'light'
+      iframes.forEach(iframe => {
+        iframe.contentWindow?.postMessage({ theme: themeNow }, '*')
+      })
+    })
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 gap-5">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Technology Stack</CardTitle>
@@ -1005,14 +1096,15 @@ function ProjectConfigurationStep({
           </form>
         </CardContent>
       </Card>
+      </div>
 
       {/* Architecture Carousel */}
-      <Carousel className="w-full max-w-md">
+      <Carousel className="w-full">
         <CarouselContent>
           {architectures.map((architecture, index) => (
             <CarouselItem key={index}>
               <div className="p-1">
-                <Card className={`relative mx-auto w-full max-w-sm ${selectedArchitecture === index ? 'border-primary' : ''}`}>
+                <Card className={`relative mx-auto w-full ${selectedArchitecture === index ? 'border-primary' : ''}`}>
                   <CardHeader>
                     <CardAction>
                       <Badge variant={selectedArchitecture === index ? "default" : "secondary"}>
@@ -1024,34 +1116,19 @@ function ProjectConfigurationStep({
                       {architecture.description}
                     </CardDescription>
                   </CardHeader>
+                  <CardContent>
+                    <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border bg-card">
+                      <iframe
+                        src={architecture.diagramPath}
+                        title={architecture.name}
+                        className="w-full h-full border-0"
+                        style={{ colorScheme: 'normal' }}
+                      />
+                    </div>
+                  </CardContent>
                   <CardFooter className="flex gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="flex-1" variant="outline" size="sm">
-                          <EyeIcon /> View Structure
-                        </Button>
-                      </DialogTrigger>
-
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>{architecture.name}</DialogTitle>
-                          <DialogDescription>
-                            {architecture.description}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
-                          <FileTreeComponent data={architecture.structure} />
-                        </div>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Close</Button>
-                          </DialogClose>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-
                     <Button
-                      className="flex-1"
+                      className="w-full"
                       variant={selectedArchitecture === index ? "default" : "outline"}
                       size="sm"
                       onClick={() => {
@@ -1072,6 +1149,7 @@ function ProjectConfigurationStep({
         <CarouselNext />
       </Carousel>
 
+      <div className="grid grid-cols-2 gap-5">
       {/* Build Setup Tabs */}
       <Card className="w-full max-w-md">
         <CardHeader>
@@ -1846,6 +1924,7 @@ function ProjectConfigurationStep({
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
