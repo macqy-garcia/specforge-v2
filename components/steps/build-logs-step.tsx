@@ -3,8 +3,9 @@
 import * as React from "react"
 import { VerticalStepper, VerticalStep } from "@/components/ui/vertical-stepper"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Check } from "lucide-react"
+import { Check, CheckCircle2, ArrowRight } from "lucide-react"
 
 // Define the API steps
 const API_STEPS = [
@@ -75,6 +76,7 @@ export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogs
 
   const [isRunning, setIsRunning] = React.useState(false)
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0)
+  const [buildComplete, setBuildComplete] = React.useState(false)
   const hasStartedRef = React.useRef(false)
 
   // Simulate API call with 2-second delay
@@ -134,11 +136,9 @@ export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogs
       duration: 5000,
     })
 
-    // Call onComplete callback after all steps are done
-    if (onComplete) {
-      setTimeout(onComplete, 500)
-    }
-  }, [isRunning, onComplete, projectName])
+    // Show the confirmation prompt instead of auto-redirecting
+    setBuildComplete(true)
+  }, [isRunning, projectName])
 
   // Auto-start the build process when component mounts
   React.useEffect(() => {
@@ -174,6 +174,45 @@ export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogs
           <VerticalStepper steps={steps} />
         </CardContent>
       </Card>
+
+      {/* Redirect confirmation — shown only after build finishes */}
+      {buildComplete && (
+        <Card className="max-w-2xl mx-auto border-green-500 bg-green-50 dark:bg-green-950 animate-in fade-in duration-500">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="mt-0.5 shrink-0">
+                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <h3 className="text-base font-semibold text-green-900 dark:text-green-100">
+                  Your project is ready!
+                </h3>
+                <p className="text-sm text-green-800 dark:text-green-200">
+                  {projectName} has been successfully orchestrated. Would you like to open the API Explorer to test your endpoints?
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setBuildComplete(false)}
+              >
+                Stay Here
+              </Button>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => onComplete && onComplete()}
+              >
+                Open API Explorer
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

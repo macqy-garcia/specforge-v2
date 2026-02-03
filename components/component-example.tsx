@@ -194,7 +194,7 @@ export function ComponentExample() {
     scaffoldType: "standard"
   })
 
-  const [selectedArchitecture, setSelectedArchitecture] = React.useState(1)
+  const [selectedArchitecture, setSelectedArchitecture] = React.useState<number | null>(null)
   const [currentStep, setCurrentStep] = React.useState(1)
   const [completedSteps, setCompletedSteps] = React.useState<number[]>([])
   const [wizardCompleted, setWizardCompleted] = React.useState(false)
@@ -243,22 +243,10 @@ export function ComponentExample() {
       newCompletedSteps.push(2)
     }
 
-    // Step 3: Tech Stack - only complete if user has changed something from defaults
-    const hasChangedTechStack =
-      projectData.techOptions.language !== "java" ||
-      projectData.techOptions.javaVersion !== "17" ||
-      projectData.techOptions.springBootVersion !== "3.2.3" ||
-      projectData.techOptions.buildTool !== "maven" ||
-      projectData.techOptions.groupId !== "com.example" ||
-      projectData.techOptions.artifactId !== "demo" ||
-      projectData.techOptions.basePackage !== "com.example.demo" ||
-      selectedArchitecture !== 1 ||
-      projectData.techOptions.dependencies.length > 0 ||
-      projectData.techOptions.starterKit !== false ||
-      projectData.techOptions.mock.engine !== "prism" ||
-      projectData.techOptions.observability.otel !== false
+    // Step 3: Tech Stack - hexagonalLayout (architecture) is mandatory
+    const step3Complete = projectData.techOptions.hexagonalLayout !== ""
 
-    if (hasChangedTechStack) {
+    if (step3Complete) {
       newCompletedSteps.push(3)
     }
 
@@ -556,7 +544,7 @@ function ProjectConfigurationStep({
 }: {
   data: ProjectData['techOptions']
   architectures: Architecture[]
-  selectedArchitecture: number
+  selectedArchitecture: number | null
   setSelectedArchitecture: (index: number) => void
   updateData: (path: string[], value: any) => void
   projectData: ProjectData
@@ -588,6 +576,16 @@ function ProjectConfigurationStep({
 
     return () => observer.disconnect()
   }, [])
+
+  // Tracks whether the user has actively clicked "Select Quick Build"
+  const [quickBuildSelected, setQuickBuildSelected] = React.useState(false)
+
+  // Reset the selected state whenever the user switches to Starter Kit
+  React.useEffect(() => {
+    if (typeof data.starterKit === 'object') {
+      setQuickBuildSelected(false)
+    }
+  }, [data.starterKit])
 
   return (
     <div className="space-y-5">
@@ -788,10 +786,38 @@ function ProjectConfigurationStep({
           </CardHeader>
           <CardContent>
             <Tabs
-              defaultValue="quick-build"
+              value={typeof data.starterKit === 'object' ? "ing-starter-kit" : "quick-build"}
               onValueChange={(value) => {
                 if (value === "quick-build") {
+                  // Reset starterKit entirely — clears any previously filled fields
                   updateData(['techOptions', 'starterKit'], false)
+                  toast.success("Quick Build selected", {
+                    description: "ING Starter Kit configuration has been cleared.",
+                    duration: 3000,
+                  })
+                } else {
+                  // Initialise the Starter Kit object only if not already one
+                  if (typeof data.starterKit !== 'object') {
+                    updateData(['techOptions', 'starterKit'], {
+                      azureDevOpsOrganisation: 'IngEurCDaaS01',
+                      platform: 'ICHPDE',
+                      generationScope: 'pipelines-only',
+                      resourceGeneration: 'init',
+                      buildPipeline: {
+                        helm: { enabled: false, multiModuleProject: false, sonarQube: false },
+                        maven: { enabled: false, multiModuleProject: false, sonarQube: false },
+                        image: { enabled: false, sidecar: false, multiTemplate: false },
+                        tpa: { enabled: false, resources: false, ctk: false }
+                      },
+                      purposeCode: '',
+                      assetIndent: '',
+                      applicationName: ''
+                    })
+                  }
+                  toast.success("ING Starter Kit selected", {
+                    description: "Fill in the details below to configure your pipeline.",
+                    duration: 3000,
+                  })
                 }
               }}
             >
@@ -816,8 +842,19 @@ function ProjectConfigurationStep({
                   <CardContent className="text-muted-foreground text-sm">
                     <Button
                       className="w-full"
-                      onClick={() => updateData(['techOptions', 'starterKit'], false)}
+                      variant={quickBuildSelected ? "default" : "secondary"}
+                      onClick={() => {
+                        updateData(['techOptions', 'starterKit'], false)
+                        setQuickBuildSelected(true)
+                        toast.success("Quick Build selected", {
+                          description: "ING Starter Kit configuration has been cleared.",
+                          duration: 3000,
+                        })
+                      }}
                     >
+                      {quickBuildSelected && (
+                        <Check className="h-4 w-4 mr-2 animate-in fade-in slide-in-from-left-2 duration-300" />
+                      )}
                       Select Quick Build
                     </Button>
                   </CardContent>
@@ -1486,7 +1523,17 @@ function ProjectConfigurationStep({
                     </Field>
 
                     <Field orientation="responsive">
-                      <Button type="submit">Done</Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          toast.success("ING Starter Kit confirmed", {
+                            description: "Your pipeline configuration has been saved.",
+                            duration: 3000,
+                          })
+                        }}
+                      >
+                        Done
+                      </Button>
                     </Field>
                   </FieldGroup>
                 </form>
