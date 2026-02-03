@@ -154,8 +154,8 @@ export function ComponentExample() {
     },
   ]
 
-  // Initialize state with default values
-  const [projectData, setProjectData] = React.useState<ProjectData>({
+  // Initial state — also used by the "New Project" reset
+  const initialProjectData: ProjectData = {
     upload: {
       source: "file",
       fileName: "",
@@ -192,12 +192,15 @@ export function ComponentExample() {
       scaffoldingMode: "standard"
     },
     scaffoldType: "standard"
-  })
+  }
+
+  const [projectData, setProjectData] = React.useState<ProjectData>(initialProjectData)
 
   const [selectedArchitecture, setSelectedArchitecture] = React.useState<number | null>(null)
   const [currentStep, setCurrentStep] = React.useState(1)
   const [completedSteps, setCompletedSteps] = React.useState<number[]>([])
   const [wizardCompleted, setWizardCompleted] = React.useState(false)
+  const [buildLogsComplete, setBuildLogsComplete] = React.useState(false)
 
   // Generic update function for nested properties
   const updateProjectData = (path: string[], value: any) => {
@@ -255,8 +258,13 @@ export function ComponentExample() {
       newCompletedSteps.push(4)
     }
 
+    // Step 5: Build Logs - only complete once all build steps have finished
+    if (buildLogsComplete) {
+      newCompletedSteps.push(5)
+    }
+
     setCompletedSteps(newCompletedSteps)
-  }, [projectData, selectedArchitecture])
+  }, [projectData, selectedArchitecture, buildLogsComplete])
 
   // Validation handler for step transitions
   const handleStepValidation = async (fromStep: number, toStep: number): Promise<boolean> => {
@@ -332,6 +340,7 @@ export function ComponentExample() {
         return (
           <BuildLogsStep
             onComplete={() => setWizardCompleted(true)}
+            onBuildComplete={() => setBuildLogsComplete(true)}
             projectName={projectData.projectInfo.projectName || "Project"}
           />
         )
@@ -345,6 +354,18 @@ export function ComponentExample() {
     return (
       <ApiTestingStep
         projectName={projectData.projectInfo.projectName}
+        onBack={() => {
+          setWizardCompleted(false)
+          setCurrentStep(5)
+        }}
+        onNewProject={() => {
+          setWizardCompleted(false)
+          setProjectData(initialProjectData)
+          setCurrentStep(1)
+          setCompletedSteps([])
+          setBuildLogsComplete(false)
+          setSelectedArchitecture(null)
+        }}
       />
     )
   }

@@ -5,82 +5,59 @@ import { VerticalStepper, VerticalStep } from "@/components/ui/vertical-stepper"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Check, CheckCircle2, ArrowRight } from "lucide-react"
-
-// Define the API steps
-const API_STEPS = [
-  {
-    id: 1,
-    label: "Initializing Project",
-    description: "Setting up project structure",
-    apiEndpoint: "/api/initialize",
-  },
-  {
-    id: 2,
-    label: "Generating Code",
-    description: "Creating source files from specification",
-    apiEndpoint: "/api/generate-code",
-  },
-  {
-    id: 3,
-    label: "Installing Dependencies",
-    description: "Installing project dependencies",
-    apiEndpoint: "/api/install-deps",
-  },
-  {
-    id: 4,
-    label: "Building Project",
-    description: "Compiling and building the project",
-    apiEndpoint: "/api/build",
-  },
-  {
-    id: 5,
-    label: "Running Tests",
-    description: "Executing test suites",
-    apiEndpoint: "/api/test",
-  },
-  {
-    id: 6,
-    label: "Generating Documentation",
-    description: "Creating API documentation",
-    apiEndpoint: "/api/docs",
-  },
-  {
-    id: 7,
-    label: "Setting up CI/CD",
-    description: "Configuring continuous integration",
-    apiEndpoint: "/api/cicd",
-  },
-  {
-    id: 8,
-    label: "Finalizing",
-    description: "Completing project setup",
-    apiEndpoint: "/api/finalize",
-  },
-]
+import { Check, CheckCircle2, ArrowRight, Loader2 } from "lucide-react"
+import type { BuildStep } from "@/app/api/build-steps/route"
 
 interface BuildLogsStepProps {
   onComplete?: () => void
+  onBuildComplete?: () => void
   projectName?: string
 }
 
-export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogsStepProps) {
-  const [steps, setSteps] = React.useState<VerticalStep[]>(
-    API_STEPS.map((step) => ({
-      id: step.id,
-      label: step.label,
-      description: step.description,
-      status: "pending" as const,
-    }))
-  )
+export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Project" }: BuildLogsStepProps) {
+  // ---------------------------------------------------------------------------
+  // Fetched step definitions (populated from /api/build-steps)
+  // ---------------------------------------------------------------------------
+  const [apiSteps, setApiSteps] = React.useState<BuildStep[]>([])
+  const [fetchLoading, setFetchLoading] = React.useState(true)
+  const [fetchError, setFetchError] = React.useState<string | null>(null)
 
+  // Stepper UI state — initialised empty; populated after fetch resolves
+  const [steps, setSteps] = React.useState<VerticalStep[]>([])
   const [isRunning, setIsRunning] = React.useState(false)
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0)
   const [buildComplete, setBuildComplete] = React.useState(false)
   const hasStartedRef = React.useRef(false)
 
+  // ---------------------------------------------------------------------------
+  // Fetch step definitions from the mock API on mount
+  // ---------------------------------------------------------------------------
+  React.useEffect(() => {
+    async function loadSteps() {
+      try {
+        const res = await fetch("/api/build-steps")
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data: BuildStep[] = await res.json()
+        setApiSteps(data)
+        setSteps(
+          data.map((step) => ({
+            id: step.id,
+            label: step.label,
+            description: step.description,
+            status: "pending" as const,
+          }))
+        )
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : "Failed to load build steps")
+      } finally {
+        setFetchLoading(false)
+      }
+    }
+    loadSteps()
+  }, [])
+
   // Simulate API call with 2-second delay
-  const simulateApiCall = async (stepIndex: number): Promise<void> => {
+  const simulateApiCall = async (_stepIndex: number): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve()
@@ -88,14 +65,15 @@ export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogs
     })
   }
 
-  // Start the build process
+  // ---------------------------------------------------------------------------
+  // Start the build process — only after steps have been fetched
+  // ---------------------------------------------------------------------------
   const startBuildProcess = React.useCallback(async () => {
-    // Prevent multiple executions
-    if (isRunning) return
+    if (isRunning || apiSteps.length === 0) return
 
     setIsRunning(true)
 
-    for (let i = 0; i < API_STEPS.length; i++) {
+    for (let i = 0; i < apiSteps.length; i++) {
       setCurrentStepIndex(i)
 
       // Update step to in_progress
@@ -138,15 +116,16 @@ export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogs
 
     // Show the confirmation prompt instead of auto-redirecting
     setBuildComplete(true)
-  }, [isRunning, projectName])
+    onBuildComplete?.()
+  }, [isRunning, apiSteps, projectName, onBuildComplete])
 
-  // Auto-start the build process when component mounts
+  // Auto-start once the fetched steps are ready
   React.useEffect(() => {
-    if (!hasStartedRef.current) {
+    if (!fetchLoading && !fetchError && apiSteps.length > 0 && !hasStartedRef.current) {
       hasStartedRef.current = true
       startBuildProcess()
     }
-  }, [startBuildProcess])
+  }, [fetchLoading, fetchError, apiSteps, startBuildProcess])
 
   return (
     <div className="space-y-8">
@@ -160,20 +139,69 @@ export function BuildLogsStep({ onComplete, projectName = "Project" }: BuildLogs
         </p>
       </div>
 
-      {/* Build Logs Card */}
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Build Progress</CardTitle>
-          <CardDescription>
-            {isRunning
-              ? `Processing step ${currentStepIndex + 1} of ${API_STEPS.length}...`
-              : "Build process completed!"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <VerticalStepper steps={steps} />
-        </CardContent>
-      </Card>
+      {/* Loading / error states while fetching step definitions */}
+      {fetchLoading && (
+        <div className="max-w-2xl mx-auto flex items-center justify-center gap-3 py-12">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Loading build steps…</p>
+        </div>
+      )}
+
+      {fetchError && (
+        <Card className="max-w-2xl mx-auto border-destructive">
+          <CardContent className="pt-6 text-center space-y-3">
+            <p className="text-sm text-destructive font-medium">{fetchError}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setFetchError(null)
+                setFetchLoading(true)
+                hasStartedRef.current = false
+                fetch("/api/build-steps")
+                  .then((res) => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                    return res.json() as Promise<BuildStep[]>
+                  })
+                  .then((data) => {
+                    setApiSteps(data)
+                    setSteps(
+                      data.map((step) => ({
+                        id: step.id,
+                        label: step.label,
+                        description: step.description,
+                        status: "pending" as const,
+                      }))
+                    )
+                  })
+                  .catch((err) => {
+                    setFetchError(err instanceof Error ? err.message : "Failed to load build steps")
+                  })
+                  .finally(() => setFetchLoading(false))
+              }}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Build Logs Card — rendered only after steps are fetched */}
+      {!fetchLoading && !fetchError && (
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle>Build Progress</CardTitle>
+            <CardDescription>
+              {isRunning
+                ? `Processing step ${currentStepIndex + 1} of ${apiSteps.length}…`
+                : "Build process completed!"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <VerticalStepper steps={steps} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Redirect confirmation — shown only after build finishes */}
       {buildComplete && (
