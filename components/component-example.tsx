@@ -110,7 +110,9 @@ interface ProjectData {
     observability: {
       otel: boolean
     }
+    scaffoldingMode: string
   }
+  scaffoldType: 'ai' | 'standard'
 }
 
 interface Architecture {
@@ -186,8 +188,10 @@ export function ComponentExample() {
       },
       observability: {
         otel: false
-      }
-    }
+      },
+      scaffoldingMode: "standard"
+    },
+    scaffoldType: "standard"
   })
 
   const [selectedArchitecture, setSelectedArchitecture] = React.useState(1)
@@ -335,7 +339,7 @@ export function ComponentExample() {
           />
         )
       case 4:
-        return <SummaryStep projectData={projectData} />
+        return <SummaryStep projectData={projectData} updateData={updateProjectData} />
       case 5:
         return (
           <BuildLogsStep
@@ -758,7 +762,7 @@ function ProjectConfigurationStep({
                       variant={selectedArchitecture === index ? "default" : "outline"}
                       size="sm"
                       onClick={() => {
-                        setSelectedArchitecture(index) // macqy
+                        setSelectedArchitecture(index)
                         updateData(['techOptions', 'hexagonalLayout'], architecture.id)
                       }}
                     >
@@ -1555,7 +1559,7 @@ function ProjectConfigurationStep({
   )
 }
 
-function SummaryStep({ projectData }: { projectData: ProjectData }) {
+function SummaryStep({ projectData, updateData }: { projectData: ProjectData; updateData: (path: string[], value: any) => void }) {
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -1568,79 +1572,159 @@ function SummaryStep({ projectData }: { projectData: ProjectData }) {
         </p>
       </div>
 
-      <Card className="w-full max-w-md mx-auto">
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <Card>
-              <CardContent className="flex justify-between items-center pt-6">
-                <div>
-                  <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
-                    {projectData.projectInfo.projectName || 'Untitled Project'}
-                  </h4>
-                  <p className="scroll-m-20 text-sm font-normal tracking-tight">
-                    {projectData.projectInfo.description || 'No description'}
-                  </p>
-                </div>
-                <Badge>{projectData.projectInfo.purposeCode || 'N/A'}</Badge>
-              </CardContent>
-            </Card>
+      {/* Two-column layout: Summary cards (left) + Scaffolding (right) */}
+      <div className="grid grid-cols-2 gap-5">
+        {/* Left column — project summary cards */}
+        <Card className="w-full">
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <Card>
+                <CardContent className="flex justify-between items-center pt-6">
+                  <div>
+                    <h4 className="scroll-m-20 text-lg font-semibold tracking-tight">
+                      {projectData.projectInfo.projectName || 'Untitled Project'}
+                    </h4>
+                    <p className="scroll-m-20 text-sm font-normal tracking-tight">
+                      {projectData.projectInfo.description || 'No description'}
+                    </p>
+                  </div>
+                  <Badge>{projectData.projectInfo.purposeCode || 'N/A'}</Badge>
+                </CardContent>
+              </Card>
 
-            <Card className='w-full'>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <FolderGit2 className="h-5 w-5" />
-                  <CardTitle>Source Control</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className='grid gap-4 sm:grid-cols-2'>
-                <div className='flex items-center gap-4'>
-                  <div className='flex flex-col'>
-                    <span className='text-sm font-semibold'>
-                      {projectData.projectInfo.repoName || 'N/A'}
-                    </span>
-                    <span className='text-muted-foreground text-sm'>Repository</span>
+              <Card className='w-full'>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <FolderGit2 className="h-5 w-5" />
+                    <CardTitle>Source Control</CardTitle>
                   </div>
-                </div>
-                <div className='flex items-center gap-4'>
-                  <div className='flex flex-col'>
-                    <span className='text-sm font-semibold'>
-                      {projectData.projectInfo.defaultBranch}
-                    </span>
-                    <span className='text-muted-foreground text-sm'>Main Branch</span>
+                </CardHeader>
+                <CardContent className='grid gap-4 sm:grid-cols-2'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>
+                        {projectData.projectInfo.repoName || 'N/A'}
+                      </span>
+                      <span className='text-muted-foreground text-sm'>Repository</span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>
+                        {projectData.projectInfo.defaultBranch}
+                      </span>
+                      <span className='text-muted-foreground text-sm'>Main Branch</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <HardDrive className="h-5 w-5" />
-                  <CardTitle>Infrastructure</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className='grid gap-4 sm:grid-cols-2'>
-                <div className='flex items-center gap-4'>
-                  <div className='flex flex-col'>
-                    <span className='text-sm font-semibold'>
-                      Java {projectData.techOptions.javaVersion} / SB {projectData.techOptions.springBootVersion}
-                    </span>
-                    <span className='text-muted-foreground text-sm'>Runtime</span>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="h-5 w-5" />
+                    <CardTitle>Infrastructure</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className='grid gap-4 sm:grid-cols-2'>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>
+                        Java {projectData.techOptions.javaVersion} / SB {projectData.techOptions.springBootVersion}
+                      </span>
+                      <span className='text-muted-foreground text-sm'>Runtime</span>
+                    </div>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <div className='flex flex-col'>
+                      <span className='text-sm font-semibold'>
+                        {projectData.techOptions.buildTool.charAt(0).toUpperCase() + projectData.techOptions.buildTool.slice(1)}
+                      </span>
+                      <span className='text-muted-foreground text-sm'>Build System</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right column — scaffolding mode selector */}
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Scaffolding</CardTitle>
+            <CardDescription>Choose how your project should be scaffolded.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RadioGroup
+              value={projectData.techOptions.scaffoldingMode}
+              onValueChange={(value) => {
+                updateData(['techOptions', 'scaffoldingMode'], value)
+                updateData(['scaffoldType'], value === 'ai-assisted' ? 'ai' : 'standard')
+              }}
+              className="space-y-4"
+            >
+              {/* Standard Scaffolding */}
+              <div
+                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
+                  projectData.techOptions.scaffoldingMode === 'standard'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-muted hover:border-muted-foreground/50'
+                }`}
+                onClick={() => {
+                  updateData(['techOptions', 'scaffoldingMode'], 'standard')
+                  updateData(['scaffoldType'], 'standard')
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <RadioGroupItem value="standard" id="scaffold-standard" className="mt-0.5" />
+                  <div className="space-y-1">
+                    <Label htmlFor="scaffold-standard" className="text-sm font-semibold cursor-pointer">
+                      Standard Scaffolding
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Uses Spring Initializr / predefined templates
+                    </p>
                   </div>
                 </div>
-                <div className='flex items-center gap-4'>
-                  <div className='flex flex-col'>
-                    <span className='text-sm font-semibold'>
-                      {projectData.techOptions.buildTool.charAt(0).toUpperCase() + projectData.techOptions.buildTool.slice(1)}
-                    </span>
-                    <span className='text-muted-foreground text-sm'>Build System</span>
+              </div>
+
+              {/* AI-Assisted Scaffolding */}
+              <div
+                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
+                  projectData.techOptions.scaffoldingMode === 'ai-assisted'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-muted hover:border-muted-foreground/50'
+                }`}
+                onClick={() => {
+                  updateData(['techOptions', 'scaffoldingMode'], 'ai-assisted')
+                  updateData(['scaffoldType'], 'ai')
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <RadioGroupItem value="ai-assisted" id="scaffold-ai" className="mt-0.5" />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="scaffold-ai" className="text-sm font-semibold cursor-pointer">
+                        AI-Assisted Scaffolding
+                      </Label>
+                      <Badge variant="secondary" className="gap-1 text-xs">
+                        <SparkleIcon className="h-3 w-3" />
+                        AI
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Uses AI to generate project structure and code
+                    </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
+              </div>
+            </RadioGroup>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Full-width JSON config */}
       <Card className='w-full max-w-full'>
         <CardHeader>
           <CardTitle>Collected Configuration (JSON)</CardTitle>
