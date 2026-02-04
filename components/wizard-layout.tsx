@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Stepper, Step } from "@/components/ui/stepper"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, RotateCcw } from "lucide-react"
 import { ModeToggle } from "./mode-toggle"
 
 interface WizardLayoutProps {
@@ -13,6 +13,7 @@ interface WizardLayoutProps {
   onStepChange: (step: number) => void
   children: React.ReactNode
   onComplete?: () => void
+  onStartOver?: () => void
   className?: string
   completedSteps?: number[]
   onValidateStep?: (fromStep: number, toStep: number) => Promise<boolean>
@@ -24,6 +25,7 @@ export function WizardLayout({
   onStepChange,
   children,
   onComplete,
+  onStartOver,
   className,
   completedSteps = [],
   onValidateStep
@@ -38,9 +40,11 @@ export function WizardLayout({
   const [isValidating, setIsValidating] = React.useState(false)
 
   const handleNext = async () => {
-    if (isLastStep && onComplete) {
-      onComplete()
-    } else if (canGoNext) {
+    if (isLastStep && onStartOver) {
+      onStartOver()
+      return
+    }
+    if (canGoNext) {
       // If validation handler is provided, call it before proceeding
       if (onValidateStep) {
         setIsValidating(true)
@@ -62,7 +66,7 @@ export function WizardLayout({
       return "Generate Project"
     }
     if (isLastStep) {
-      return "Complete"
+      return "Start Over"
     }
     return "Next Step"
   }
@@ -149,6 +153,7 @@ export function WizardLayout({
                 </>
               ) : (
                 <>
+                  {isLastStep && <RotateCcw className="h-4 w-4" />}
                   {getNextButtonText()}
                   {!isLastStep && <ChevronRight className="h-4 w-4" />}
                 </>

@@ -375,7 +375,13 @@ export function ComponentExample() {
       steps={wizardSteps}
       currentStep={currentStep}
       onStepChange={setCurrentStep}
-      onComplete={() => console.log("Wizard completed!")}
+      onStartOver={() => {
+        setProjectData(initialProjectData)
+        setCurrentStep(1)
+        setCompletedSteps([])
+        setBuildLogsComplete(false)
+        setSelectedArchitecture(null)
+      }}
       completedSteps={completedSteps}
       onValidateStep={handleStepValidation}
     >
