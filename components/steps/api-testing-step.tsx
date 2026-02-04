@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Play, Square, ChevronDown, Search, RotateCcw, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ModeToggle } from "@/components/mode-toggle"
 import type { FileTreeNode } from "@/app/api/explorer/file-tree/route"
 import type { ExplorerEndpoint } from "@/app/api/explorer/endpoints/route"
 
@@ -86,6 +87,10 @@ export function ApiTestingStep({
   const [selectedEndpoint, setSelectedEndpoint] = React.useState<ApiEndpoint | null>(null)
   const [response, setResponse] = React.useState<any>(null)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [consoleLogs, setConsoleLogs] = React.useState<{ id: number; type: "request" | "response" | "info"; text: string }[]>([])
+
+  // Derived: badge flips green while a request is in-flight or a response is cached
+  const serverStatus = isRunning ? "Running" : response ? "Connected" : "Stopped"
 
   const filteredEndpoints = React.useMemo(() => {
     if (!searchQuery.trim()) return endpoints
@@ -99,17 +104,28 @@ export function ApiTestingStep({
   }, [endpoints, searchQuery])
 
   const handleRun = () => {
+    if (!selectedEndpoint) return
     setIsRunning(true)
+    setResponse(null)
+    const ts = new Date().toLocaleTimeString()
+    const reqLog = { id: Date.now(), type: "request" as const, text: `[${ts}]  → ${selectedEndpoint.method} ${selectedEndpoint.path}` }
+    setConsoleLogs((prev) => [...prev, reqLog])
+
     // Simulate API call - replace with actual backend call
     setTimeout(() => {
-      if (selectedEndpoint) {
-        setResponse(mockResponse)
-        setIsRunning(false)
-      }
+      const resTs = new Date().toLocaleTimeString()
+      const resLog = { id: Date.now() + 1, type: "response" as const, text: `[${resTs}]  ← 200 OK  (${JSON.stringify(mockResponse).length} bytes)` }
+      setConsoleLogs((prev) => [...prev, resLog])
+      setResponse(mockResponse)
+      setIsRunning(false)
     }, 1000)
   }
 
   const handleStop = () => {
+    if (isRunning) {
+      const ts = new Date().toLocaleTimeString()
+      setConsoleLogs((prev) => [...prev, { id: Date.now(), type: "info" as const, text: `[${ts}]  ⚠ Request cancelled` }])
+    }
     setIsRunning(false)
   }
 
@@ -152,16 +168,18 @@ export function ApiTestingStep({
             </Badge>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-red-500" />
-              Stopped
+            <Badge variant="outline" className={cn("gap-1.5", serverStatus === "Stopped" && "text-muted-foreground")}>
+              <div className={cn(
+                "h-2 w-2 rounded-full",
+                serverStatus === "Running" && "bg-amber-500 animate-pulse",
+                serverStatus === "Connected" && "bg-green-500",
+                serverStatus === "Stopped" && "bg-red-500"
+              )} />
+              {serverStatus}
             </Badge>
             <span className="text-sm text-muted-foreground">v1.0.4-stable</span>
             <Separator orientation="vertical" className="h-5 mx-1" />
-            {/* <Button variant="ghost" size="sm" className="gap-1.5" onClick={onBack}>
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button> */}
+            <ModeToggle />
             <Button variant="ghost" size="sm" className="gap-1.5" onClick={onNewProject}>
               <RotateCcw className="h-4 w-4" />
               New Project
@@ -294,11 +312,31 @@ export function ApiTestingStep({
               </TabsContent>
 
               <TabsContent value="console" className="flex-1 m-0 p-6">
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground">
-                    Live console output will appear here...
-                  </p>
-                </div>
+                <ScrollArea className="h-[calc(100vh-380px)]">
+                  {consoleLogs.length === 0 ? (
+                    <div className="flex items-center justify-center h-48">
+                      <p className="text-sm text-muted-foreground">
+                        Select an endpoint and press RUN — logs will appear here.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 font-mono text-xs">
+                      {consoleLogs.map((log) => (
+                        <div
+                          key={log.id}
+                          className={cn(
+                            "px-3 py-1 rounded",
+                            log.type === "request" && "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950",
+                            log.type === "response" && "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950",
+                            log.type === "info" && "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950"
+                          )}
+                        >
+                          {log.text}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
               </TabsContent>
             </Tabs>
 

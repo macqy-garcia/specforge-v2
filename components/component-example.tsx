@@ -52,9 +52,8 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
-import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
+import { SparkleIcon, CodeIcon, InfoIcon, FolderGit2, HardDrive, CircleCheck, Check } from "lucide-react"
 
 import { JsonViewer } from "./json-tree-viewer"
 import { ModeToggle } from "./mode-toggle"
@@ -119,6 +118,23 @@ interface Architecture {
   name: string
   description: string
   diagramPath: string
+}
+
+/** Single source of truth for the ING Starter Kit default shape */
+const DEFAULT_STARTER_KIT = {
+  azureDevOpsOrganisation: 'IngEurCDaaS01',
+  platform: 'ICHPDE',
+  generationScope: 'pipelines-only',
+  resourceGeneration: 'init',
+  buildPipeline: {
+    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
+    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
+    image: { enabled: false, sidecar: false, multiTemplate: false },
+    tpa: { enabled: false, resources: false, ctk: false },
+  },
+  purposeCode: '',
+  assetIndent: '',
+  applicationName: '',
 }
 
 export function ComponentExample() {
@@ -841,21 +857,7 @@ function ProjectConfigurationStep({
                 } else {
                   // Initialise the Starter Kit object only if not already one
                   if (typeof data.starterKit !== 'object') {
-                    updateData(['techOptions', 'starterKit'], {
-                      azureDevOpsOrganisation: 'IngEurCDaaS01',
-                      platform: 'ICHPDE',
-                      generationScope: 'pipelines-only',
-                      resourceGeneration: 'init',
-                      buildPipeline: {
-                        helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                        maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                        image: { enabled: false, sidecar: false, multiTemplate: false },
-                        tpa: { enabled: false, resources: false, ctk: false }
-                      },
-                      purposeCode: '',
-                      assetIndent: '',
-                      applicationName: ''
-                    })
+                    updateData(['techOptions', 'starterKit'], { ...DEFAULT_STARTER_KIT })
                   }
                   toast.success("ING Starter Kit selected", {
                     description: "Fill in the details below to configure your pipeline.",
@@ -927,21 +929,7 @@ function ProjectConfigurationStep({
                         <Select
                           defaultValue="IngEurCDaaS01"
                           onValueChange={(value) => {
-                            const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                              azureDevOpsOrganisation: 'IngEurCDaaS01',
-                              platform: 'ICHPDE',
-                              generationScope: 'pipelines-only',
-                              resourceGeneration: 'init',
-                              buildPipeline: {
-                                helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                image: { enabled: false, sidecar: false, multiTemplate: false },
-                                tpa: { enabled: false, resources: false, ctk: false }
-                              },
-                              purposeCode: '',
-                              assetIndent: '',
-                              applicationName: ''
-                            }
+                            const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                             updateData(['techOptions', 'starterKit'], {
                               ...currentKit,
                               azureDevOpsOrganisation: value
@@ -981,21 +969,7 @@ function ProjectConfigurationStep({
                       <Select
                         defaultValue="ICHPDE"
                         onValueChange={(value) => {
-                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                            azureDevOpsOrganisation: 'IngEurCDaaS01',
-                            platform: 'ICHPDE',
-                            generationScope: 'pipelines-only',
-                            resourceGeneration: 'init',
-                            buildPipeline: {
-                              helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              image: { enabled: false, sidecar: false, multiTemplate: false },
-                              tpa: { enabled: false, resources: false, ctk: false }
-                            },
-                            purposeCode: '',
-                            assetIndent: '',
-                            applicationName: ''
-                          }
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                           updateData(['techOptions', 'starterKit'], {
                             ...currentKit,
                             platform: value
@@ -1036,21 +1010,7 @@ function ProjectConfigurationStep({
                       <Select
                         defaultValue="pipelines-only"
                         onValueChange={(value) => {
-                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                            azureDevOpsOrganisation: 'IngEurCDaaS01',
-                            platform: 'ICHPDE',
-                            generationScope: 'pipelines-only',
-                            resourceGeneration: 'init',
-                            buildPipeline: {
-                              helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              image: { enabled: false, sidecar: false, multiTemplate: false },
-                              tpa: { enabled: false, resources: false, ctk: false }
-                            },
-                            purposeCode: '',
-                            assetIndent: '',
-                            applicationName: ''
-                          }
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                           updateData(['techOptions', 'starterKit'], {
                             ...currentKit,
                             generationScope: value
@@ -1091,21 +1051,7 @@ function ProjectConfigurationStep({
                       <Select
                         defaultValue="init"
                         onValueChange={(value) => {
-                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                            azureDevOpsOrganisation: 'IngEurCDaaS01',
-                            platform: 'ICHPDE',
-                            generationScope: 'pipelines-only',
-                            resourceGeneration: 'init',
-                            buildPipeline: {
-                              helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              image: { enabled: false, sidecar: false, multiTemplate: false },
-                              tpa: { enabled: false, resources: false, ctk: false }
-                            },
-                            purposeCode: '',
-                            assetIndent: '',
-                            applicationName: ''
-                          }
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                           updateData(['techOptions', 'starterKit'], {
                             ...currentKit,
                             resourceGeneration: value
@@ -1134,21 +1080,7 @@ function ProjectConfigurationStep({
                               id="helm-enabled"
                               checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.helm.enabled}
                               onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
-                                }
+                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                                 updateData(['techOptions', 'starterKit'], {
                                   ...currentKit,
                                   buildPipeline: {
@@ -1209,21 +1141,7 @@ function ProjectConfigurationStep({
                               id="maven-enabled"
                               checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.maven.enabled}
                               onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
-                                }
+                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                                 updateData(['techOptions', 'starterKit'], {
                                   ...currentKit,
                                   buildPipeline: {
@@ -1284,21 +1202,7 @@ function ProjectConfigurationStep({
                               id="image-enabled"
                               checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.image.enabled}
                               onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
-                                }
+                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                                 updateData(['techOptions', 'starterKit'], {
                                   ...currentKit,
                                   buildPipeline: {
@@ -1359,21 +1263,7 @@ function ProjectConfigurationStep({
                               id="tpa-enabled"
                               checked={typeof data.starterKit === 'object' && data.starterKit.buildPipeline.tpa.enabled}
                               onCheckedChange={(checked) => {
-                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                                  azureDevOpsOrganisation: 'IngEurCDaaS01',
-                                  platform: 'ICHPDE',
-                                  generationScope: 'pipelines-only',
-                                  resourceGeneration: 'init',
-                                  buildPipeline: {
-                                    helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                                    image: { enabled: false, sidecar: false, multiTemplate: false },
-                                    tpa: { enabled: false, resources: false, ctk: false }
-                                  },
-                                  purposeCode: '',
-                                  assetIndent: '',
-                                  applicationName: ''
-                                }
+                                const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                                 updateData(['techOptions', 'starterKit'], {
                                   ...currentKit,
                                   buildPipeline: {
@@ -1452,21 +1342,7 @@ function ProjectConfigurationStep({
                         placeholder="e.g. P12345"
                         value={projectData.projectInfo.purposeCode}
                         onChange={(e) => {
-                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                            azureDevOpsOrganisation: 'IngEurCDaaS01',
-                            platform: 'ICHPDE',
-                            generationScope: 'pipelines-only',
-                            resourceGeneration: 'init',
-                            buildPipeline: {
-                              helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              image: { enabled: false, sidecar: false, multiTemplate: false },
-                              tpa: { enabled: false, resources: false, ctk: false }
-                            },
-                            purposeCode: projectData.projectInfo.purposeCode,
-                            assetIndent: '',
-                            applicationName: projectData.projectInfo.projectName
-                          }
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT, purposeCode: projectData.projectInfo.purposeCode, applicationName: projectData.projectInfo.projectName }
                           updateData(['techOptions', 'starterKit'], {
                             ...currentKit,
                             purposeCode: e.target.value
@@ -1496,21 +1372,7 @@ function ProjectConfigurationStep({
                         id="asset-indent"
                         placeholder="e.g. IBBR"
                         onChange={(e) => {
-                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                            azureDevOpsOrganisation: 'IngEurCDaaS01',
-                            platform: 'ICHPDE',
-                            generationScope: 'pipelines-only',
-                            resourceGeneration: 'init',
-                            buildPipeline: {
-                              helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              image: { enabled: false, sidecar: false, multiTemplate: false },
-                              tpa: { enabled: false, resources: false, ctk: false }
-                            },
-                            purposeCode: '',
-                            assetIndent: '',
-                            applicationName: ''
-                          }
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                           updateData(['techOptions', 'starterKit'], {
                             ...currentKit,
                             assetIndent: e.target.value
@@ -1541,21 +1403,7 @@ function ProjectConfigurationStep({
                         value={projectData.projectInfo.projectName}
                         placeholder="e.g. ibbr-backend"
                         onChange={(e) => {
-                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : {
-                            azureDevOpsOrganisation: 'IngEurCDaaS01',
-                            platform: 'ICHPDE',
-                            generationScope: 'pipelines-only',
-                            resourceGeneration: 'init',
-                            buildPipeline: {
-                              helm: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              maven: { enabled: false, multiModuleProject: false, sonarQube: false },
-                              image: { enabled: false, sidecar: false, multiTemplate: false },
-                              tpa: { enabled: false, resources: false, ctk: false }
-                            },
-                            purposeCode: '',
-                            assetIndent: '',
-                            applicationName: ''
-                          }
+                          const currentKit = typeof data.starterKit === 'object' ? data.starterKit : { ...DEFAULT_STARTER_KIT }
                           updateData(['techOptions', 'starterKit'], {
                             ...currentKit,
                             applicationName: e.target.value
