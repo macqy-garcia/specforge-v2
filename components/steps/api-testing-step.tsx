@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Play, Square, Sparkles, ExternalLink, Download, ChevronDown, Search, ArrowLeft, RotateCcw, Loader2 } from "lucide-react"
+import { Play, Square, ChevronDown, Search, RotateCcw, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { FileTreeNode } from "@/app/api/explorer/file-tree/route"
 import type { ExplorerEndpoint } from "@/app/api/explorer/endpoints/route"
@@ -85,6 +85,18 @@ export function ApiTestingStep({
   const [isRunning, setIsRunning] = React.useState(false)
   const [selectedEndpoint, setSelectedEndpoint] = React.useState<ApiEndpoint | null>(null)
   const [response, setResponse] = React.useState<any>(null)
+  const [searchQuery, setSearchQuery] = React.useState("")
+
+  const filteredEndpoints = React.useMemo(() => {
+    if (!searchQuery.trim()) return endpoints
+    const q = searchQuery.toLowerCase()
+    return endpoints.filter(
+      (ep) =>
+        ep.path.toLowerCase().includes(q) ||
+        ep.method.toLowerCase().includes(q) ||
+        ep.description.toLowerCase().includes(q)
+    )
+  }, [endpoints, searchQuery])
 
   const handleRun = () => {
     setIsRunning(true)
@@ -236,14 +248,6 @@ export function ApiTestingStep({
                     <Square className="h-4 w-4" />
                     STOP
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-2"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    AI REGEN
-                  </Button>
                 </div>
               </div>
 
@@ -255,6 +259,8 @@ export function ApiTestingStep({
                   <Input
                     placeholder="Search endpoints..."
                     className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
 
@@ -268,14 +274,20 @@ export function ApiTestingStep({
                   </div>
                   <ScrollArea className="h-[calc(100vh-500px)]">
                     <div className="space-y-3 pr-4">
-                      {endpoints.map((endpoint, index) => (
-                        <ApiEndpointItem
-                          key={index}
-                          endpoint={endpoint}
-                          onClick={() => handleEndpointClick(endpoint)}
-                          isSelected={selectedEndpoint === endpoint}
-                        />
-                      ))}
+                      {filteredEndpoints.length > 0 ? (
+                        filteredEndpoints.map((endpoint, index) => (
+                          <ApiEndpointItem
+                            key={index}
+                            endpoint={endpoint}
+                            onClick={() => handleEndpointClick(endpoint)}
+                            isSelected={selectedEndpoint === endpoint}
+                          />
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-6">
+                          No endpoints match your search.
+                        </p>
+                      )}
                     </div>
                   </ScrollArea>
                 </div>
@@ -314,23 +326,11 @@ export function ApiTestingStep({
 
             {/* Footer Actions */}
             <div className="border-t px-6 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-sm">SPRING BOOT SCAFFOLD</span>
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-600">
-                    Ready for demo
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <ExternalLink className="h-4 w-4" />
-                    Open in IDE
-                  </Button>
-                  <Button size="sm" className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Download Scaffold Project
-                  </Button>
-                </div>
+              <div className="flex items-center gap-3">
+                <span className="font-semibold text-sm">SPRING BOOT SCAFFOLD</span>
+                <Badge variant="secondary" className="bg-green-500/10 text-green-600">
+                  Ready for demo
+                </Badge>
               </div>
             </div>
           </div>

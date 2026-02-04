@@ -28,6 +28,14 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0)
   const [buildComplete, setBuildComplete] = React.useState(false)
   const hasStartedRef = React.useRef(false)
+  const successCardRef = React.useRef<HTMLDivElement>(null)
+
+  // Scroll the "Your project is ready!" card into view once it appears
+  React.useEffect(() => {
+    if (buildComplete && successCardRef.current) {
+      successCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [buildComplete])
 
   // ---------------------------------------------------------------------------
   // Fetch step definitions from the mock API on mount
@@ -205,7 +213,7 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
 
       {/* Redirect confirmation — shown only after build finishes */}
       {buildComplete && (
-        <Card className="max-w-2xl mx-auto border-green-500 bg-green-50 dark:bg-green-950 animate-in fade-in duration-500">
+        <Card ref={successCardRef} className="max-w-2xl mx-auto border-green-500 bg-green-50 dark:bg-green-950 animate-in fade-in duration-500">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="mt-0.5 shrink-0">

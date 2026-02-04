@@ -56,7 +56,6 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 
 import { SparkleIcon, CodeIcon, Upload, Link as LinkIcon, InfoIcon, FolderGit2, HardDrive, Paperclip, CircleCheck, Check, GitBranch, Router, SquareCode, BookOpen } from "lucide-react"
 
-import { FileNode, FileTreeComponent } from "./file-tree"
 import { JsonViewer } from "./json-tree-viewer"
 import { ModeToggle } from "./mode-toggle"
 import { fetchOpenApiSpec } from "@/lib/openapi-validator"
@@ -445,85 +444,6 @@ export function ComponentExample() {
   )
 }
 
-export function ImportApiCard({
-  data,
-  updateData
-}: {
-  data: ProjectData['upload']
-  updateData: (path: string[], value: any) => void
-}) {
-  return (
-    <Card className="relative w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Import API Specification</CardTitle>
-        <CardDescription>
-          Upload your OpenAPI/Swagger definition to auto-configure your project.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {/* Drag & Drop */}
-        <div className="rounded-lg border border-dashed bg-muted/40 p-6 text-center">
-          <Upload className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
-
-          <p className="text-sm font-medium">
-            Drag and drop or select files
-          </p>
-
-          <p className="mt-1 text-xs text-muted-foreground">
-            Supported files: PDF, PPTX, or DOCX
-            <br />
-            Max. file size: 25 MB
-          </p>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-4"
-            onClick={() => {
-              // Simulate file selection
-              updateData(['upload', 'fileName'], 'spec.json')
-              updateData(['upload', 'source'], 'file')
-            }}
-          >
-            Select files
-          </Button>
-        </div>
-
-        {/* OR IMPORT FROM URL */}
-        <div className="flex items-center gap-3">
-          <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">
-            OR IMPORT FROM URL
-          </span>
-          <Separator className="flex-1" />
-        </div>
-
-        {/* URL Input */}
-        <div className="relative">
-          <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="pl-9"
-            placeholder="Add file URL"
-            value={data.url}
-            onChange={(e) => {
-              updateData(['upload', 'url'], e.target.value)
-              updateData(['upload', 'source'], 'url')
-            }}
-          />
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex items-center gap-2">
-        <Button className="w-full">Next</Button>
-
-        <Badge variant="secondary" className="ml-auto hidden">
-          Beta
-        </Badge>
-      </CardFooter>
-    </Card>
-  )
-}
 
 function ProjectInfoStep({
   data,
@@ -1691,8 +1611,8 @@ function ProjectConfigurationStep({
                       <Label htmlFor="r2">AI-Powered</Label>
                     </div>
                     <div className="flex items-center gap-3">
-                      <RadioGroupItem value="hybrid" id="r2" />
-                      <Label htmlFor="r2">Hybrid</Label>
+                      <RadioGroupItem value="hybrid" id="r3" />
+                      <Label htmlFor="r3">Hybrid</Label>
                     </div>
                   </RadioGroup>
                 </Field>

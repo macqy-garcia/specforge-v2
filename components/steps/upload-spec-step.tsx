@@ -44,7 +44,7 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
     const files = e.dataTransfer.files
     if (files.length > 0) {
       const file = files[0]
-      if (file.name.endsWith('.json') || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+      if (file.name.endsWith('.json')) {
         updateData(['upload', 'fileName'], file.name)
         updateData(['upload', 'source'], 'file')
         onClearError?.('fileUpload')
@@ -98,7 +98,7 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
             ref={fileInputRef}
             type="file"
             className="hidden"
-            accept=".json,.yaml,.yml"
+            accept=".json"
             onChange={handleFileSelect}
           />
 
@@ -115,7 +115,7 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
                 {" "}or drag and drop
               </p>
               <p className="text-xs text-muted-foreground">
-                JSON or YAML files supported
+                JSON files supported (.json)
               </p>
             </div>
 

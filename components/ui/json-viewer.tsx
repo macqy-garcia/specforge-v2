@@ -26,11 +26,20 @@ export function JsonViewer({ data, title = "Response Preview", className }: Json
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Simple syntax highlighting for JSON
+  // Escape HTML entities so user-controlled content cannot inject tags
+  const escapeHtml = (str: string) =>
+    str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+
+  // Simple syntax highlighting for JSON (applied AFTER escaping)
   const highlightJson = (json: string) => {
-    return json
-      .replace(/(".*?"):/g, '<span class="text-primary font-medium">$1</span>:')
-      .replace(/: (".*?")/g, ': <span class="text-green-600 dark:text-green-400">$1</span>')
+    const escaped = escapeHtml(json)
+    return escaped
+      .replace(/(&quot;.*?&quot;):/g, '<span class="text-primary font-medium">$1</span>:')
+      .replace(/: (&quot;.*?&quot;)/g, ': <span class="text-green-600 dark:text-green-400">$1</span>')
       .replace(/: (\d+\.?\d*)/g, ': <span class="text-purple-600 dark:text-purple-400">$1</span>')
       .replace(/: (true|false)/g, ': <span class="text-orange-600 dark:text-orange-400">$1</span>')
       .replace(/: (null)/g, ': <span class="text-muted-foreground">$1</span>')
