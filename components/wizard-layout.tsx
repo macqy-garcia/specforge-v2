@@ -143,7 +143,7 @@ export function WizardLayout({
             </Button>
             <Button
               onClick={handleNext}
-              disabled={!isCurrentStepComplete || isValidating}
+              disabled={isValidating}
               className="gap-2"
             >
               {isValidating ? (

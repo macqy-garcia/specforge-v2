@@ -202,6 +202,11 @@ export function ComponentExample() {
   const [wizardCompleted, setWizardCompleted] = React.useState(false)
   const [buildLogsComplete, setBuildLogsComplete] = React.useState(false)
 
+  // Validation error states — set by handleStepValidation, cleared on input change
+  const [step1Errors, setStep1Errors] = React.useState({ fileUpload: false })
+  const [step2Errors, setStep2Errors] = React.useState({ purposeCode: false, projectName: false, repoName: false })
+  const [step3Errors, setStep3Errors] = React.useState({ architecture: false })
+
   // Generic update function for nested properties
   const updateProjectData = (path: string[], value: any) => {
     setProjectData(prevData => {
@@ -310,6 +315,34 @@ export function ComponentExample() {
       // If source is file, just check if file is selected
       if (projectData.upload.source === 'file' && !projectData.upload.fileName) {
         toast.error('Please select a file to upload')
+        setStep1Errors({ fileUpload: true })
+        return false
+      }
+    }
+
+    // Validate step 2 → 3: Purpose Code, Project Name, Repository Name
+    if (fromStep === 2 && toStep > 2) {
+      const errors = {
+        purposeCode: !projectData.projectInfo.purposeCode,
+        projectName: !projectData.projectInfo.projectName,
+        repoName: !projectData.projectInfo.repoName,
+      }
+      if (errors.purposeCode || errors.projectName || errors.repoName) {
+        setStep2Errors(errors)
+        toast.error('Please fill in all required fields')
+        // Focus the first empty field
+        if (errors.purposeCode) document.getElementById('purpose-code')?.focus()
+        else if (errors.projectName) document.getElementById('project-name')?.focus()
+        else if (errors.repoName) document.getElementById('repo-name')?.focus()
+        return false
+      }
+    }
+
+    // Validate step 3 → 4: Architecture must be selected
+    if (fromStep === 3 && toStep > 3) {
+      if (!projectData.techOptions.hexagonalLayout) {
+        setStep3Errors({ architecture: true })
+        toast.error('Please select an architecture to continue')
         return false
       }
     }
@@ -320,9 +353,23 @@ export function ComponentExample() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <UploadSpecStep data={projectData.upload} updateData={updateProjectData} />
+        return (
+          <UploadSpecStep
+            data={projectData.upload}
+            updateData={updateProjectData}
+            errors={step1Errors}
+            onClearError={(field) => setStep1Errors(prev => ({ ...prev, [field]: false }))}
+          />
+        )
       case 2:
-        return <ProjectInfoStep data={projectData.projectInfo} updateData={updateProjectData} />
+        return (
+          <ProjectInfoStep
+            data={projectData.projectInfo}
+            updateData={updateProjectData}
+            errors={step2Errors}
+            onClearError={(field) => setStep2Errors(prev => ({ ...prev, [field]: false }))}
+          />
+        )
       case 3:
         return (
           <ProjectConfigurationStep
@@ -332,6 +379,8 @@ export function ComponentExample() {
             setSelectedArchitecture={setSelectedArchitecture}
             updateData={updateProjectData}
             projectData={projectData}
+            errors={step3Errors}
+            onClearError={(field) => setStep3Errors(prev => ({ ...prev, [field]: false }))}
           />
         )
       case 4:
@@ -365,6 +414,9 @@ export function ComponentExample() {
           setCompletedSteps([])
           setBuildLogsComplete(false)
           setSelectedArchitecture(null)
+          setStep1Errors({ fileUpload: false })
+          setStep2Errors({ purposeCode: false, projectName: false, repoName: false })
+          setStep3Errors({ architecture: false })
         }}
       />
     )
@@ -381,6 +433,9 @@ export function ComponentExample() {
         setCompletedSteps([])
         setBuildLogsComplete(false)
         setSelectedArchitecture(null)
+        setStep1Errors({ fileUpload: false })
+        setStep2Errors({ purposeCode: false, projectName: false, repoName: false })
+        setStep3Errors({ architecture: false })
       }}
       completedSteps={completedSteps}
       onValidateStep={handleStepValidation}
@@ -472,10 +527,14 @@ export function ImportApiCard({
 
 function ProjectInfoStep({
   data,
-  updateData
+  updateData,
+  errors = { purposeCode: false, projectName: false, repoName: false },
+  onClearError
 }: {
   data: ProjectData['projectInfo']
   updateData: (path: string[], value: any) => void
+  errors?: { purposeCode: boolean; projectName: boolean; repoName: boolean }
+  onClearError?: (field: string) => void
 }) {
   return (
     <div className="space-y-8">
@@ -494,36 +553,63 @@ function ProjectInfoStep({
             <FieldGroup>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel htmlFor="purpose-code">Purpose Code</FieldLabel>
+                  <FieldLabel htmlFor="purpose-code" className={errors.purposeCode ? "text-destructive" : ""}>
+                    Purpose Code <span className="text-destructive">*</span>
+                  </FieldLabel>
                   <Input
                     id="purpose-code"
                     placeholder="P00000"
                     value={data.purposeCode}
-                    onChange={(e) => updateData(['projectInfo', 'purposeCode'], e.target.value)}
+                    onChange={(e) => {
+                      updateData(['projectInfo', 'purposeCode'], e.target.value)
+                      if (e.target.value) onClearError?.('purposeCode')
+                    }}
+                    className={errors.purposeCode ? "border-destructive focus-visible:ring-destructive" : ""}
                     required
                   />
+                  {errors.purposeCode && (
+                    <p className="text-sm text-destructive">Purpose Code is required</p>
+                  )}
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="project-name">Project Name</FieldLabel>
+                  <FieldLabel htmlFor="project-name" className={errors.projectName ? "text-destructive" : ""}>
+                    Project Name <span className="text-destructive">*</span>
+                  </FieldLabel>
                   <Input
                     id="project-name"
                     placeholder="Payment Gateway Service"
                     value={data.projectName}
-                    onChange={(e) => updateData(['projectInfo', 'projectName'], e.target.value)}
+                    onChange={(e) => {
+                      updateData(['projectInfo', 'projectName'], e.target.value)
+                      if (e.target.value) onClearError?.('projectName')
+                    }}
+                    className={errors.projectName ? "border-destructive focus-visible:ring-destructive" : ""}
                     required
                   />
+                  {errors.projectName && (
+                    <p className="text-sm text-destructive">Project Name is required</p>
+                  )}
                 </Field>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel htmlFor="repo-name">Repository Name</FieldLabel>
+                  <FieldLabel htmlFor="repo-name" className={errors.repoName ? "text-destructive" : ""}>
+                    Repository Name <span className="text-destructive">*</span>
+                  </FieldLabel>
                   <Input
                     id="repo-name"
                     placeholder="api-service-name"
                     value={data.repoName}
-                    onChange={(e) => updateData(['projectInfo', 'repoName'], e.target.value)}
+                    onChange={(e) => {
+                      updateData(['projectInfo', 'repoName'], e.target.value)
+                      if (e.target.value) onClearError?.('repoName')
+                    }}
+                    className={errors.repoName ? "border-destructive focus-visible:ring-destructive" : ""}
                     required
                   />
+                  {errors.repoName && (
+                    <p className="text-sm text-destructive">Repository Name is required</p>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="default-branch">Default Branch</FieldLabel>
@@ -567,7 +653,9 @@ function ProjectConfigurationStep({
   selectedArchitecture,
   setSelectedArchitecture,
   updateData,
-  projectData
+  projectData,
+  errors = { architecture: false },
+  onClearError
 }: {
   data: ProjectData['techOptions']
   architectures: Architecture[]
@@ -575,6 +663,8 @@ function ProjectConfigurationStep({
   setSelectedArchitecture: (index: number) => void
   updateData: (path: string[], value: any) => void
   projectData: ProjectData
+  errors?: { architecture: boolean }
+  onClearError?: (field: string) => void
 }) {
   // Send theme to iframes
   React.useEffect(() => {
@@ -754,55 +844,61 @@ function ProjectConfigurationStep({
       </div>
 
       {/* Architecture Carousel */}
-      <Carousel className="w-full">
-        <CarouselContent>
-          {architectures.map((architecture, index) => (
-            <CarouselItem key={index}>
-              <div className="p-1">
-                <Card className={`relative mx-auto w-full ${selectedArchitecture === index ? 'border-primary' : ''}`}>
-                  <CardHeader>
-                    <CardAction>
-                      <Badge variant={selectedArchitecture === index ? "default" : "secondary"}>
-                        {selectedArchitecture === index ? 'Selected' : 'Featured'}
-                      </Badge>
-                    </CardAction>
-                    <CardTitle>{architecture.name}</CardTitle>
-                    <CardDescription>
-                      {architecture.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border bg-card">
-                      <iframe
-                        src={architecture.diagramPath}
-                        title={architecture.name}
-                        className="w-full h-full border-0"
-                        style={{ colorScheme: 'normal' }}
-                      />
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex gap-2">
-                    <Button
-                      className="w-full"
-                      variant={selectedArchitecture === index ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setSelectedArchitecture(index)
-                        updateData(['techOptions', 'hexagonalLayout'], architecture.id)
-                      }}
-                    >
-                      {selectedArchitecture === index ? <CircleCheck className="mr-1" /> : null}
-                      {selectedArchitecture === index ? 'Selected' : 'Select'}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
+      <div className={`rounded-lg ${errors.architecture ? 'ring-2 ring-destructive ring-offset-2' : ''}`}>
+        <Carousel className="w-full">
+          <CarouselContent>
+            {architectures.map((architecture, index) => (
+              <CarouselItem key={index}>
+                <div className="p-1">
+                  <Card className={`relative mx-auto w-full ${selectedArchitecture === index ? 'border-primary' : ''}`}>
+                    <CardHeader>
+                      <CardAction>
+                        <Badge variant={selectedArchitecture === index ? "default" : "secondary"}>
+                          {selectedArchitecture === index ? 'Selected' : 'Featured'}
+                        </Badge>
+                      </CardAction>
+                      <CardTitle>{architecture.name}</CardTitle>
+                      <CardDescription>
+                        {architecture.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border bg-card">
+                        <iframe
+                          src={architecture.diagramPath}
+                          title={architecture.name}
+                          className="w-full h-full border-0"
+                          style={{ colorScheme: 'normal' }}
+                        />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex gap-2">
+                      <Button
+                        className="w-full"
+                        variant={selectedArchitecture === index ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => {
+                          setSelectedArchitecture(index)
+                          updateData(['techOptions', 'hexagonalLayout'], architecture.id)
+                          onClearError?.('architecture')
+                        }}
+                      >
+                        {selectedArchitecture === index ? <CircleCheck className="mr-1" /> : null}
+                        {selectedArchitecture === index ? 'Selected' : 'Select'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      </div>
+      {errors.architecture && (
+        <p className="text-sm text-destructive">Please select an architecture to continue</p>
+      )}
 
       <div className="grid grid-cols-2 gap-5">
         {/* Build Setup Tabs */}

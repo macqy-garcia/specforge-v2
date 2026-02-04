@@ -20,9 +20,11 @@ interface UploadSpecStepProps {
     validationError?: string
   }
   updateData: (path: string[], value: any) => void
+  errors?: { fileUpload: boolean }
+  onClearError?: (field: string) => void
 }
 
-export function UploadSpecStep({ data, updateData }: UploadSpecStepProps) {
+export function UploadSpecStep({ data, updateData, errors = { fileUpload: false }, onClearError }: UploadSpecStepProps) {
   const [isDragging, setIsDragging] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -45,6 +47,7 @@ export function UploadSpecStep({ data, updateData }: UploadSpecStepProps) {
       if (file.name.endsWith('.json') || file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
         updateData(['upload', 'fileName'], file.name)
         updateData(['upload', 'source'], 'file')
+        onClearError?.('fileUpload')
       }
     }
   }
@@ -56,6 +59,7 @@ export function UploadSpecStep({ data, updateData }: UploadSpecStepProps) {
       updateData(['upload', 'source'], 'file')
       // Clear any previous errors
       updateData(['upload', 'validationError'], undefined)
+      onClearError?.('fileUpload')
     }
   }
 
@@ -78,48 +82,53 @@ export function UploadSpecStep({ data, updateData }: UploadSpecStepProps) {
       </div>
 
       {/* Upload Area */}
-      <div
-        className={`
-          relative rounded-lg border-2 border-dashed p-12 text-center transition-colors
-          ${isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 bg-muted/20'}
-          hover:border-muted-foreground/50 cursor-pointer
-        `}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={handleClick}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          accept=".json,.yaml,.yml"
-          onChange={handleFileSelect}
-        />
+      <div>
+        <div
+          className={`
+            relative rounded-lg border-2 border-dashed p-12 text-center transition-colors cursor-pointer
+            ${isDragging ? 'border-primary bg-primary/5' : errors.fileUpload ? 'border-destructive bg-destructive/5' : 'border-muted-foreground/25 bg-muted/20'}
+            ${!isDragging && !errors.fileUpload ? 'hover:border-muted-foreground/50' : ''}
+          `}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={handleClick}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".json,.yaml,.yml"
+            onChange={handleFileSelect}
+          />
 
-        <div className="flex flex-col items-center gap-4">
-          <div className="rounded-full bg-muted p-4">
-            <Upload className="h-8 w-8 text-muted-foreground" />
-          </div>
-
-          <div className="space-y-1">
-            <p className="text-sm font-medium">
-              <span className="text-primary hover:underline cursor-pointer">
-                Click to upload
-              </span>
-              {" "}or drag and drop
-            </p>
-            <p className="text-xs text-muted-foreground">
-              JSON or YAML files supported
-            </p>
-          </div>
-
-          {data.fileName && (
-            <div className="mt-2 text-sm text-muted-foreground">
-              Selected: <span className="font-medium text-foreground">{data.fileName}</span>
+          <div className="flex flex-col items-center gap-4">
+            <div className={`rounded-full p-4 ${errors.fileUpload ? 'bg-destructive/10' : 'bg-muted'}`}>
+              <Upload className={`h-8 w-8 ${errors.fileUpload ? 'text-destructive' : 'text-muted-foreground'}`} />
             </div>
-          )}
+
+            <div className="space-y-1">
+              <p className={`text-sm font-medium ${errors.fileUpload ? 'text-destructive' : ''}`}>
+                <span className="text-primary hover:underline cursor-pointer">
+                  Click to upload
+                </span>
+                {" "}or drag and drop
+              </p>
+              <p className="text-xs text-muted-foreground">
+                JSON or YAML files supported
+              </p>
+            </div>
+
+            {data.fileName && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                Selected: <span className="font-medium text-foreground">{data.fileName}</span>
+              </div>
+            )}
+          </div>
         </div>
+        {errors.fileUpload && (
+          <p className="mt-1.5 text-sm text-destructive">Please upload a file or enter a URL to continue</p>
+        )}
       </div>
 
       {/* Separator */}
