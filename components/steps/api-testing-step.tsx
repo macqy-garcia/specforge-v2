@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
 import { HappyPathToggle } from "@/components/happy-path-toggle"
 import { useHappyPath } from "@/components/happy-path-context"
-import type { FileTreeNode } from "@/app/api/explorer/file-tree/route"
 import type { ExplorerEndpoint } from "@/app/api/explorer/endpoints/route"
 
 // ---------------------------------------------------------------------------
@@ -48,30 +47,249 @@ interface ApiTestingStepProps {
 // ---------------------------------------------------------------------------
 // Happy-path fallback data (used when the toggle is ON)
 // ---------------------------------------------------------------------------
-const HAPPY_PATH_FILE_TREE: FileNode[] = [
+// Raw backend shape — uppercase type, null children. normaliseFileTree()
+// converts this to FileNode[] at the point it's consumed.
+const HAPPY_PATH_FILE_TREE = [
   {
-    name: "src",
-    type: "folder",
-    children: [
+    "name": "src",
+    "type": "FOLDER",
+    "children": [
       {
-        name: "main",
-        type: "folder",
-        children: [
+        "name": "main",
+        "type": "FOLDER",
+        "children": [
           {
-            name: "java",
-            type: "folder",
-            children: [
-              { name: "controller", type: "folder", children: [{ name: "MockController.java", type: "file" }] },
-              { name: "service", type: "folder", children: [{ name: "MockService.java", type: "file" }] },
-              { name: "generator", type: "folder", children: [{ name: "HybridGenerator.java", type: "file" }] },
-            ],
+            "name": "java",
+            "type": "FOLDER",
+            "children": [
+              {
+                "name": "com",
+                "type": "FOLDER",
+                "children": [
+                  {
+                    "name": "example",
+                    "type": "FOLDER",
+                    "children": [
+                      {
+                        "name": "application",
+                        "type": "FOLDER",
+                        "children": [
+                          {
+                            "name": "Application.java",
+                            "type": "FILE",
+                            "children": null
+                          },
+                          {
+                            "name": "config",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "SecurityConfig.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "DatabaseConfig.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          },
+                          {
+                            "name": "controller",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "UserController.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "ProductController.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          },
+                          {
+                            "name": "service",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "UserService.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "ProductService.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          },
+                          {
+                            "name": "repository",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "UserRepository.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "ProductRepository.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          },
+                          {
+                            "name": "model",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "User.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "Product.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          },
+                          {
+                            "name": "dto",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "UserDTO.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "ProductDTO.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          },
+                          {
+                            "name": "util",
+                            "type": "FOLDER",
+                            "children": [
+                              {
+                                "name": "DateUtil.java",
+                                "type": "FILE",
+                                "children": null
+                              },
+                              {
+                                "name": "StringUtil.java",
+                                "type": "FILE",
+                                "children": null
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           },
-        ],
-      },
-    ],
+          {
+            "name": "resources",
+            "type": "FOLDER",
+            "children": [
+              {
+                "name": "application",
+                "type": "FOLDER",
+                "children": [
+                  {
+                    "name": "application-dev.yaml",
+                    "type": "FILE",
+                    "children": null
+                  },
+                  {
+                    "name": "application.properties",
+                    "type": "FILE",
+                    "children": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
-  { name: "resources", type: "folder", children: [] },
-  { name: "pom.xml", type: "file" },
+  {
+    "name": ".DS_Store",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": ".dockerignore",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": ".gitattributes",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": ".gitignore",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "maven-wrapper.properties",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "Dockerfile",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "HELP.md",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "Makefile",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "docker-compose.amd64.yml",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "docker-compose.arm64.yml",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "mvnw",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "mvnw.cmd",
+    "type": "FILE",
+    "children": null
+  },
+  {
+    "name": "pom.xml",
+    "type": "FILE",
+    "children": null
+  }
 ]
 
 const HAPPY_PATH_ENDPOINTS: ApiEndpoint[] = [
@@ -99,6 +317,28 @@ const PROVENANCE_BADGE: Record<string, string> = {
   AI: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
   Hybrid: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   Faker: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+}
+
+/**
+ * Normalise the raw JSON returned by the backend into the shape that
+ * FileTree expects.  Handles two mismatches the backend currently ships:
+ *   1. `type` is UPPER-CASE ("FOLDER" / "FILE") — needs lowercasing.
+ *   2. The payload may be a single root-wrapper object with a `children`
+ *      array instead of the array itself — needs unwrapping.
+ */
+function normaliseFileTree(raw: unknown): FileNode[] {
+  // If it's a single object with children (the root-wrapper pattern), unwrap it
+  const nodes: unknown[] = Array.isArray(raw)
+    ? raw
+    : (raw && typeof raw === "object" && "children" in raw && Array.isArray((raw as any).children))
+      ? (raw as any).children
+      : []
+
+  return nodes.map((node: any) => ({
+    name: node.name ?? "",
+    type: (typeof node.type === "string" ? node.type.toLowerCase() : "file") as "file" | "folder",
+    ...(node.children ? { children: normaliseFileTree(node.children) } : {}),
+  }))
 }
 
 /** Parse the flat _provenance map into a per-item lookup: itemIndex → { fieldName → source } */
@@ -154,7 +394,7 @@ export function ApiTestingStep({
     try {
       if (happyPath) {
         // Happy path — use local fallbacks, no network
-        setFileTree(HAPPY_PATH_FILE_TREE)
+        setFileTree(normaliseFileTree(HAPPY_PATH_FILE_TREE))
         setEndpoints(HAPPY_PATH_ENDPOINTS)
         setMockServerReady(true) // no server to start
       } else {
@@ -175,10 +415,10 @@ export function ApiTestingStep({
           console.warn("OpenAPI registration returned", openapiRes.status)
         }
 
-        const treeData: FileTreeNode[] = await treeRes.json()
+        const treeData: unknown = await treeRes.json()
         const endpointsData: ExplorerEndpoint[] = await endpointsRes.json()
 
-        setFileTree(treeData as unknown as FileNode[])
+        setFileTree(normaliseFileTree(treeData))
         setEndpoints(endpointsData as unknown as ApiEndpoint[])
       }
     } catch (err) {
