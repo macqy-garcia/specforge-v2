@@ -19,12 +19,14 @@ interface UploadSpecStepProps {
     isValid?: boolean
     validationError?: string
   }
+  /** Current value of the top-level pathToFile field (absolute path the user can edit) */
+  pathToFile?: string
   updateData: (path: string[], value: any) => void
   errors?: { fileUpload: boolean }
   onClearError?: (field: string) => void
 }
 
-export function UploadSpecStep({ data, updateData, errors = { fileUpload: false }, onClearError }: UploadSpecStepProps) {
+export function UploadSpecStep({ data, pathToFile, updateData, errors = { fileUpload: false }, onClearError }: UploadSpecStepProps) {
   const [isDragging, setIsDragging] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -37,6 +39,17 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
     setIsDragging(false)
   }
 
+  // ---------------------------------------------------------------------------
+  // Read the file content via FileReader so downstream steps can forward it
+  // ---------------------------------------------------------------------------
+  const readFileContent = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = (evt) => {
+      updateData(['upload', 'fileContent'], evt.target?.result ?? "")
+    }
+    reader.readAsText(file)
+  }
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
@@ -47,6 +60,9 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
       if (file.name.endsWith('.json')) {
         updateData(['upload', 'fileName'], file.name)
         updateData(['upload', 'source'], 'file')
+        // Seed pathToFile with the file name — user can edit to the full absolute path below
+        updateData(['pathToFile'], file.name)
+        readFileContent(file)
         onClearError?.('fileUpload')
       }
     }
@@ -57,6 +73,9 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
     if (files && files.length > 0) {
       updateData(['upload', 'fileName'], files[0].name)
       updateData(['upload', 'source'], 'file')
+      // Seed pathToFile with the file name — user can edit to the full absolute path below
+      updateData(['pathToFile'], files[0].name)
+      readFileContent(files[0])
       // Clear any previous errors
       updateData(['upload', 'validationError'], undefined)
       onClearError?.('fileUpload')
@@ -131,6 +150,21 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
         )}
       </div>
 
+      {/* Editable file-path input — visible once a file has been dropped / selected */}
+      {data.source === 'file' && data.fileName && (
+        <div className="space-y-2">
+          <Label htmlFor="file-path">
+            File Path <span className="text-muted-foreground text-xs font-normal">(edit to full absolute path)</span>
+          </Label>
+          <Input
+            id="file-path"
+            placeholder="/Users/you/Desktop/openapi.json"
+            value={pathToFile ?? ""}
+            onChange={(e) => updateData(['pathToFile'], e.target.value)}
+          />
+        </div>
+      )}
+
       {/* Separator */}
       <div className="flex items-center gap-4">
         <Separator className="flex-1" />
@@ -159,6 +193,8 @@ export function UploadSpecStep({ data, updateData, errors = { fileUpload: false 
               onChange={(e) => {
                 updateData(['upload', 'url'], e.target.value)
                 updateData(['upload', 'source'], 'url')
+                // Mirror the URL into pathToFile so it shows up in the Summary JSON
+                updateData(['pathToFile'], e.target.value)
                 // Reset validation state when URL changes
                 updateData(['upload', 'isValid'], false)
                 updateData(['upload', 'validationError'], undefined)

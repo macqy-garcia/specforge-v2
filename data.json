@@ -1,0 +1,47 @@
+{
+    "data": {
+        "items": [
+            {
+                "id": "123456",
+                "name": "Salon Bliss",
+                "city": "New York",
+                "rating": 4.5,
+                "services": [
+                    "Hair",
+                    "Nails",
+                    "Massage"
+                ]
+            },
+            {
+                "id": "123457",
+                "name": "Salon de la Mer",
+                "city": "San Francisco",
+                "rating": 4.3,
+                "services": [
+                    "Hair",
+                    "Nails",
+                    "Spa/Wellness"
+                ]
+            }
+        ],
+        "page": 1,
+        "pageSize": 10,
+        "total": 123456
+    },
+    "_provenance": {
+        "items[0].id": "AI",
+        "items[0].name": "AI",
+        "items[0].city": "AI",
+        "items[0].rating": "AI",
+        "items[0].services[0]": "AI",
+        "items[0].services[1]": "AI",
+        "items[0].services[2]": "AI",
+        "items[1].id": "AI",
+        "items[1].name": "AI",
+        "items[1].city": "AI",
+        "items[1].rating": "AI",
+        "items[1].services[0]": "AI",
+        "items[1].services[1]": "AI",
+        "items[1].services[2]": "AI"
+    }
+}

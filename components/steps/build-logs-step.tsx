@@ -12,12 +12,14 @@ import { useHappyPath } from "@/components/happy-path-context"
 interface BuildLogsStepProps {
   onComplete?: () => void
   onBuildComplete?: () => void
+  /** Called with the projectPath returned by the scaffold endpoint (non-happy-path only) */
+  onScaffoldComplete?: (projectPath: string) => void
   projectName?: string
   projectData?: Record<string, any>   // full wizard payload forwarded to the backend
   scaffoldType?: "ai" | "standard"    // controls which architecture endpoint is hit
 }
 
-export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Project", projectData, scaffoldType = "standard" }: BuildLogsStepProps) {
+export function BuildLogsStep({ onComplete, onBuildComplete, onScaffoldComplete, projectName = "Project", projectData, scaffoldType = "standard" }: BuildLogsStepProps) {
   const { happyPath } = useHappyPath()
 
   // ---------------------------------------------------------------------------
@@ -89,9 +91,13 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(projectData ?? {}),
       })
+      const scaffoldResult = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error ?? `Scaffold failed: HTTP ${res.status}`)
+        throw new Error(scaffoldResult.error ?? `Scaffold failed: HTTP ${res.status}`)
+      }
+      // Extract projectPath and bubble it up so the explorer can use it later
+      if (scaffoldResult.projectPath) {
+        onScaffoldComplete?.(scaffoldResult.projectPath)
       }
       return
     }
@@ -112,7 +118,7 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
 
     // Steps 2-7 — simulated 2 s delay
     await new Promise<void>((resolve) => setTimeout(resolve, 2000))
-  }, [happyPath, projectData, scaffoldType])
+  }, [happyPath, projectData, scaffoldType, onScaffoldComplete])
 
   // ---------------------------------------------------------------------------
   // Start the build process — only after steps have been fetched

@@ -66,11 +66,14 @@ interface ProjectData {
     source: string
     fileName: string
     url: string
+    fileContent?: string // Raw text of the uploaded file (populated by FileReader)
     specData?: any // Stores the fetched OpenAPI spec
     isValidating?: boolean // Indicates if validation is in progress
     isValid?: boolean // Indicates if the spec is valid
     validationError?: string // Stores validation error messages
   }
+  /** Path on the backend filesystem returned by POST /api/forge/scaffold */
+  pathToFile?: string
   projectInfo: {
     purposeCode: string
     projectName: string
@@ -106,9 +109,7 @@ interface ProjectData {
     mock: {
       engine: string
     }
-    observability: {
-      otel: boolean
-    }
+    observability: boolean
     scaffoldingMode: string
   }
   scaffoldType: 'ai' | 'standard'
@@ -178,11 +179,13 @@ export function ComponentExample() {
       source: "file",
       fileName: "",
       url: "",
+      fileContent: undefined,
       specData: undefined,
       isValidating: false,
       isValid: false,
       validationError: undefined
     },
+    pathToFile: undefined,
     projectInfo: {
       purposeCode: "",
       projectName: "",
@@ -204,9 +207,7 @@ export function ComponentExample() {
       mock: {
         engine: "prism",
       },
-      observability: {
-        otel: false
-      },
+      observability: false,
       scaffoldingMode: "standard"
     },
     scaffoldType: "standard"
@@ -384,6 +385,7 @@ export function ComponentExample() {
         return (
           <UploadSpecStep
             data={projectData.upload}
+            pathToFile={projectData.pathToFile}
             updateData={updateProjectData}
             errors={step1Errors}
             onClearError={(field) => setStep1Errors(prev => ({ ...prev, [field]: false }))}
@@ -418,6 +420,9 @@ export function ComponentExample() {
           <BuildLogsStep
             onComplete={() => setWizardCompleted(true)}
             onBuildComplete={() => setBuildLogsComplete(true)}
+            onScaffoldComplete={(projectPath: string) => {
+              updateProjectData(['pathToFile'], projectPath)
+            }}
             projectName={projectData.projectInfo.projectName || "Project"}
             projectData={projectData}
             scaffoldType={projectData.scaffoldType}
@@ -433,6 +438,9 @@ export function ComponentExample() {
     return (
       <ApiTestingStep
         projectName={projectData.projectInfo.projectName}
+        projectPath={projectData.pathToFile}
+        mockMode={projectData.techOptions.mock.engine === "ai-powered" ? "ai" : projectData.techOptions.mock.engine === "hybrid" ? "hybrid" : "faker"}
+        pathToFile={projectData.pathToFile}
         onBack={() => {
           setWizardCompleted(false)
           setCurrentStep(5)
@@ -1496,11 +1504,11 @@ function ProjectConfigurationStep({
                 <Field>
                   <div className="flex items-center space-x-2">
                     <Switch
-                      id="otel-mode"
-                      checked={data.observability.otel}
-                      onCheckedChange={(checked) => updateData(['techOptions', 'observability', 'otel'], checked)}
+                      id="observability"
+                      checked={data.observability}
+                      onCheckedChange={(checked) => updateData(['techOptions', 'observability'], checked)}
                     />
-                    <Label htmlFor="otel-mode">Enable</Label>
+                    <Label htmlFor="observability">Enable</Label>
                   </div>
                 </Field>
               </FieldGroup>
@@ -1619,11 +1627,10 @@ function SummaryStep({ projectData, updateData }: { projectData: ProjectData; up
             >
               {/* Standard Scaffolding */}
               <div
-                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
-                  projectData.techOptions.scaffoldingMode === 'standard'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-muted hover:border-muted-foreground/50'
-                }`}
+                className={`rounded-lg border p-4 cursor-pointer transition-colors ${projectData.techOptions.scaffoldingMode === 'standard'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-muted hover:border-muted-foreground/50'
+                  }`}
                 onClick={() => {
                   updateData(['techOptions', 'scaffoldingMode'], 'standard')
                   updateData(['scaffoldType'], 'standard')
@@ -1644,11 +1651,10 @@ function SummaryStep({ projectData, updateData }: { projectData: ProjectData; up
 
               {/* AI-Assisted Scaffolding */}
               <div
-                className={`rounded-lg border p-4 cursor-pointer transition-colors ${
-                  projectData.techOptions.scaffoldingMode === 'ai-assisted'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-muted hover:border-muted-foreground/50'
-                }`}
+                className={`rounded-lg border p-4 cursor-pointer transition-colors ${projectData.techOptions.scaffoldingMode === 'ai-assisted'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-muted hover:border-muted-foreground/50'
+                  }`}
                 onClick={() => {
                   updateData(['techOptions', 'scaffoldingMode'], 'ai-assisted')
                   updateData(['scaffoldType'], 'ai')
