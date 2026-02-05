@@ -406,6 +406,8 @@ export function ComponentExample() {
             onComplete={() => setWizardCompleted(true)}
             onBuildComplete={() => setBuildLogsComplete(true)}
             projectName={projectData.projectInfo.projectName || "Project"}
+            projectData={projectData}
+            scaffoldType={projectData.scaffoldType}
           />
         )
       default:

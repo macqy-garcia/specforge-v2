@@ -12,9 +12,11 @@ interface BuildLogsStepProps {
   onComplete?: () => void
   onBuildComplete?: () => void
   projectName?: string
+  projectData?: Record<string, any>   // full wizard payload forwarded to the backend
+  scaffoldType?: "ai" | "standard"    // controls which architecture endpoint is hit
 }
 
-export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Project" }: BuildLogsStepProps) {
+export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Project", projectData, scaffoldType = "standard" }: BuildLogsStepProps) {
   // ---------------------------------------------------------------------------
   // Fetched step definitions (populated from /api/build-steps)
   // ---------------------------------------------------------------------------
@@ -64,14 +66,42 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
     loadSteps()
   }, [])
 
-  // Simulate API call with 2-second delay
-  const simulateApiCall = async (_stepIndex: number): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, 2000) // 2 seconds delay
-    })
-  }
+  // ---------------------------------------------------------------------------
+  // Per-step execution — steps 0 & 1 hit the real backend via Next.js proxy;
+  // steps 2-7 are simulated with a 2 s delay (no backend endpoint yet).
+  // ---------------------------------------------------------------------------
+  const executeStep = React.useCallback(async (stepIndex: number): Promise<void> => {
+    // Step 0 — POST /api/forge/scaffold (always the first real call)
+    if (stepIndex === 0) {
+      const res = await fetch("/api/forge/scaffold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(projectData ?? {}),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error ?? `Scaffold failed: HTTP ${res.status}`)
+      }
+      return
+    }
+
+    // Step 1 — POST /api/forge/architecture (AI vs Standard decided by proxy)
+    if (stepIndex === 1) {
+      const res = await fetch("/api/forge/architecture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...projectData, scaffoldType }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error ?? `Architecture generation failed: HTTP ${res.status}`)
+      }
+      return
+    }
+
+    // Steps 2-7 — simulated 2 s delay
+    await new Promise<void>((resolve) => setTimeout(resolve, 2000))
+  }, [projectData, scaffoldType])
 
   // ---------------------------------------------------------------------------
   // Start the build process — only after steps have been fetched
@@ -91,9 +121,8 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
         )
       )
 
-      // Simulate API call
       try {
-        await simulateApiCall(i)
+        await executeStep(i)
 
         // Update step to completed
         setSteps((prevSteps) =>
@@ -102,12 +131,16 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
           )
         )
       } catch (error) {
-        // Update step to error if API fails
+        // Update step to error and surface the message via toast
         setSteps((prevSteps) =>
           prevSteps.map((step, index) =>
             index === i ? { ...step, status: "error" } : step
           )
         )
+        toast.error("Build step failed", {
+          description: error instanceof Error ? error.message : "An unexpected error occurred",
+          duration: 6000,
+        })
         setIsRunning(false)
         return
       }
@@ -125,7 +158,7 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
     // Show the confirmation prompt instead of auto-redirecting
     setBuildComplete(true)
     onBuildComplete?.()
-  }, [isRunning, apiSteps, projectName, onBuildComplete])
+  }, [isRunning, apiSteps, projectName, onBuildComplete, executeStep])
 
   // Auto-start once the fetched steps are ready
   React.useEffect(() => {
