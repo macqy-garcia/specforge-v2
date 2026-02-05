@@ -32,7 +32,7 @@ function FileTreeItem({ node, level = 0 }: FileTreeItemProps) {
         onClick={handleToggle}
         className={cn(
           "flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded-sm cursor-pointer transition-colors",
-          "text-sm"
+          "text-sm whitespace-nowrap"
         )}
         style={{ paddingLeft: `${level * 12 + 8}px` }}
       >
@@ -86,7 +86,7 @@ interface FileTreeProps {
 
 export function FileTree({ data, className }: FileTreeProps) {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("min-w-max", className)}>
       {data.map((node, index) => (
         <FileTreeItem key={`${node.name}-${index}`} node={node} level={0} />
       ))}

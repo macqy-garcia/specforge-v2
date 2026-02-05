@@ -428,25 +428,11 @@ export function ApiTestingStep({
       {/* Main Content — rendered only after data is fetched */}
       {!fetchLoading && !fetchError && (
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar - File Explorer */}
-          <aside className="w-60 border-r">
-            <div className="p-4 border-b">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-primary uppercase tracking-wider">
-                  Project Explorer
-                </h2>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-            <ScrollArea className="h-[calc(100vh-160px)]">
-              <div className="p-4">
-                <FileTree data={fileTree} />
-              </div>
-            </ScrollArea>
-          </aside>
+          {/* Resizable sidebar + drag handle */}
+          <ResizableSidebar fileTree={fileTree} />
 
           {/* Center - API Endpoints & Response */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <Tabs defaultValue="endpoints" className="flex-1 flex flex-col">
               {/* Tabs Header with Controls */}
               <div className="flex items-center justify-between px-6 py-3 border-b">
@@ -630,6 +616,91 @@ export function ApiTestingStep({
         </div>
       )}
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Resizable-sidebar wrapper  (extracted so the drag state lives close to
+// the sidebar and doesn't pollute the main component)
+// ---------------------------------------------------------------------------
+function ResizableSidebar({ fileTree }: { fileTree: FileNode[] }) {
+  const MIN_WIDTH = 160   // px  – minimum sidebar width
+  const MAX_WIDTH = 600   // px  – maximum sidebar width
+  const DEFAULT_WIDTH = 240
+
+  const [sidebarWidth, setSidebarWidth] = React.useState(DEFAULT_WIDTH)
+  const isDragging = React.useRef(false)
+  const startX = React.useRef(0)
+  const startWidth = React.useRef(DEFAULT_WIDTH)
+
+  const onMouseDown = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isDragging.current = true
+    startX.current = e.clientX
+    startWidth.current = sidebarWidth
+    document.body.style.cursor = "col-resize"
+    document.body.style.userSelect = "none"
+  }, [sidebarWidth])
+
+  React.useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return
+      const delta = e.clientX - startX.current
+      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth.current + delta))
+      setSidebarWidth(newWidth)
+    }
+
+    const onMouseUp = () => {
+      if (!isDragging.current) return
+      isDragging.current = false
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+    }
+
+    window.addEventListener("mousemove", onMouseMove)
+    window.addEventListener("mouseup", onMouseUp)
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove)
+      window.removeEventListener("mouseup", onMouseUp)
+    }
+  }, [])
+
+  return (
+    <>
+      {/* Left Sidebar - File Explorer */}
+      <aside className="flex flex-col border-r shrink-0" style={{ width: sidebarWidth }}>
+        <div className="p-4 border-b shrink-0">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-primary uppercase tracking-wider">
+              Project Explorer
+            </h2>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </div>
+        {/* ScrollArea fills remaining vertical space; inner wrapper enables
+            horizontal scroll so deeply-nested paths are never clipped. */}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-4 min-w-max">
+            <FileTree data={fileTree} />
+          </div>
+        </ScrollArea>
+      </aside>
+
+      {/* Drag handle – a thin invisible strip that turns into col-resize on hover */}
+      <div
+        className="w-1 shrink-0 cursor-col-resize hover:bg-primary/20 transition-colors relative group"
+        onMouseDown={onMouseDown}
+      >
+        {/* Visual grip dots (centred vertically, visible on hover) */}
+        <div className="absolute inset-y-0 left-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex flex-col gap-1">
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/60" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/60" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/60" />
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
