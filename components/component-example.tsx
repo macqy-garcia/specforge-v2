@@ -58,6 +58,7 @@ import { SparkleIcon, CodeIcon, InfoIcon, FolderGit2, HardDrive, CircleCheck, Ch
 import { JsonViewer } from "./json-tree-viewer"
 import { ModeToggle } from "./mode-toggle"
 import { fetchOpenApiSpec } from "@/lib/openapi-validator"
+import { useHappyPath } from "@/components/happy-path-context"
 
 // Define the type for your JSON data
 interface ProjectData {
@@ -138,6 +139,8 @@ const DEFAULT_STARTER_KIT = {
 }
 
 export function ComponentExample() {
+  const { happyPath } = useHappyPath()
+
   // Define wizard steps
   const wizardSteps = [
     { id: 1, label: "UPLOAD SPEC" },
@@ -290,6 +293,16 @@ export function ComponentExample() {
   const handleStepValidation = async (fromStep: number, toStep: number): Promise<boolean> => {
     // Only validate when moving forward from step 1
     if (fromStep === 1 && toStep > 1) {
+      // Happy-path short-circuit — skip network validation entirely
+      if (happyPath && projectData.upload.source === 'url' && projectData.upload.url) {
+        updateProjectData(['upload', 'specData'], { openapi: '3.0.0', info: { title: 'Happy-Path Spec', version: '1.0.0' }, paths: {} })
+        updateProjectData(['upload', 'isValid'], true)
+        updateProjectData(['upload', 'validationError'], undefined)
+        updateProjectData(['upload', 'fileName'], 'happy-path-spec.json')
+        toast.success('OpenAPI specification validated successfully')
+        return true
+      }
+
       // If source is URL, validate it
       if (projectData.upload.source === 'url') {
         if (!projectData.upload.url) {

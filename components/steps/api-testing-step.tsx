@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Play, Square, ChevronDown, Search, RotateCcw, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
+import { HappyPathToggle } from "@/components/happy-path-toggle"
 import type { FileTreeNode } from "@/app/api/explorer/file-tree/route"
 import type { ExplorerEndpoint } from "@/app/api/explorer/endpoints/route"
 
@@ -179,6 +180,7 @@ export function ApiTestingStep({
             </Badge>
             <span className="text-sm text-muted-foreground">v1.0.4-stable</span>
             <Separator orientation="vertical" className="h-5 mx-1" />
+            <HappyPathToggle />
             <ModeToggle />
             <Button variant="ghost" size="sm" className="gap-1.5" onClick={onNewProject}>
               <RotateCcw className="h-4 w-4" />

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Check, CheckCircle2, ArrowRight, Loader2 } from "lucide-react"
 import type { BuildStep } from "@/app/api/build-steps/route"
+import { useHappyPath } from "@/components/happy-path-context"
 
 interface BuildLogsStepProps {
   onComplete?: () => void
@@ -17,6 +18,8 @@ interface BuildLogsStepProps {
 }
 
 export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Project", projectData, scaffoldType = "standard" }: BuildLogsStepProps) {
+  const { happyPath } = useHappyPath()
+
   // ---------------------------------------------------------------------------
   // Fetched step definitions (populated from /api/build-steps)
   // ---------------------------------------------------------------------------
@@ -69,8 +72,16 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
   // ---------------------------------------------------------------------------
   // Per-step execution — steps 0 & 1 hit the real backend via Next.js proxy;
   // steps 2-7 are simulated with a 2 s delay (no backend endpoint yet).
+  // When happyPath is ON every step resolves after a short simulated delay —
+  // no network requests are made.
   // ---------------------------------------------------------------------------
   const executeStep = React.useCallback(async (stepIndex: number): Promise<void> => {
+    // Happy-path short-circuit — simulate all steps locally
+    if (happyPath) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 1500))
+      return
+    }
+
     // Step 0 — POST /api/forge/scaffold (always the first real call)
     if (stepIndex === 0) {
       const res = await fetch("/api/forge/scaffold", {
@@ -101,7 +112,7 @@ export function BuildLogsStep({ onComplete, onBuildComplete, projectName = "Proj
 
     // Steps 2-7 — simulated 2 s delay
     await new Promise<void>((resolve) => setTimeout(resolve, 2000))
-  }, [projectData, scaffoldType])
+  }, [happyPath, projectData, scaffoldType])
 
   // ---------------------------------------------------------------------------
   // Start the build process — only after steps have been fetched

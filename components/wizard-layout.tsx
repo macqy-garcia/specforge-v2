@@ -6,6 +6,7 @@ import { Stepper, Step } from "@/components/ui/stepper"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Loader2, RotateCcw } from "lucide-react"
 import { ModeToggle } from "./mode-toggle"
+import { HappyPathToggle } from "./happy-path-toggle"
 
 interface WizardLayoutProps {
   steps: Step[]
@@ -103,7 +104,10 @@ export function WizardLayout({
               PROJECT ORCHESTRATOR
             </span>
           </div>
-          <ModeToggle />
+          <div className="flex items-center gap-3">
+            <HappyPathToggle />
+            <ModeToggle />
+          </div>
         </div>
       </header>
 
