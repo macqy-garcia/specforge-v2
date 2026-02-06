@@ -297,6 +297,10 @@ const HAPPY_PATH_ENDPOINTS: ApiEndpoint[] = [
   { method: "GET", path: "/api/mock/users", description: "Retrieves a list of mock users with AI-enhanced recommendations.", hasAI: true, status: "SERVER_STOPPED" },
   { method: "POST", path: "/api/mock/order", description: "Creates a new mock order and triggers fulfillment logic.", status: "SERVER_STOPPED" },
   { method: "DELETE", path: "/api/mock/users/{id}", description: "Deletes a specific user from the mock database.", status: "SERVER_STOPPED" },
+  { method: "GET", path: "/api/mock/hello", description: "Simple health check and greeting endpoint.", status: "SERVER_STOPPED" },
+  { method: "GET", path: "/api/mock/users", description: "Retrieves a list of mock users with AI-enhanced recommendations.", hasAI: true, status: "SERVER_STOPPED" },
+  { method: "POST", path: "/api/mock/order", description: "Creates a new mock order and triggers fulfillment logic.", status: "SERVER_STOPPED" },
+  { method: "DELETE", path: "/api/mock/users/{id}", description: "Deletes a specific user from the mock database.", status: "SERVER_STOPPED" },
 ]
 
 const HAPPY_PATH_MOCK_RESPONSE = {
@@ -896,137 +900,137 @@ function ResizableEndpointsAndResponse({
       <Tabs defaultValue="endpoints" className="flex-1 flex flex-col overflow-hidden">
         {/* Tabs Header with Controls */}
         <div className="flex items-center justify-between px-6 py-3 border-b">
-                <TabsList>
-                  <TabsTrigger value="endpoints" className="gap-2">
-                    <span className="text-primary">◉</span>
-                    API ENDPOINTS
-                  </TabsTrigger>
-                  <TabsTrigger value="console" className="gap-2">
-                    &gt;_
-                    LIVE CONSOLE
-                  </TabsTrigger>
-                </TabsList>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    onClick={handleRun}
-                    disabled={isRunning}
-                    className="gap-2"
-                    variant={isRunning ? "secondary" : "default"}
-                  >
-                    {isRunning ? (
-                      <Container className="h-4 w-4 animate-pulse" />
-                    ) : (
-                      <Play className="h-4 w-4" />
-                    )}
-                    {isRunning ? "RUNNING" : "RUN"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleStop}
-                    disabled={!isRunning}
-                    className="gap-2"
-                  >
-                    <Square className="h-4 w-4" />
-                    STOP
-                  </Button>
-                  {/* AI Regen — visible only when an endpoint is selected */}
-                  {selectedEndpoint && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleAiRegen}
-                      disabled={!selectedEndpoint}
-                      className="gap-2 border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      AI REGEN
-                    </Button>
-                  )}
-                </div>
+          <TabsList>
+            <TabsTrigger value="endpoints" className="gap-2">
+              <span className="text-primary">◉</span>
+              API ENDPOINTS
+            </TabsTrigger>
+            <TabsTrigger value="console" className="gap-2">
+              &gt;_
+              LIVE CONSOLE
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={handleRun}
+              disabled={isRunning}
+              className="gap-2"
+              variant={isRunning ? "secondary" : "default"}
+            >
+              {isRunning ? (
+                <Container className="h-4 w-4 animate-pulse" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {isRunning ? "RUNNING" : "RUN"}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleStop}
+              disabled={!isRunning}
+              className="gap-2"
+            >
+              <Square className="h-4 w-4" />
+              STOP
+            </Button>
+            {/* AI Regen — visible only when an endpoint is selected */}
+            {selectedEndpoint && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleAiRegen}
+                disabled={!selectedEndpoint}
+                className="gap-2 border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950"
+              >
+                <Sparkles className="h-4 w-4" />
+                AI REGEN
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Tabs Content */}
+        <TabsContent value="endpoints" className="flex-1 m-0 p-6 flex flex-col overflow-hidden">
+          {/* Search */}
+          <div className="relative shrink-0 mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search endpoints..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Mock-server starting overlay */}
+          {mockServerStarting && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950 p-4 flex items-center gap-3 shrink-0 mb-4">
+              <Loader2 className="h-5 w-5 animate-spin text-amber-600 dark:text-amber-400 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Preparing the mock server…</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">Endpoints will be available once the container is ready.</p>
               </div>
+            </div>
+          )}
 
-              {/* Tabs Content */}
-              <TabsContent value="endpoints" className="flex-1 m-0 p-6 flex flex-col overflow-hidden">
-                {/* Search */}
-                <div className="relative shrink-0 mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search endpoints..."
-                    className="pl-9"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-
-                {/* Mock-server starting overlay */}
-                {mockServerStarting && (
-                  <div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950 p-4 flex items-center gap-3 shrink-0 mb-4">
-                    <Loader2 className="h-5 w-5 animate-spin text-amber-600 dark:text-amber-400 shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Preparing the mock server…</p>
-                      <p className="text-xs text-amber-600 dark:text-amber-400">Endpoints will be available once the container is ready.</p>
-                    </div>
-                  </div>
+          {/* Endpoints List */}
+          <div className="flex-1 flex flex-col overflow-y-scroll">
+            <div className="flex items-center gap-2 shrink-0 mb-4">
+              <span className="text-blue-500">◆</span>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                STANDARD API OPERATIONS
+              </h3>
+            </div>
+            <ScrollArea className="flex-1">
+              <div className={cn("space-y-3 pr-4", mockServerStarting && "opacity-40 pointer-events-none")}>
+                {filteredEndpoints.length > 0 ? (
+                  filteredEndpoints.map((endpoint, index) => (
+                    <ApiEndpointItem
+                      key={index}
+                      endpoint={endpoint}
+                      onClick={() => handleEndpointClick(endpoint)}
+                      isSelected={selectedEndpoint === endpoint}
+                    />
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-6">
+                    No endpoints match your search.
+                  </p>
                 )}
+              </div>
+            </ScrollArea>
+          </div>
+        </TabsContent>
 
-                {/* Endpoints List */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <div className="flex items-center gap-2 shrink-0 mb-4">
-                    <span className="text-blue-500">◆</span>
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                      STANDARD API OPERATIONS
-                    </h3>
+        <TabsContent value="console" className="flex-1 m-0 p-6 flex flex-col overflow-hidden">
+          <ScrollArea className="flex-1">
+            {consoleLogs.length === 0 ? (
+              <div className="flex items-center justify-center h-48">
+                <p className="text-sm text-muted-foreground">
+                  Select an endpoint and press RUN — logs will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1 font-mono text-xs">
+                {consoleLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className={cn(
+                      "px-3 py-1 rounded",
+                      log.type === "request" && "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950",
+                      log.type === "response" && "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950",
+                      log.type === "info" && "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950"
+                    )}
+                  >
+                    {log.text}
                   </div>
-                  <ScrollArea className="flex-1">
-                    <div className={cn("space-y-3 pr-4", mockServerStarting && "opacity-40 pointer-events-none")}>
-                      {filteredEndpoints.length > 0 ? (
-                        filteredEndpoints.map((endpoint, index) => (
-                          <ApiEndpointItem
-                            key={index}
-                            endpoint={endpoint}
-                            onClick={() => handleEndpointClick(endpoint)}
-                            isSelected={selectedEndpoint === endpoint}
-                          />
-                        ))
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-6">
-                          No endpoints match your search.
-                        </p>
-                      )}
-                    </div>
-                  </ScrollArea>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="console" className="flex-1 m-0 p-6 flex flex-col overflow-hidden">
-                <ScrollArea className="flex-1">
-                  {consoleLogs.length === 0 ? (
-                    <div className="flex items-center justify-center h-48">
-                      <p className="text-sm text-muted-foreground">
-                        Select an endpoint and press RUN — logs will appear here.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1 font-mono text-xs">
-                      {consoleLogs.map((log) => (
-                        <div
-                          key={log.id}
-                          className={cn(
-                            "px-3 py-1 rounded",
-                            log.type === "request" && "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950",
-                            log.type === "response" && "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950",
-                            log.type === "info" && "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950"
-                          )}
-                        >
-                          {log.text}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
-              </TabsContent>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </TabsContent>
       </Tabs>
 
       {/* Drag handle – a thin horizontal strip that turns into row-resize on hover */}
@@ -1211,7 +1215,7 @@ function ResponseItemsPanel({
           )}
           <span className="text-muted-foreground">]</span>
           {source && (
-            <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-2", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
+            <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-3", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
               {source === "AI" && <Sparkles className="h-3 w-3" />}
               {source}
             </span>
@@ -1245,7 +1249,7 @@ function ResponseItemsPanel({
       <span className="font-mono text-sm">
         <span className="text-foreground">{displayValue}</span>
         {source && (
-          <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-2", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
+          <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-3", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
             {source === "AI" && <Sparkles className="h-3 w-3" />}
             {source}
           </span>
@@ -1270,16 +1274,27 @@ function ResponseItemsPanel({
                   <div key={idx} className="my-2">
                     <span className="text-muted-foreground">{"{"}</span>
                     <div className="ml-4">
-                      {Object.entries(item).map(([field, value], fieldIdx, fieldArr) => (
-                        <div key={field} className="flex items-start gap-2">
-                          <span className="text-blue-600 dark:text-blue-400">"{field}"</span>
-                          <span className="text-muted-foreground">:</span>
-                          <div className="flex-1">
-                            {renderValue(value, field, idx)}
-                            {fieldIdx < fieldArr.length - 1 && <span className="text-muted-foreground">,</span>}
+                      {Object.entries(item).map(([field, value], fieldIdx, fieldArr) => {
+                        const source = fieldSources[field]
+                        return (
+                          <div key={field} className="flex items-start gap-2">
+                            <span className="text-blue-600 dark:text-blue-400">"{field}"</span>
+                            <span className="text-muted-foreground">:</span>
+                            <div className="flex-1 flex items-center">
+                              <span className="font-mono text-sm text-foreground">
+                                {typeof value === 'string' ? `"${value}"` : Array.isArray(value) ? `[${value.map(v => typeof v === 'string' ? `"${v}"` : v).join(', ')}]` : JSON.stringify(value)}
+                                {fieldIdx < fieldArr.length - 1 && <span className="text-muted-foreground">,</span>}
+                              </span>
+                              {source && (
+                                <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-3", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
+                                  {source === "AI" && <Sparkles className="h-3 w-3" />}
+                                  {source}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                     <span className="text-muted-foreground">{"}"}</span>
                     {idx < items.length - 1 && <span className="text-muted-foreground">,</span>}
