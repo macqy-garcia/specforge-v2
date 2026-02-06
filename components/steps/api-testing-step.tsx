@@ -964,13 +964,15 @@ function ResizableEndpointsAndResponse({
             />
           </div>
 
-          {/* Mock-server starting overlay */}
-          {mockServerStarting && (
+          {/* Server not started message */}
+          {!isRunning && (
             <div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950 p-4 flex items-center gap-3 shrink-0 mb-4">
-              <Loader2 className="h-5 w-5 animate-spin text-amber-600 dark:text-amber-400 shrink-0" />
+              <div className="h-5 w-5 rounded-full bg-amber-600 dark:bg-amber-400 flex items-center justify-center shrink-0">
+                <Play className="h-3 w-3 text-white" />
+              </div>
               <div>
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Preparing the mock server…</p>
-                <p className="text-xs text-amber-600 dark:text-amber-400">Endpoints will be available once the container is ready.</p>
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Mock server not started</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">Click the RUN button to start the mock server and enable endpoints.</p>
               </div>
             </div>
           )}
@@ -984,7 +986,7 @@ function ResizableEndpointsAndResponse({
               </h3>
             </div>
             <ScrollArea className="flex-1">
-              <div className={cn("space-y-3 pr-4", mockServerStarting && "opacity-40 pointer-events-none")}>
+              <div className={cn("space-y-3 pr-4", !isRunning && "opacity-40 pointer-events-none")}>
                 {filteredEndpoints.length > 0 ? (
                   filteredEndpoints.map((endpoint, index) => (
                     <ApiEndpointItem
