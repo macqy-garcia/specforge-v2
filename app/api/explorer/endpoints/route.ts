@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server"
 
+const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080"
+
 /**
- * Mock API – returns the list of API endpoints for the explorer.
- * Replace the body of GET with a call to the real upstream service
- * once it is deployed; the shape stays the same.
+ * POST /api/explorer/endpoints
+ * Fetches the list of API endpoints from the backend mock server.
+ * Transforms the mockMode from frontend format to backend format.
  */
 
 export interface ExplorerEndpoint {
@@ -14,37 +16,49 @@ export interface ExplorerEndpoint {
   status?: "SERVER_STOPPED" | "OPEN" | "RUNNING" | "ERROR"
 }
 
-const ENDPOINTS: ExplorerEndpoint[] = [
-  {
-    method: "GET",
-    path: "/api/mock/hello",
-    description: "Simple health check and greeting endpoint.",
-    status: "SERVER_STOPPED"
-  },
-  {
-    method: "GET",
-    path: "/api/mock/users",
-    description: "Retrieves a list of mock users with AI-enhanced recommendations.",
-    hasAI: true,
-    status: "SERVER_STOPPED"
-  },
-  {
-    method: "POST",
-    path: "/api/mock/order",
-    description: "Creates a new mock order and triggers fulfillment logic.",
-    status: "SERVER_STOPPED"
-  },
-  {
-    method: "DELETE",
-    path: "/api/mock/users/{id}",
-    description: "Deletes a specific user from the mock database.",
-    status: "SERVER_STOPPED"
-  }
-]
+// ---------------------------------------------------------------------------
+// POST /api/explorer/endpoints
+// ---------------------------------------------------------------------------
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
 
-// ---------------------------------------------------------------------------
-// GET /api/explorer/endpoints
-// ---------------------------------------------------------------------------
-export async function GET() {
-  return NextResponse.json(ENDPOINTS)
+    // Transform mockMode: frontend sends "faker" | "ai" | "hybrid"
+    // Backend expects "FAKER" | "AI" | "HYBRID"
+    const mockModeMap: Record<string, string> = {
+      "faker": "FAKER",
+      "ai": "AI",
+      "hybrid": "HYBRID"
+    }
+
+    const mockMode = mockModeMap[body.mockMode?.toLowerCase() ?? "faker"] ?? "FAKER"
+
+    const requestBody = {
+      mockMode
+    }
+
+    console.log("📤 Sending to /mock-server/openapi:", JSON.stringify(requestBody, null, 2))
+
+    const res = await fetch(`${BACKEND}/mock-server/openapi`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(requestBody),
+    })
+
+    const data = await res.json().catch(() => ({ error: `Upstream returned ${res.status}` }))
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: data.error ?? `Backend returned ${res.status}` },
+        { status: res.status }
+      )
+    }
+
+    return NextResponse.json(data, { status: 200 })
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Failed to fetch endpoints" },
+      { status: 502 }
+    )
+  }
 }

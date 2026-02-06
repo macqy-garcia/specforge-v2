@@ -26,6 +26,8 @@ export async function POST(req: Request) {
       observability: projectData.techOptions?.observability
     }
 
+    console.log("📤 Sending to backend:", JSON.stringify(scaffoldRequest, null, 2))
+
     const res = await fetch(`${BACKEND}/api/v1/forge/scaffold`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },

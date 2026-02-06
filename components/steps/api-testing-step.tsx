@@ -401,7 +401,11 @@ export function ApiTestingStep({
         // Real path — fire 3 calls in parallel
         const [treeRes, endpointsRes, openapiRes] = await Promise.all([
           fetch("/api/explorer/project-structure"),
-          fetch("/api/explorer/endpoints"),
+          fetch("/api/explorer/endpoints", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mockMode }),
+          }),
           fetch("/api/explorer/openapi", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -708,7 +712,7 @@ export function ApiTestingStep({
                     STOP
                   </Button>
                   {/* AI Regen — visible only when mock server is ready */}
-                  {mockServerReady && !happyPath && (
+                  {mockServerReady && (
                     <Button
                       size="sm"
                       variant="outline"
