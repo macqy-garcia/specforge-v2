@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Play, Square, ChevronDown, Search, RotateCcw, Loader2, Sparkles } from "lucide-react"
+import { Play, Square, ChevronDown, Search, RotateCcw, Loader2, Sparkles, Container } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
 import { HappyPathToggle } from "@/components/happy-path-toggle"
@@ -300,14 +300,75 @@ const HAPPY_PATH_ENDPOINTS: ApiEndpoint[] = [
 ]
 
 const HAPPY_PATH_MOCK_RESPONSE = {
-  "id": "usr_9f2c1a",
-  "userName": "sofia_lee",
-  "email": "sofia@example.com",
-  "roles": ["USER"],
-  "score": 0.92,
-  "recommendation": "Increase retry backoff to 250ms.",
-  "generatedAt": "2020-01-30T14:12:05Z",
-  "links": { "self": "/api/mock/users/9f2c1a", "orders": "/api/mock/users/9f2c1a/orders" },
+  "data": {
+    "items": [
+      {
+        "id": "123456",
+        "name": "Salon Bliss",
+        "city": "New York",
+        "rating": 4.5,
+        "services": ["Hair", "Nails", "Massage"]
+      },
+      {
+        "id": "123457",
+        "name": "Salon de la Mer",
+        "city": "San Francisco",
+        "rating": 4.3,
+        "services": ["Hair", "Nails", "Spa/Wellness"]
+      }
+    ],
+    "page": 1,
+    "pageSize": 10,
+    "total": 123456
+  },
+  "_provenance": {
+    "items[0].id": "AI",
+    "items[0].name": "AI",
+    "items[0].city": "Faker",
+    "items[0].rating": "AI",
+    "items[0].services": "AI",
+    "items[1].id": "AI",
+    "items[1].name": "AI",
+    "items[1].city": "Faker",
+    "items[1].rating": "Hybrid",
+    "items[1].services": "Faker"
+  }
+}
+
+const HAPPY_PATH_AI_REGEN_RESPONSE = {
+  "data": {
+    "items": [
+      {
+        "id": "789012",
+        "name": "Beauty Haven",
+        "city": "Los Angeles",
+        "rating": 4.8,
+        "services": ["Hair", "Makeup", "Spa/Wellness"]
+      },
+      {
+        "id": "789013",
+        "name": "Glamour Studio",
+        "city": "Miami",
+        "rating": 4.6,
+        "services": ["Hair", "Nails", "Skincare"]
+      }
+    ],
+    "page": 1,
+    "pageSize": 10,
+    "total": 123456
+  },
+  "_provenance": {
+    "items[0].id": "AI",
+    "items[0].name": "AI",
+    "items[0].city": "AI",
+    "items[0].rating": "AI",
+    "items[0].services": "AI",
+    "items[1].id": "AI",
+    "items[1].name": "AI",
+    "items[1].city": "AI",
+    "items[1].rating": "AI",
+    "items[1].services": "AI"
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -503,22 +564,28 @@ export function ApiTestingStep({
   // ---------------------------------------------------------------------------
   // Execute a call against the mock server (or happy-path fallback)
   // ---------------------------------------------------------------------------
-  const executeCall = React.useCallback(async (endpoint: ApiEndpoint, extraParams?: { mode?: string }) => {
+  const executeCall = React.useCallback(async (endpoint: ApiEndpoint, extraParams?: { aiRegenerate?: boolean }) => {
     if (!endpoint) return
-    setIsRunning(true)
     setResponse(null)
     setParsedItems(null)
 
     const ts = new Date().toLocaleTimeString()
-    setConsoleLogs((prev) => [...prev, { id: Date.now(), type: "request", text: `[${ts}]  → ${endpoint.method} ${endpoint.path}` }])
+    setConsoleLogs((prev) => [...prev, { id: Date.now(), type: "request", text: `[${ts}]  → ${endpoint.method} ${endpoint.path}${extraParams?.aiRegenerate ? '?aiRegenerate=true' : ''}` }])
 
     if (happyPath) {
-      // Happy-path — simulate latency and return static mock
+      // Happy-path — simulate latency and return static mock with provenance
       setTimeout(() => {
         const resTs = new Date().toLocaleTimeString()
-        setConsoleLogs((prev) => [...prev, { id: Date.now() + 1, type: "response", text: `[${resTs}]  ← 200 OK  (${JSON.stringify(HAPPY_PATH_MOCK_RESPONSE).length} bytes)` }])
-        setResponse(HAPPY_PATH_MOCK_RESPONSE)
-        setIsRunning(false)
+        // Use AI REGEN response if aiRegenerate is true, otherwise use normal response
+        const mockResponse = extraParams?.aiRegenerate ? HAPPY_PATH_AI_REGEN_RESPONSE : HAPPY_PATH_MOCK_RESPONSE
+        setConsoleLogs((prev) => [...prev, { id: Date.now() + 1, type: "response", text: `[${resTs}]  ← 200 OK  (${JSON.stringify(mockResponse).length} bytes)` }])
+        setResponse(mockResponse)
+
+        // Parse the happy path response for provenance display
+        if (mockResponse?.data?.items && mockResponse?._provenance) {
+          const provenanceMap = buildProvenanceMap(mockResponse._provenance)
+          setParsedItems({ items: mockResponse.data.items, provenanceMap })
+        }
       }, 1000)
       return
     }
@@ -531,8 +598,8 @@ export function ApiTestingStep({
       // Strip leading slash for the proxy path
       const mockPath = endpoint.path.replace(/^\//, "")
       let url = `/api/mock-server/${mockPath}`
-      if (extraParams?.mode) {
-        url += (url.includes("?") ? "&" : "?") + `mode=${extraParams.mode}`
+      if (extraParams?.aiRegenerate) {
+        url += (url.includes("?") ? "&" : "?") + "aiRegenerate=true"
       }
 
       const res = await fetch(url, {
@@ -563,16 +630,60 @@ export function ApiTestingStep({
       }
     } finally {
       abortRef.current = null
-      setIsRunning(false)
     }
   }, [happyPath])
 
-  const handleRun = () => {
-    if (selectedEndpoint) executeCall(selectedEndpoint)
+  const handleRun = async () => {
+    setIsRunning(true)
+
+    if (happyPath) {
+      // Happy path — simulate Docker startup with 2-second delay
+      setTimeout(() => {
+        const ts = new Date().toLocaleTimeString()
+        setConsoleLogs((prev) => [...prev, {
+          id: Date.now(),
+          type: "info",
+          text: `[${ts}]  ✓ Mock server started successfully (simulated)`
+        }])
+        // Note: isRunning stays true until STOP is clicked
+      }, 2000)
+      return
+    }
+
+    // Non-happy path — actually start the Docker container
+    try {
+      const res = await fetch("/api/forge/docker/project/start", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: projectPath ?? "",
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as any).error ?? `Docker start failed: HTTP ${res.status}`)
+      }
+
+      const ts = new Date().toLocaleTimeString()
+      setConsoleLogs((prev) => [...prev, {
+        id: Date.now(),
+        type: "info",
+        text: `[${ts}]  ✓ Docker container started successfully`
+      }])
+      // Note: isRunning stays true until STOP is clicked
+    } catch (err) {
+      const ts = new Date().toLocaleTimeString()
+      setConsoleLogs((prev) => [...prev, {
+        id: Date.now(),
+        type: "info",
+        text: `[${ts}]  ✗ ${err instanceof Error ? err.message : "Failed to start Docker"}`
+      }])
+      // On error, reset the running state
+      setIsRunning(false)
+    }
   }
 
   const handleAiRegen = () => {
-    if (selectedEndpoint) executeCall(selectedEndpoint, { mode: "ai" })
+    if (selectedEndpoint) executeCall(selectedEndpoint, { aiRegenerate: true })
   }
 
   const handleStop = () => {
@@ -581,12 +692,18 @@ export function ApiTestingStep({
       abortRef.current = null
     }
     setIsRunning(false)
+    const ts = new Date().toLocaleTimeString()
+    setConsoleLogs((prev) => [...prev, {
+      id: Date.now(),
+      type: "info",
+      text: `[${ts}]  ⚠ Docker container stopped by user`
+    }])
   }
 
   const handleEndpointClick = (endpoint: ApiEndpoint) => {
     setSelectedEndpoint(endpoint)
-    setResponse(null)
-    setParsedItems(null)
+    // Automatically execute the endpoint when clicked
+    executeCall(endpoint)
   }
 
   // ---------------------------------------------------------------------------
@@ -676,10 +793,109 @@ export function ApiTestingStep({
           <ResizableSidebar fileTree={fileTree} />
 
           {/* Center - API Endpoints & Response */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Tabs defaultValue="endpoints" className="flex-1 flex flex-col">
-              {/* Tabs Header with Controls */}
-              <div className="flex items-center justify-between px-6 py-3 border-b">
+          <ResizableEndpointsAndResponse
+            isRunning={isRunning}
+            selectedEndpoint={selectedEndpoint}
+            mockServerReady={mockServerReady}
+            mockServerStarting={mockServerStarting}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            filteredEndpoints={filteredEndpoints}
+            handleEndpointClick={handleEndpointClick}
+            handleRun={handleRun}
+            handleStop={handleStop}
+            handleAiRegen={handleAiRegen}
+            consoleLogs={consoleLogs}
+            parsedItems={parsedItems}
+            response={response}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Resizable Endpoints and Response wrapper
+// ---------------------------------------------------------------------------
+function ResizableEndpointsAndResponse({
+  isRunning,
+  selectedEndpoint,
+  mockServerReady,
+  mockServerStarting,
+  searchQuery,
+  setSearchQuery,
+  filteredEndpoints,
+  handleEndpointClick,
+  handleRun,
+  handleStop,
+  handleAiRegen,
+  consoleLogs,
+  parsedItems,
+  response,
+}: {
+  isRunning: boolean
+  selectedEndpoint: ApiEndpoint | null
+  mockServerReady: boolean
+  mockServerStarting: boolean
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+  filteredEndpoints: ApiEndpoint[]
+  handleEndpointClick: (endpoint: ApiEndpoint) => void
+  handleRun: () => void
+  handleStop: () => void
+  handleAiRegen: () => void
+  consoleLogs: { id: number; type: "request" | "response" | "info"; text: string }[]
+  parsedItems: { items: Record<string, any>[]; provenanceMap: Map<number, Record<string, string>> } | null
+  response: any
+}) {
+  const MIN_HEIGHT = 200   // px  – minimum response panel height
+  const MAX_HEIGHT = 600   // px  – maximum response panel height
+  const DEFAULT_HEIGHT = 300
+
+  const [responseHeight, setResponseHeight] = React.useState(DEFAULT_HEIGHT)
+  const isDragging = React.useRef(false)
+  const startY = React.useRef(0)
+  const startHeight = React.useRef(DEFAULT_HEIGHT)
+
+  const onMouseDown = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isDragging.current = true
+    startY.current = e.clientY
+    startHeight.current = responseHeight
+    document.body.style.cursor = "row-resize"
+    document.body.style.userSelect = "none"
+  }, [responseHeight])
+
+  React.useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return
+      // Note: delta is negative when dragging up, positive when dragging down
+      const delta = startY.current - e.clientY
+      const newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight.current + delta))
+      setResponseHeight(newHeight)
+    }
+
+    const onMouseUp = () => {
+      if (!isDragging.current) return
+      isDragging.current = false
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+    }
+
+    window.addEventListener("mousemove", onMouseMove)
+    window.addEventListener("mouseup", onMouseUp)
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove)
+      window.removeEventListener("mouseup", onMouseUp)
+    }
+  }, [])
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <Tabs defaultValue="endpoints" className="flex-1 flex flex-col overflow-hidden">
+        {/* Tabs Header with Controls */}
+        <div className="flex items-center justify-between px-6 py-3 border-b">
                 <TabsList>
                   <TabsTrigger value="endpoints" className="gap-2">
                     <span className="text-primary">◉</span>
@@ -694,12 +910,16 @@ export function ApiTestingStep({
                   <Button
                     size="sm"
                     onClick={handleRun}
-                    disabled={isRunning || !selectedEndpoint || !mockServerReady}
+                    disabled={isRunning}
                     className="gap-2"
                     variant={isRunning ? "secondary" : "default"}
                   >
-                    {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                    RUN
+                    {isRunning ? (
+                      <Container className="h-4 w-4 animate-pulse" />
+                    ) : (
+                      <Play className="h-4 w-4" />
+                    )}
+                    {isRunning ? "RUNNING" : "RUN"}
                   </Button>
                   <Button
                     size="sm"
@@ -711,13 +931,13 @@ export function ApiTestingStep({
                     <Square className="h-4 w-4" />
                     STOP
                   </Button>
-                  {/* AI Regen — visible only when mock server is ready */}
-                  {mockServerReady && (
+                  {/* AI Regen — visible only when an endpoint is selected */}
+                  {selectedEndpoint && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={handleAiRegen}
-                      disabled={isRunning || !selectedEndpoint}
+                      disabled={!selectedEndpoint}
                       className="gap-2 border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950"
                     >
                       <Sparkles className="h-4 w-4" />
@@ -728,9 +948,9 @@ export function ApiTestingStep({
               </div>
 
               {/* Tabs Content */}
-              <TabsContent value="endpoints" className="flex-1 m-0 p-6 space-y-4">
+              <TabsContent value="endpoints" className="flex-1 m-0 p-6 flex flex-col overflow-hidden">
                 {/* Search */}
-                <div className="relative">
+                <div className="relative shrink-0 mb-4">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search endpoints..."
@@ -742,7 +962,7 @@ export function ApiTestingStep({
 
                 {/* Mock-server starting overlay */}
                 {mockServerStarting && (
-                  <div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950 p-4 flex items-center gap-3">
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950 p-4 flex items-center gap-3 shrink-0 mb-4">
                     <Loader2 className="h-5 w-5 animate-spin text-amber-600 dark:text-amber-400 shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Preparing the mock server…</p>
@@ -752,14 +972,14 @@ export function ApiTestingStep({
                 )}
 
                 {/* Endpoints List */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex items-center gap-2 shrink-0 mb-4">
                     <span className="text-blue-500">◆</span>
                     <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
                       STANDARD API OPERATIONS
                     </h3>
                   </div>
-                  <ScrollArea className="h-[calc(100vh-500px)]">
+                  <ScrollArea className="flex-1">
                     <div className={cn("space-y-3 pr-4", mockServerStarting && "opacity-40 pointer-events-none")}>
                       {filteredEndpoints.length > 0 ? (
                         filteredEndpoints.map((endpoint, index) => (
@@ -780,8 +1000,8 @@ export function ApiTestingStep({
                 </div>
               </TabsContent>
 
-              <TabsContent value="console" className="flex-1 m-0 p-6">
-                <ScrollArea className="h-[calc(100vh-380px)]">
+              <TabsContent value="console" className="flex-1 m-0 p-6 flex flex-col overflow-hidden">
+                <ScrollArea className="flex-1">
                   {consoleLogs.length === 0 ? (
                     <div className="flex items-center justify-center h-48">
                       <p className="text-sm text-muted-foreground">
@@ -807,58 +1027,68 @@ export function ApiTestingStep({
                   )}
                 </ScrollArea>
               </TabsContent>
-            </Tabs>
+      </Tabs>
 
-            <Separator />
-
-            {/* Bottom - Response Preview */}
-            <div className="border-t">
-              <ScrollArea className="h-64">
-                <div className="p-6">
-                  {parsedItems ? (
-                    // Real mock-server response with provenance badges
-                    <ResponseItemsPanel items={parsedItems.items} provenanceMap={parsedItems.provenanceMap} />
-                  ) : response ? (
-                    // Happy-path or non-items response — render as key-value
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">RESPONSE PREVIEW</p>
-                      <div className="space-y-1">
-                        {Object.entries(response).map(([key, value]) => (
-                          <div key={key} className="flex items-start gap-2 text-sm">
-                            <span className="font-mono text-muted-foreground min-w-[100px]">{key}</span>
-                            <span className="font-mono">{JSON.stringify(value)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-48">
-                      <p className="text-sm text-muted-foreground text-center">
-                        {selectedEndpoint
-                          ? "Click RUN to execute the selected endpoint"
-                          : "Select an endpoint to see the response preview"
-                        }
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="border-t px-6 py-3">
-              <div className="flex items-center gap-3">
-                <span className="font-semibold text-sm">SPRING BOOT SCAFFOLD</span>
-                <Badge variant="secondary" className={cn(
-                  mockServerReady ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
-                )}>
-                  {mockServerReady ? "Ready for demo" : "Starting…"}
-                </Badge>
-              </div>
-            </div>
+      {/* Drag handle – a thin horizontal strip that turns into row-resize on hover */}
+      <div
+        className="h-1 shrink-0 cursor-row-resize hover:bg-primary/20 transition-colors relative group border-t"
+        onMouseDown={onMouseDown}
+      >
+        {/* Visual grip dots (centred horizontally, visible on hover) */}
+        <div className="absolute inset-x-0 top-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-1">
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/60" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/60" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground/60" />
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Bottom - Response Preview (resizable) */}
+      <div className="border-t shrink-0 flex flex-col overflow-hidden" style={{ height: responseHeight }}>
+        <ScrollArea className="flex-1 overflow-auto">
+          <div className="p-6">
+            {parsedItems ? (
+              // Real mock-server response with provenance badges
+              <ResponseItemsPanel items={parsedItems.items} provenanceMap={parsedItems.provenanceMap} />
+            ) : response ? (
+              // Happy-path or non-items response — render as key-value
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">RESPONSE PREVIEW</p>
+                <div className="space-y-1">
+                  {Object.entries(response).map(([key, value]) => (
+                    <div key={key} className="flex items-start gap-2 text-sm">
+                      <span className="font-mono text-muted-foreground min-w-[100px]">{key}</span>
+                      <span className="font-mono">{JSON.stringify(value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-48">
+                <p className="text-sm text-muted-foreground text-center">
+                  {selectedEndpoint
+                    ? "Click an endpoint to see the response preview"
+                    : "Select an endpoint to see the response preview"
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Footer Actions */}
+        <div className="border-t px-6 py-3 shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="font-semibold text-sm">SPRING BOOT SCAFFOLD</span>
+            <Badge variant="secondary" className={cn(
+              mockServerReady ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
+            )}>
+              {mockServerReady ? "Ready for demo" : "Starting…"}
+            </Badge>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -958,33 +1188,110 @@ function ResponseItemsPanel({
   items: Record<string, any>[]
   provenanceMap: Map<number, Record<string, string>>
 }) {
+  // Render a single value with proper formatting and provenance badge
+  const renderValue = (value: any, fieldPath: string, itemIdx: number, indent: number = 0): React.ReactNode => {
+    const fieldSources = provenanceMap.get(itemIdx) ?? {}
+    const source = fieldSources[fieldPath]
+
+    if (Array.isArray(value)) {
+      return (
+        <div className="font-mono text-sm">
+          <span className="text-muted-foreground">[</span>
+          {value.length > 0 && (
+            <div className="ml-4">
+              {value.map((item, idx) => (
+                <div key={idx}>
+                  <span className="text-foreground">
+                    {typeof item === 'string' ? `"${item}"` : JSON.stringify(item)}
+                  </span>
+                  {idx < value.length - 1 && <span className="text-muted-foreground">,</span>}
+                </div>
+              ))}
+            </div>
+          )}
+          <span className="text-muted-foreground">]</span>
+          {source && (
+            <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-2", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
+              {source === "AI" && <Sparkles className="h-3 w-3" />}
+              {source}
+            </span>
+          )}
+        </div>
+      )
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      return (
+        <div className="font-mono text-sm">
+          <span className="text-muted-foreground">{"{"}</span>
+          <div className="ml-4">
+            {Object.entries(value).map(([key, val], idx, arr) => (
+              <div key={key}>
+                <span className="text-blue-600 dark:text-blue-400">"{key}"</span>
+                <span className="text-muted-foreground">: </span>
+                <span className="text-foreground">{typeof val === 'string' ? `"${val}"` : JSON.stringify(val)}</span>
+                {idx < arr.length - 1 && <span className="text-muted-foreground">,</span>}
+              </div>
+            ))}
+          </div>
+          <span className="text-muted-foreground">{"}"}</span>
+        </div>
+      )
+    }
+
+    // Primitive value
+    const displayValue = typeof value === 'string' ? `"${value}"` : JSON.stringify(value)
+    return (
+      <span className="font-mono text-sm">
+        <span className="text-foreground">{displayValue}</span>
+        {source && (
+          <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ml-2", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
+            {source === "AI" && <Sparkles className="h-3 w-3" />}
+            {source}
+          </span>
+        )}
+      </span>
+    )
+  }
+
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">RESPONSE ITEMS</p>
-      <div className="space-y-3">
-        {items.map((item, idx) => {
-          const fieldSources = provenanceMap.get(idx) ?? {}
-          return (
-            <div key={idx} className="rounded-lg border p-3 space-y-2">
-              {Object.entries(item).map(([field, value]) => {
-                const source = fieldSources[field]
-                const displayValue = Array.isArray(value) ? value.join(", ") : String(value)
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">RESPONSE PREVIEW</p>
+      <div className="rounded-lg border bg-muted/30 p-4 font-mono text-sm space-y-1">
+        <div className="text-muted-foreground">{"{"}</div>
+        <div className="ml-4">
+          <div className="text-blue-600 dark:text-blue-400">"data"<span className="text-muted-foreground">: {"{"}</span></div>
+          <div className="ml-4">
+            <div className="text-blue-600 dark:text-blue-400">"items"<span className="text-muted-foreground">: [</span></div>
+            <div className="ml-4">
+              {items.map((item, idx) => {
+                const fieldSources = provenanceMap.get(idx) ?? {}
                 return (
-                  <div key={field} className="flex items-center gap-2 text-sm">
-                    <span className="font-mono text-muted-foreground min-w-[72px]">{field}</span>
-                    <span className="font-mono flex-1">{displayValue}</span>
-                    {source && (
-                      <span className={cn("inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full", PROVENANCE_BADGE[source] ?? PROVENANCE_BADGE.Faker)}>
-                        {source === "AI" && <Sparkles className="h-3 w-3" />}
-                        {source}
-                      </span>
-                    )}
+                  <div key={idx} className="my-2">
+                    <span className="text-muted-foreground">{"{"}</span>
+                    <div className="ml-4">
+                      {Object.entries(item).map(([field, value], fieldIdx, fieldArr) => (
+                        <div key={field} className="flex items-start gap-2">
+                          <span className="text-blue-600 dark:text-blue-400">"{field}"</span>
+                          <span className="text-muted-foreground">:</span>
+                          <div className="flex-1">
+                            {renderValue(value, field, idx)}
+                            {fieldIdx < fieldArr.length - 1 && <span className="text-muted-foreground">,</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <span className="text-muted-foreground">{"}"}</span>
+                    {idx < items.length - 1 && <span className="text-muted-foreground">,</span>}
                   </div>
                 )
               })}
             </div>
-          )
-        })}
+            <div className="text-muted-foreground">]</div>
+          </div>
+          <div className="text-muted-foreground">{"}"}</div>
+        </div>
+        <div className="text-muted-foreground">{"}"}</div>
       </div>
     </div>
   )
