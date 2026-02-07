@@ -737,7 +737,7 @@ export function ApiTestingStep({
                 </svg>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold">SPEC FORGE</span>
+                <span className="font-semibold">SPECFORGE</span>
                 <span className="text-muted-foreground">/</span>
                 <span>{projectName}</span>
               </div>
