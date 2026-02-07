@@ -101,7 +101,7 @@ export function WizardLayout({
               </svg>
             </div>
             <span className="text-lg font-semibold tracking-tight">
-              PROJECT ORCHESTRATOR
+              SPEC FORGE
             </span>
           </div>
           <div className="flex items-center gap-3">
